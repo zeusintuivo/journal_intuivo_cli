@@ -1,0 +1,55 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+#
+# TICKETID - start
+#
+TICKETID=""
+NEWBRANCH=""
+if [[ "${CURBRANCH}" == "feature/"* ]] ; then
+  {
+    TICKETID=$( echo ${CURBRANCH} | sed 's/^feature\///g')   # split 2nd word out of feature/${TICKETID}
+    NEWBRANCH="feature/${TICKETID}"
+  }
+fi
+if [[ "${CURBRANCH}" == "issue-"* ]] ; then
+  {
+    echo "${TICKETID}"
+    TICKETID=$(echo ${CURBRANCH} | sed 's/^issue-//g')   # split 2nd word out of issue-${TICKETID}
+    NEWBRANCH="issue-${TICKETID}"
+  }
+fi
+
+if [[ "${TICKETID}" == "${NEWBRANCH}" ]] ; then
+  {
+    echo -e "${red} Error ! TICKED_ID:${TICKETID} and NEW_BRANCH:${NEWBRANCH} are equal. I don't understand this. I am expecting to have an issue Number out of the branch name. Branches I know are feature/12345 and issue-12345 ${GRAY241}"
+    exit 1;
+  }
+fi
+if [[ -z "${TICKETID}"  ]] ; then
+  {
+    echo -e "${red} Error ! TICKED_ID:${TICKETID} is empty ${GRAY241} "
+    exit 1;
+  }
+fi
+if [[ -z "${NEWBRANCH}"  ]] ; then
+  {
+    echo -e "${red} Error ! NEW_BRANCH:${NEWBRANCH} is empty ${GRAY241}"
+    exit 1;
+  }
+fi
+#
+# TICKETID - end
+#
+
+#:test
+#BRANCH="issue-DGT-45"
+#issuecommit "2:00" "check.sh to start to use and check cucumber" asserts TICKETID=DGT-45
+#echo "${TICKETID}"
+
+#BRANCH="feature/DGT-45"
+#issuecommit "2:00" "check.sh to start to use and check cucumber" asserts TICKETID=DGT-45
+#echo "${TICKETID}"
+#exit 130

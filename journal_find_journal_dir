@@ -1,0 +1,44 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+# Goal
+#   1. Find scripts location
+#   2. Find the other scripts around it
+#   3. And call them
+
+# Procedure
+#   1. Find the script current name and location
+#   2. Determine if it is a softlink
+#   3. Find Target for softlink
+#   4. Get the directory
+#
+# 1.
+TEST_FILE_LOCATION="${BASH_SOURCE[0]}"
+
+# 2. /usr/local/bin/newfeature
+IS_SOFTLINK="NO"
+[[ -s "${TEST_FILE_LOCATION}" ]] && IS_SOFTLINK="YES"
+
+# 3. Find Target for softlink
+if [[ "${IS_SOFTLINK}" == "YES" ]] ; then
+{
+  FOUND_DIR_JOURNAL_SCRIPT=$(ls -l ${TEST_FILE_LOCATION} | awk '{print $11}') # Find target symlink
+}
+fi
+
+# Tip How to find a dir on a script REF: https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+
+# 4. Get the directory
+FOUND_DIR_JOURNAL=`dirname "${FOUND_DIR_JOURNAL_SCRIPT}"`
+
+#test:   asserts that the result should equal at the location of the journal_intuivo_cli folder
+#echo $FOUND_DIR_JOURNAL;
+
+
+# tip
+# set working directory as the scripts location during the execution of script
+# un comment to pin to a especific dir
+# comment out and allow to work globally
+# cd "$(dirname "$0")"

@@ -1,0 +1,12 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+# TODO . TO have this in an options box
+JOURNAL_HOME="/Users/Sites" # <-- I used for mac
+JOURNAL_HOME="${HOME}/Sites" # <-- I used for mac
+JOURNAL_HOME="/_" # <-- I used for mac
+
+CURRENTDATE=`date +%Y%m%d`
+CURRENT_LONG_DATE=`date`

@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# @author Zeus Intuivo <zeus@intuivo.com>
+# @actioner
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+#colors TODO MERGE THIS COLORS
+#colors
+[[ -z "${CYAN}" ]] && CYAN="\\033[38;5;123m"
+[[ -z "${PURPLE_BLUE}" ]] && PURPLE_BLUE="\\033[38;5;93m"
+[[ -z "${GRAY241}" ]] && GRAY241="\\033[38;5;241m"
+[[ -z "${RED}" ]] && RED="\\033[38;5;1m"
+[[ -z "${BRIGHT_BLUE87}" ]] && BRIGHT_BLUE87="\\033[38;5;87m"
+
+#Using ACTION FROM VERBS SET IN action_template will take precedence ... at least that is the idea
+[[ -z "${THISSCRIPTNAME}" ]] && THISSCRIPTNAME=`basename "$0"`
+[[ ! -z "${ACTION}" ]] && THISSCRIPTNAME="${ACTION}"
+
+if [ -z "${1}" ] || [ -z "${2}" ] ; then
+  {
+  echo -e "
+    $THISSCRIPTNAME - Used to commit, pull and push in the form:     refs #30515 @0:20 \"message message\"
+
+    Usage:
+
+        2 Parameters       $THISSCRIPTNAME  time        \"message\"
+                           $THISSCRIPTNAME  \"00:24\"   \"message\"
+
+          1st    time:   0:24, 0:01, 0:10, 0:09, 1:30,
+          2nd    message: Any message text for the commit
+
+  "
+  exit 1;
+  }
+
+fi
+    # REF: https://stackoverflow.com/questions/18731346/validate-date-format-in-a-shell-script
+    SIMPLE_TIME="${1}"
+    TIME_TOOK=$(date "+%H:%M" -d "${1}" 2>&1 )  # Check and get a valid date time format,capture all output, error will return 1 to $?
+    if (( $? != 0 )) ;  then
+    {
+      #contains format 00:00
+      echo
+
+      GET_ERROR=$(echo "${TIME_TOOK}"| sed "s@‘@\'@g" |  sed "s@’@\'@g" | cut -d"'" -f2)
+      E_ERROR=$(echo -e "${RED}${GET_ERROR}${CYAN}")
+      ERR_MESSAGE=$(echo "
+      ${RED}
+      === ${BRIGHT_BLUE87} hey! ${GIT_USER_NAME} ${RED} ERROR  MISSING TIME OR INCORRECT FORMAT !${CYAN}
+
+        ERROR IS:${GET_ERROR} in
+
+        ${CYAN}time            ${RED}= ${BRIGHT_BLUE87}${TIME_TOOK}${CYAN}
+        ${CYAN}total arguments ${RED}= ${BRIGHT_BLUE87}${@}${CYAN}
+
+
+        format is wrong please provide valid time it took on this commit for issueput
+      ${RED}
+      === ${GRAY241} " | sed 's/'"${GET_ERROR}"'/'"${E_ERROR}"'/g')
+      echo -e "${ERR_MESSAGE}"
+      echo
+      exit 130;
+    }
+    fi
+
+    MESSAGE_ACTIONS_TAKEN="${2}"
+    if [ -z "${MESSAGE_ACTIONS_TAKEN}" ] ; then    # empty message
+    {
+      echo
+      echo -e "
+      ${RED}
+      === ${BRIGHT_BLUE87} hey! ${GIT_USER_NAME} ${RED} ERROR NO MESSAGE! ${CYAN}
+
+        ${CYAN}message ${RED}= ${BRIGHT_BLUE87}${MESSAGE_ACTIONS_TAKEN}${CYAN}
+
+        message is empty and you need to write that you did, actions taken etc.
+      ${RED}
+      === ${GRAY241} ";
+      echo
+      exit 130;
+    }
+    fi
+MESSAGE_ACTIONS_TAKEN="${2}"
+
+
+issuecommit "${TIME_TOOK}" "${MESSAGE_ACTIONS_TAKEN}"
+if (( $? == 0 )) ;  then
+{
+  #pull
+  pull
+
+  #push
+  push
+}
+fi

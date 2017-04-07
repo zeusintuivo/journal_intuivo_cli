@@ -1,0 +1,17 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+
+
+echo -e "${blue23} • ${blue30} Get current directory name (without full path) in Bash Script ${reset}"
+# REF http://stackoverflow.com/questions/1371261/get-current-directory-name-without-full-path-in-bash-script
+PROJECTNAME=${PWD##*/}          # to assign to a variable
+
+#printf '%s\n' "${PWD##*/}" # to print to stdout
+                           # ...more robust than echo for unusual names
+                           #    (consider a directory named -e or -n)
+
+#printf '%q\n' "${PWD##*/}" # to print to stdout, quoted for use as shell input
+                           # ...useful to make hidden characters readable.

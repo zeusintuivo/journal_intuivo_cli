@@ -1,0 +1,102 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+echo -e "${blue23} • ${blue30} Adding Description ${reset}"
+. $FOUND_DIR_JOURNAL/journal_get_description_work_link__url
+
+# Read from .journal config file - start
+    # if file exists in this repo
+    if [ -f ".journal" ] ; then
+      JOURNAL_OPTIONS=$(cat .journal)
+    else
+      JOURNAL_OPTIONS=""
+    fi
+    while read -r OPTION_LINE; do
+      # if not empty
+      if [ ! -z "${OPTION_LINE}" ] ; then
+
+        #scroll through the options
+        # read a line
+        # split by =
+
+        # Get name
+        OPTION_NAME=$(echo OPTION_LINE | cut -d'=' -f1);
+        OPTION_OPTION=$(echo OPTION_LINE | cut -d'=' -f2);
+        if [[ ! -z "${OPTION_NAME}" &&  ! -z "${OPTION_OPTION}" ]] ; then
+          if [[ "${OPTION_NAME}" == "ISSUETRACKERLOCATION" ]] ; then
+            ISSUETRACKERLOCATION="${OPTION_OPTION}"
+          fi
+        fi
+
+      fi
+    done <<< "${JOURNAL_OPTIONS}"
+# Read from .journal config file - end
+
+FILENAME_FOR_DESCRIPTION_ASSEMBLY="${JOURNALENTRY}"
+. $FOUND_DIR_JOURNAL/journal_get_description_assembly
+
+  if [[ ! -z "${DESCRIPTION}"  ]] ; then
+    # show all branches
+      echo "${ONELINEDESCRIPTION}" > .git/BRANCH_DESCRIPTION
+      echo "# Please edit the description for the branch" >> .git/BRANCH_DESCRIPTION
+    echo "   """"${CURBRANCH}"""  >> .git/BRANCH_DESCRIPTION
+    echo "# Lines starting with '#' will be stripped." >> .git/BRANCH_DESCRIPTION
+  fi
+
+                                                                                             # Copy description to Memory
+
+  # check operation systems
+  if [[ "$(uname)" == "Darwin" ]] ; then
+    # Do something under Mac OS X platform
+      pbcopy < .git/BRANCH_DESCRIPTION
+  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+    # Do something under GNU/Linux platform
+      xclip -sel clip < .git/BRANCH_DESCRIPTION
+  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+    # Do something under Windows NT platform
+      echo "ERRRROR - TODO Implement this in Windows"
+      xclip -sel clip < .git/BRANCH_DESCRIPTION
+  fi
+
+
+
+
+  echo $CURBRANCH
+  echo -e "${blue23} • ${blue30} About to edit branch description. Check paste ${reset}"
+  #pause 'Press [Enter] key to continue...'
+  #git branch --edit-description """${CURBRANCH}"""
+  #REF http://bahmutov.calepin.co/git-branches-with-descriptions-really.html
+  git config branch.${CURBRANCH}.description """${ONELINEDESCRIPTION}"""
+
+
+  echo -e "${blue23} • ${blue30} Touch description file ${reset}"
+  touch .description
+  echo -e "${blue23} • ${blue30} Place Description inside  .description file ${reset}"
+  echo """${ONELINEDESCRIPTION}""" > .description
+
+  wait
+  echo -e "${blue23} ${blue30} Confirm Branch description: ${reset}"
+  CONFIRM_BRANCH_DESCRIPTION=$(<.description)
+  echo -e "${blue23} ${blue30}                           : ${reset} ${CONFIRM_BRANCH_DESCRIPTION} ${reset}"
+  git config branch.${CURBRANCH}.description
+
+  echo -e "${blue23} • ${blue30} Set tracking information for this branch """${CURBRANCH}""" ${reset}"
+  git branch --set-upstream-to=origin/"""${CURBRANCH}""" """${CURBRANCH}"""
+  git pull origin """${CURBRANCH}"""
+  echo -e "${blue23} • ${blue30} Push add. Creates branch on server ${reset}"
+  git push --set-upstream origin """${CURBRANCH}"""
+  if [ $? != 0 ]; then
+    echo -e "${yellow220} WARNING !  '${CURBRANCH}' could not be pushed!. Make sure you have rights and net is still ok. ${reset}"
+  fi
+  wait
+
+  subl "${JOURNALENTRY}"
+  echo -e "${blue23} • ${blue30} Show branches ${reset}"
+  branches -l
+
+
+
+#URL='https://jira.company_name.com/browse/TO-252        '; curl --silent $URL | sift user-content-block | xargs -I {} echo "${URL} -> {}" &&
+# JIRA BLOCKS curl request s  how ?

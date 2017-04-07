@@ -1,0 +1,73 @@
+#!/bin/bash
+# package:symfony-intuivo-cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+
+# if argument was not passed
+if [[ -z "$1"  ]] ; then
+	# show all branches
+    gsb
+    exit 0;
+fi
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+echo -e "${blue23} • ${blue30} Prepare new Journal Entry "
+# if argument 2 as passed
+TICKETID=$( echo ${CURBRANCH} | cut -d'/' -f2)
+NOTE="$1"
+
+. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+
+echo -e "${blue23} • ${blue30} Get project name that matches directory name that would match journal entry directory "
+
+. $FOUND_DIR_JOURNAL/journal_get_project_name
+
+echo -e "${blue23} • ${blue30} Get current branch description  "
+ESCAPEDCURBRANCH=$(echo ${CURBRANCH} | escape_slashes)
+CURDESC=$(branches -l | sed -n -e 's/^\* \(.*\)/\1/p'  | sed 's/${ESCAPEDCURBRANCH}//g')          # correct output  Fallback titles for paginated pages   https://jira.company_name.com/browse/TO-252    cf-jalcaraz  opening    Wed Mar 23 10:25:13 CET 2016
+
+
+# if it has this char ‡ anywhere in the description then cut of the description
+if [[ $SEEKING == *"‡"* ]]
+then
+	CURDESC=$(echo ¢{CURDESC} | cut -d'‡' -f2)
+fi
+
+
+
+echo -e "${blue23} • ${blue30} Find Journal directory for this branch / ticket ${TICKETID} "
+# FORMAT ${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}
+JOURNALSDIR="${JOURNAL_HOME}/journals"
+JOURNALPROJECTDIR="${JOURNALSDIR}/${PROJECTNAME}"
+JOURNALENTRYTHISBRANCH="${JOURNALPROJECTDIR}/${JOURNALDIR}"
+	# if dir does not exist create it
+	# Update PATH bashrc var if it exists
+	ACTION="start"
+	if [  -f "${JOURNALENTRYTHISBRANCH}" ] ;	then
+		{
+			mkdir -p "${JOURNALENTRYTHISBRANCH}"
+			ACTION="start"
+		}
+	else
+		{
+			ACTION="continue"
+		}
+	fi
+	mkdir -p "${JOURNALENTRYTHISBRANCH}"
+
+# HERE TODO FIND FILE
+
+# OR FIND it is exists for today then add
+# if not create
+
+. $FOUND_DIR_JOURNAL/journal_get_journalentry_template
+. $FOUND_DIR_JOURNAL/journal_get_description_one_liner_construct
+
+# :)

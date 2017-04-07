@@ -1,0 +1,28 @@
+#!/bin/bash
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+echo -e "${blue23} • ${blue30} Edit description manually ${reset}"
+
+CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')     # expected output feature/TO-229
+
+
+git branch --edit-description """${CURBRANCH}"""
+wait
+
+DESCRIPTION=$(git config branch.${CURBRANCH}.description)
+
+
+  echo -e "${blue23} • ${blue30} Touch description file ${reset}"
+  touch .description
+  echo -e "${blue23} • ${blue30} Place Description inside  .description file ${reset}"
+  echo """${DESCRIPTION}""" > .description
+  cat  .description
+
+  echo "# :)";

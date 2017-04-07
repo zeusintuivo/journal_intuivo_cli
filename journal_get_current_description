@@ -1,0 +1,28 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+
+#
+# FULL DESCRIPTION - start
+#
+DESCRIPTION=$(describe | tail -1)
+if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then
+  {
+      DESCRIPTION=$(<.description)
+  }
+fi
+#if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then
+#  {
+#    echo -e "${blue23} • ${blue30} Adding Description ${reset}"
+#    . $FOUND_DIR_JOURNAL/journal_get_description_work_link__url
+#
+#
+#
+#   ONELINEDESCRIPTION="${DESCRIPTION}  ${blue33}  ${CURRENTDATE}  ${green} ‡ ${ISSUETRACKERLOCATION}"
+#   ONELINEDESCRIPTION="${ONELINEDESCRIPTION} ${reset}  ${USER}  opened  ${green}  $(date)  ${gray238} ${FILENAME_PULL_REQUEST_JOURNAL} "
+#   ONELINEDESCRIPTION="${ONELINEDESCRIPTION} from ${TARGETBASEBRANCH} _BASEBRANCH_";
+# }
+#fi
+

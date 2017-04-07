@@ -1,0 +1,104 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+#set -eu
+#set -o pipefail
+#set -x
+
+function cut_piped_contents_trimed_between() {
+  local PIPED COLORED COUNTER ONEPIPE
+  local from1 to2 a filename
+  PIPED="";
+  COLORED="";
+  COUNTER=0;
+
+  if [ -t 0 ]; then  # Do stuff with NO PIPE
+  {
+
+      PIPED=""
+
+      # Execution part - Start
+      # Sample use:
+      #             echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
+      #             cut_piped_contents_trimed_between "from" ".BASEBRANCH." .description
+
+      # Technique from:
+      # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
+      #test: Working sample
+      #from1="If you come"; to2="Example aliases"; a="$(cat ~/.zshrc)"; a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
+
+      from1="${1}";
+      to2="${2}";
+      filename="${3}"
+      if [[ ! -f "${filename}" ]] ; then
+      {
+        echo "ERROR !!! Filename: ${filename} does not exist"
+        return 1;
+        #return 0
+      }
+      fi
+      a="$(cat ${filename})";
+      a="$(echo "${a#*"$from1"}")";
+      #echo "$from1${a%%"$to2"*}$to2" # returns the side handles between
+      #echo "${a%%"$to2"*}"  # gets spaces
+      echo ${a%%"$to2"*}  # trims spaces
+      # Execution part - End
+
+  }
+  else               # Do sutff with WITH YES PIPE the contents piped passed
+  {
+
+      PIPED="YES"
+      PIPED=""
+      while read ONEPIPE; do
+      {
+
+          if [ -z "${PIPED}" ]; then     # When pipe if empty, start var
+          {
+            PIPED="${ONEPIPE}"
+          }
+          else                           # When it has something keep adding
+          {
+            PIPED="${PIPED}
+${ONEPIPE}"
+          }
+          fi
+          COUNTER=$((COUNTER+1))
+      }
+      done
+      if [ $COUNTER -eq 0 ]; then   # If there is not contents then exit silently
+        return 1;
+      fi
+
+      ##Executiong part - Start
+      # Sample use:
+      #        cat .description | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+      #        echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+
+      # Technique from:
+      # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
+      #test: Working sample
+      #from1="If you come"; to2="Example aliases"; a="$(cat ~/.zshrc)"; a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
+
+      from1="${1}";
+      to2="${2}";
+      a="${PIPED}";
+      a="$(echo "${a#*"$from1"}")";
+      #echo "$from1${a%%"$to2"*}$to2" # returns the side handles between
+      #echo "${a%%"$to2"*}"  # gets spaces
+      echo ${a%%"$to2"*}  # trims spaces
+      ##Executiong part - End
+  }
+  fi
+
+}
+test_assert_to see : develop
+#cat .description | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+#echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+#exit
+
+#test assert to see : develop
+#echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
+#cut_piped_contents_trimed_between "from" ".BASEBRANCH." .description
+#exit

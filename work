@@ -1,0 +1,63 @@
+#!/bin/bash
+# package:symfony-intuivo-cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+#set -eu
+#set -o pipefail
+#set -x
+
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+echo -e "
+${reset} ${THISSCRIPTNAME} ${gray242}- Start todays work ticket, given it was already opened, using current description
+
+USAGE:
+  0     Arguments       ${THISSCRIPTNAME}                                         <--- this runs describe command and which
+                                                                     results in a new date, and filename if
+                                                                     the day if different
+
+  #Any# Arguments       ${THISSCRIPTNAME}  continue to work on making Rest Api    <--- this will call describe and reassign a
+                                                                         new description, also date will change
+                                                                        with that and filename .m
+"
+# if argument was not passed
+DESCRIPTION=""
+if [[ -z "${1}"  ]] ; then
+  {
+    . $FOUND_DIR_JOURNAL/journal_get_current_branch
+    . $FOUND_DIR_JOURNAL/journal_get_current_description
+  }
+fi
+if [[ ! -z "$1"  ]] ; then
+  {
+    DESCRIPTION="""${@}"""
+  }
+fi
+
+
+echo "    - description „${DESCRIPTION}” "
+if command -v describe >/dev/null 2>&1; then
+  {
+    #set -eu
+    #set -o pipefail
+    #set -x
+    echo -e "${blue23} • ${blue30} Recreate Description now. ${reset}"
+    describe "${DESCRIPTION}"
+  }
+else
+  {
+    echo " "
+    echo -e "${red} Error ! describe command script now found. ${reset}"
+    echo " "
+  }
+fi
+
+
+
+
+
+# :)

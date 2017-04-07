@@ -1,0 +1,81 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+function get_ticket_link_url() {
+# Get Company and Project Name from Github - start
+GIT_REMOTE_ORIGIN=$(git remote show origin | head -2 | tail -1)
+# expectation is that the url will look like https://github.com/wplib/wplib-box.git
+# We could have  Fetch URL: git@github.com:company/project_name.git
+# or
+# we could have  Fetch URL: https://github.com/company/project_name.git
+#
+#
+# expectation is to get github.com  & firma_company &  project_name
+GITHUBNAMEPROJECT=""                                                                #Objective is to get the company_name / project_name
+if [[ "${GIT_REMOTE_ORIGIN}" == *"git@"* ]]  ; then
+  {
+    GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@\.git@@')
+    # test echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
+    # expectation is that from
+    #
+    #                        Fetch URL: git@github.com:company/project_name.git
+    # it should get this
+    #                         company/project_name
+    #
+  }
+elif [[ "${GIT_REMOTE_ORIGIN}" == *"https://"* ]] ; then
+  {
+
+    GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@//github.com/@@' | sed 's@\.git@@')
+    # test
+    #echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
+    # expectation is that from
+    #
+    #                       Fetch URL: https://github.com/company/project_name.git
+    # it should get this
+    #                         company/project_name
+    #
+  }
+fi
+#                                                                       # sub_objective is to to get Company Name and Project Name on separate variables
+IFS=/ read PART_COMPANY_NAME PART_PROJECT_NAME  <<EOF
+${GITHUBNAMEPROJECT##*-}
+EOF
+# test echo  "${PART_COMPANY_NAME}    and   $PART_PROJECT_NAME "     asserts    company_name   and   project_name
+# Get Company and Project Name from Github - end
+
+                                                                                              # Objective is to assign a a clickable link to follow where issue tracker
+# Bitbucket Sample - start
+BITBUCKETNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@.git@@')
+BITBUCKETBASE="https://bitbucket.org/${BITBUCKETNAMEPROJECT}/issues/${TICKETID}"
+ISSUETRACKERLOCATION="${BITBUCKETBASE}"
+# Bitbucket Sample - end
+
+# Gitlab -Private Postcon Sample - start
+GITLABPRIVATENAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@.git@@')
+GITLABPRIVATEBASE="http://gitlab.${PART_COMPANY_NAME}.intern/development/${GITLABPRIVATENAMEPROJECT}/tree/issue-${TICKETID} ‡ https://redmine.${PART_COMPANY_NAME}.intern/issues/${TICKETID}"
+ISSUETRACKERLOCATION="${GITLABPRIVATEBASE}"
+# Gitlab -Private  - end
+
+# Jira sample - start
+CONTENTLOCATIONSAMPLE="https://jira.${PART_COMPANY_NAME}.com/browse/${TICKETID}"
+ISSUETRACKERLOCATION="${CONTENTLOCATIONSAMPLE}"
+# Jira sample - end
+
+# Github Sample - start
+GITHUB_TICKET_LINK="https://github.com/${GITHUBNAMEPROJECT}/issues/${TICKETID}"
+#GITHUB_TICKET_LINK="https://github.com/${GITHUBNAMEPROJECT}/issues/3086"
+ISSUETRACKERLOCATION="${GITHUB_TICKET_LINK}"
+#echo $GITHUBBASE
+# Github Sample - end
+
+# Github & Jira sample - start
+# Old Deprecated: JIRA_TICKET_LINK="https://jira.${PART_COMPANY_NAME}.com/browse/${TICKETID}"
+JIRA_TICKET_LINK="https://${PART_COMPANY_NAME}.atlassian.net/browse/${TICKETID}"
+#ISSUETRACKERLOCATION="${JIRA_TICKET_LINK} ${GITHUB_TICKET_LINK}"
+ISSUETRACKERLOCATION="${JIRA_TICKET_LINK}"
+# Jira sample - end
+}
+get_ticket_link_url

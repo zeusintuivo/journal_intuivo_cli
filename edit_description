@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+
+echo -e "${blue23} • ${blue30} Edit description manually only ${reset}"
+
+CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')     # expected output feature/TO-229
+
+
+git branch --edit-description """${CURBRANCH}"""
+
+
+
+# :)

@@ -1,0 +1,52 @@
+#!/bin/bas #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+# Remove white space REF: http://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable
+function slash_to_underdash {
+    sed 's/\//\_/g'
+}
+function house_to_underdash {
+    sed 's/\^/\_/g'
+}
+function ae_to_underdash {
+    sed 's/\ä/\_/g'
+}
+function oe_to_underdash {
+    sed 's/\ö/\_/g'
+}
+function ue_to_underdash {
+    sed 's/\ü/\_/g'
+}
+function ss_to_underdash {
+    sed 's/\ß/\_/g'
+}
+function money_to_underdash {
+    sed 's/\$/\_/g'
+}
+function equal_to_underdash {
+    sed 's/\=/\_/g'
+}
+function quotes_to_underdash {
+    sed 's/\"/\_/g'
+}
+function spaces_to_underdash {
+    sed 's/\ /\_/g'
+}
+function escape_spaces {
+    sed 's/\ /\\\ /g'
+}
+function change_line {
+    local OLD_LINE_PATTERN=$1; shift
+    local NEW_LINE=$1; shift
+    local FILE=$1
+
+    local NEW=$(echo "${NEW_LINE}" | escape_slashes)
+    sed -i .bak '/'"${OLD_LINE_PATTERN}"'/s/.*/'"${NEW}"'/' "${FILE}"
+    mv "${FILE}.bak" /tmp/
+}
+function pause(){
+	# REF http://www.cyberciti.biz/tips/linux-unix-pause-command.html
+   read -p "$*"
+}

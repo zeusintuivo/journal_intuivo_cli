@@ -1,0 +1,10 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+
+
+    ONELINEDESCRIPTION="${DESCRIPTION}  ${blue33}  ${CURRENTDATE}  ${green} ‡ ${ISSUETRACKERLOCATION}"
+    ONELINEDESCRIPTION="${ONELINEDESCRIPTION} ${reset}  ${USER}  opened  ${green}  $(date)  ${gray238} ${FILENAME_FOR_DESCRIPTION_ASSEMBLY} "
+    ONELINEDESCRIPTION="${ONELINEDESCRIPTION} from ${TARGETBASEBRANCH} _BASEBRANCH_";
+

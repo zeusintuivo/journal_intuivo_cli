@@ -1,0 +1,91 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+
+  echo -e "${blue23} • ${blue30} Generating entry on Journal ${reset}"
+
+
+  ACTION="start"
+  # if dir does not exist create it   ---  Update PATH bashrc var if it exists
+  THIS_JOURNAL_ENTRY_TARGET_DIR="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+  # if dir does not exist create it   ---  Update PATH bashrc var if it exists
+  if [[ !  -d "${THIS_JOURNAL_ENTRY_TARGET_DIR}/" ]] ;  then
+    {
+      mkdir -p "${THIS_JOURNAL_ENTRY_TARGET_DIR}"
+      ACTION="start"
+    }
+  else
+    {
+      ACTION="continue"
+    }
+  fi
+  # mkdir -p "${THIS_JOURNAL_ENTRY_TARGET_DIR}"
+
+  echo -e "${blue23} • ${blue30} Getting todays date ${reset}"
+  # REF: http://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script
+  # REF: http://www.cyberciti.biz/faq/unix-linux-bash-get-time/
+
+  CURRENTTIME=`date +%H:%M`
+  CURRENTAMPMUPPER=`date +%p`
+  CURRENTAMPM="am"
+  if [[ "${CURRENTAMPMUPPER}" == "AM"  ]] ; then
+    CURRENTAMPM="am"
+  else
+    CURRENTAMPM="pm"
+  fi
+  FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
+  TODAYSENTRY=$(echo "${FILENAME}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+
+  #TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
+  JOURNALENTRY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}/${TODAYSENTRY}"
+
+  echo -e "${blue23} • ${blue30} Making entry on Journal ${reset}"
+  echo -e "${JOURNALENTRY} ${reset}"
+  touch "${JOURNALENTRY}"
+  wait
+  #pause 'Press [Enter] key to continue...'
+  echo -e " = Branch created: $(date)" > "${JOURNALENTRY}"
+  echo -e "  +---- This task: $(date)" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo -e "${CURRENTTIME}${CURRENTAMPM} --- ${DESCRIPTION} .. ${ACTION}" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " GIT PULL REQUEST SUMMARY:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " TASK:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " GOAL:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " PROCEDURE:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " TESTS:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " RESULTS:" >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " " >> "${JOURNALENTRY}"
+  echo " ;)" >> "${JOURNALENTRY}"
+  echo -e "${blue23} • ${blue30} Open Journal ${reset}"
+  # st for editor, sublime when I created this using .zshrc  ohmy zsh plugin
+  wait

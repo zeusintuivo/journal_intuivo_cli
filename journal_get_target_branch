@@ -1,0 +1,113 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. $FOUND_DIR_JOURNAL/journal_get_branch_merge_against
+
+#
+# TARGETBASEBRANCH   - Get branch Branch from where it spawns  start
+#
+    echo -e "${blue23} • ${blue30} Get branch Branch from where it spawns  ${reset}"
+    TARGETBASEBRANCH="$BRANCH_MERGE_AGAINST";
+    SAMEBRANCH="NO";
+
+
+    # if argument 1 has passed
+    if [[ ! -z "${1}"  ]] ; then
+      {
+        if [[ "${1}" == "from"  ]] ; then
+          # if argument 3 was passed
+          if [[ ! -z "${2}"  ]] ; then
+            TARGETBASEBRANCH="${2}";
+            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
+              SAMEBRANCH="YES";
+            fi
+          else
+            echo -e "${red} You must provide a branch name ${reset}"
+            exit 1;
+          fi
+        fi
+      }
+    else
+      {
+        echo -e "${red} You must provide a branch name ${reset}"
+        #exit 1;
+      }
+    fi
+
+
+    # if argument 2 has passed
+    if [[ ! -z "${2}"  ]] ; then
+      {
+        if [[ "${2}" == "from"  ]] ; then
+          # if argument 3 was passed
+          if [[ ! -z "${3}"  ]] ; then
+            TARGETBASEBRANCH="${3}";
+            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
+              SAMEBRANCH="YES";
+            fi
+          else
+            echo -e "${red} You must provide a branch name ${reset}"
+            exit 1;
+          fi
+        fi
+      }
+    else
+      {
+        echo -e "${red} You must provide a branch name ${reset}"
+        #exit 1;
+      }
+    fi
+
+
+    # if argument 3 has passed
+    if [[ ! -z "$3"  ]] ; then
+      {
+        if [[ "${3}" == "from"  ]] ; then
+          # if argument 3 was passed
+          if [[ ! -z "$4"  ]] ; then
+            TARGETBASEBRANCH="$4";
+            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
+              SAMEBRANCH="YES";
+            fi
+          else
+            echo -e "${red} You must provide a branch name ${reset}"
+            exit 1;
+          fi
+        fi
+      }
+    else
+      {
+        echo -e "${red} You must provide a branch name ${reset}"
+        #exit 1;
+      }
+    fi
+
+
+    # if argument 4 has passed
+    if [[ ! -z "$4"  ]] ; then
+      {
+        if [[ "${4}" == "from"  ]] ; then
+          # if argument 3 was passed
+          if [[ ! -z "$4"  ]] ; then
+            TARGETBASEBRANCH="$4";
+            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
+              SAMEBRANCH="YES";
+            fi
+          else
+            echo -e "${red} You must provide a branch name ${reset}"
+            exit 1;
+          fi
+        fi
+      }
+    else
+      {
+        echo -e "${red} You must provide a branch name ${reset}"
+        #exit 1;
+      }
+    fi
+
+  echo -e " - target branch against:${TARGETBASEBRANCH}"
+#
+# TARGETBASEBRANCH   - end
+#

@@ -1,0 +1,154 @@
+#!/bin/bash
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+
+THISSCRIPTNAME=`basename "$0"`
+
+
+# if argument was not passed
+if [[ -z "$1"  ]] ; then
+	  echo ""
+		echo -e "${red} Error, showing all Local Branches:  ${blue30} Hint... Write the name of one ... Pick one ..   ${reset}"
+		echo ""
+    branches -l
+    wait
+    echo ""
+		echo -e "${red} Missing Arguments: ${reset}"
+		echo -e ""
+		echo -e "${green50} USAGE: ${reset}"
+		echo -e "${reset}            ${THISSCRIPTNAME} JIRA-TICKET-ID-or-GITHUB-ISSUE-NUMMER  \"DESCRIPTION\"  [ from + base_branch_name ]   ${reset}"
+		echo -e ""
+		echo -e "${green50} Sample Calls: ${reset}"
+    echo -e " "
+    echo -e "${reset} Sample 1: "
+    echo -e " "
+    echo -e "${green50}            ${THISSCRIPTNAME} 10930  \"Rename check_no_unwrap.sh to check_no_panic.sh\"   ${reset}   <- This will check out from 'develop' branch   ${reset}  "
+    echo -e "                                                                                      using develop will default to trying to                                ${reset}  "
+    echo -e "                                                                                      use ${red}git flow${reset} style first (hence develop)                 ${reset}  "
+    echo -e "                                                                                      otherwise                                                              ${reset}  "
+    echo -e "                                                                                      it will use ${red}git branch${reset}.                                  ${reset}  "
+    echo -e "                                                                                                                                                             ${reset}  "
+    echo -e "sample:               ${THISSCRIPTNAME} FRO-2681 \"Allow for some method to measure the number of cache hits/misses in api.fronter.com\" from master         ${reset}  "
+    echo -e "                                                                                      ${reset} "
+    echo -e "                                                                                      will create a branch called ${green50} issue-FRO-2681 ${reset} "
+    echo -e "                                                                                      ${reset} "
+    echo -e "                                                                                      will create a description like this ${reset} "
+    echo -e "                                                                                     ${reset} "
+    echo -e "   make a .describe filename with -> {                      ${reset} "
+    echo -e "                                 Allow for some method to measure the number of cache hits/misses in api.fronter.com  [38;5;33m  ${CURRENTDATE}                    ${reset} "
+    echo -e "                                [32m ‡ https://jira.company_name.com/browse/FRO-2681 (B[m  user_name  opened  [32m  ${CURRENT_LONG_DATE}      ${reset} "
+    echo -e "      makes this filename ->    [38;5;238m ${JOURNAL_HOME}/journals/api-endpoint/FRO-2681_Allow_for_some_method_to_measure_the_number_of_cache_hits  ${reset} "
+    echo -e "                                [38;5;238m _misses_in_api.fronter.com/${CURRENTDATE}_FRO-2681_Allow_for_some_method_to_measure_the_number_of_cache_hits_mis ${reset} "
+    echo -e "                                 [38;5;238mses_in_api.fronter.com_start.m  ${reset} "
+    echo -e "                                (B[m from master or develop or gh-pages _BASEBRANCH_${reset} "
+    echo -e "                                      }        ${reset} "
+    echo -e " "
+    echo -e "${reset} Sample 2: "
+    echo -e " "
+    echo -e "${green50}            ${THISSCRIPTNAME} 10930  \"Rename check_no_unwrap.sh to check_no_panic.sh\" from master   ${reset}"
+    echo -e " "
+    echo -e "${reset} Sample 3: "
+    echo -e " "
+		echo -e "${green50}            ${THISSCRIPTNAME} MDM-35  \"Fix no index SEO\" from gh-pages   ${reset}"
+		echo -e ""
+		echo -e ""
+    exit 0;
+fi
+
+
+echo -e "${blue23} • ${blue30} Prepare new Issue Entry ${reset}"
+# if argument 2 has passed
+TICKETID="$1"
+DESCRIPTION=""
+NEWBRANCH="issue-${TICKETID}"
+if [[ ! -z "$2"  ]] ; then
+	# show all branches
+    DESCRIPTION="$2"
+
+fi
+
+. $FOUND_DIR_JOURNAL/journal_get_target_branch
+
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+
+. $FOUND_DIR_JOURNAL/journal_get_project_name
+
+echo -e "${blue23} • ${blue30} Go to ${TARGETBASEBRANCH}  ${reset}"
+git checkout """${TARGETBASEBRANCH}"""
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+if [[ "${CURBRANCH}" != "${TARGETBASEBRANCH}"  ]] ; then
+	echo -e "${red} ERROR ! We did not switch to branch '${TARGETBASEBRANCH}' ${reset}"
+	exit 1;
+fi
+# if file exists, I assume this is a shallow copy
+# REF: http://stackoverflow.com/questions/6941889/is-it-safe-to-shallow-clone-with-depth-1-create-commits-and-pull-updates-aga
+# REF: https://github.com/git/git/commit/9cfde9ee8f6dc82365f1e977935960f34108076b documentation on Shallow I viewd on 2016 07 July 02
+if [[ -f ".git/shallow" ]] ;	then
+	echo -e "${blue23} • ${blue30} This is a shallow REPO ${TARGETBASEBRANCH}  ${reset}"
+	git fetch --depth 1
+	git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
+	#git pull  --progress --depth 1 origin """${TARGETBASEBRANCH}"""
+else
+	echo -e "${blue23} • ${blue30} This is a Normal repo.. not shallow ${TARGETBASEBRANCH}  ${reset}"
+	git fetch
+	git pull  origin """${TARGETBASEBRANCH}"""
+
+fi
+
+
+echo -e "${blue23} • ${blue30} Create from ${TARGETBASEBRANCH}"
+echo -e "${blue23} • ${blue30} Create new branch ${green} """"${NEWBRANCH}""""${reset} using git flow ${reset}"
+if [[ "develop" == "${TARGETBASEBRANCH}"  ]] ; then
+	git flow feature start """${TICKETID}""";
+		if [ $? != 0 ]; then
+			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+		fi
+else
+	git checkout -b """${NEWBRANCH}""";  # This is set to "feature/${TICKETID}" line 47-ish above
+		if [ $? != 0 ]; then
+			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+		fi
+fi
+
+wait
+
+
+	CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+
+	# Stop here to now ruin branch .. if we are still in ${TARGETBASEBRANCH}
+	if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
+		echo "${yellow220} WARNING ! we are still in '${TARGETBASEBRANCH}' ${reset}"
+		echo -e "${blue23} • ${blue30} Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation ${reset}"
+		git checkout -b """${NEWBRANCH}""";
+		if [ $? != 0 ]; then
+			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+		fi
+		wait
+		CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+		echo -e "${blue23} • ${blue30} Checking for branch """"${NEWBRANCH}"""" again ${reset}"
+		if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
+			if [[ "${SAMEBRANCH}" == "YES"  ]] ; then
+				echo -e "${blue23} • ${blue30} Commiting and Base are the same ${reset}"
+			else
+				# Base branch should have been 'develop' or different from the current branch
+				echo -e "${red} ERROR ! we are still in ${TARGETBASEBRANCH} ${reset}"
+				exit 1;
+			fi
+		fi
+	fi
+
+	CURRENTDATE=`date +%Y%m%d`
+	echo -e "${blue23} • ${blue30} New Feature Created: """"${CURBRANCH}""""${reset}";
+
+. $FOUND_DIR_JOURNAL/journal_get_journalentry_template
+. $FOUND_DIR_JOURNAL/journal_get_description_one_liner_construct
+
+
+# :)

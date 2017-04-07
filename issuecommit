@@ -1,0 +1,117 @@
+#!/bin/bash
+#
+# @author Zeus Intuivo <zeus@intuivo.com>
+# @actioner
+# . journal_find_journal_dir
+
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+#Using ACTION FROM VERBS SET IN action_template will take precedence ... at least that is the idea
+[[ -z "${THISSCRIPTNAME}" ]] && THISSCRIPTNAME=`basename "$0"`
+[[ ! -z "${ACTION}" ]] && THISSCRIPTNAME="${ACTION}"
+
+#colors TODO MERGE THIS COLORS
+#colors
+[[ -z "${CYAN}" ]] && CYAN="\\033[38;5;123m"
+[[ -z "${PURPLE_BLUE}" ]] && PURPLE_BLUE="\\033[38;5;93m"
+[[ -z "${GRAY241}" ]] && GRAY241="\\033[38;5;241m"
+[[ -z "${RED}" ]] && RED="\\033[38;5;1m"
+[[ -z "${BRIGHT_BLUE87}" ]] && BRIGHT_BLUE87="\\033[38;5;87m"
+
+
+if [ -z "${1}" ] || [ -z "${2}" ] ; then
+{
+  echo -e "
+    $THISSCRIPTNAME - Used to commit in the form:     refs #30515 @0:20 \"message message\"
+
+      0:${0}
+      1:${1}
+      2:${2}
+      @:${@}
+
+    Usage:
+
+        2 Parameters       $THISSCRIPTNAME  time        \"message\"
+                           $THISSCRIPTNAME  \"00:26\"   \"message\"
+
+          1st    time:   0:26, 0:01, 0:10, 0:09, 1:30,
+          2nd    message: Any message text for the commit
+
+  "
+  exit 130;
+}
+fi
+TIME_TOOK="${1}"
+MESSAGE_ACTIONS_TAKEN="${2}"
+
+# get repo name
+# ref: http://stackoverflow.com/questions/8190392/is-there-a-git-command-that-returns-the-current-project-name
+REPONAME=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)\.git#\1#p')
+
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+echo -e "${blue23} • ${blue30} Prepare new Journal Entry ${GRAY241}"
+. $FOUND_DIR_JOURNAL/journal_get_ticketid
+
+
+#add
+echo
+echo -e "${PURPLE_BLUE} === ${GRAY241} ${GIT_USER_NAME} ${PURPLE_BLUE} Add -All  to ${CYAN} ${REPONAME} branch:${CURBRANCH} ${PURPLE_BLUE} === ${GRAY241} "
+echo
+git add -A;
+
+#unstage
+    if [[ -f "commit_exception.list" ]] && command -v unstage_exception_list >/dev/null 2>&1; then
+      {
+        echo
+        echo -e "${PURPLE_BLUE} === ${GRAY241} ${GIT_USER_NAME} ${PURPLE_BLUE} Unstage * from ${CYAN} ${REPONAME} branch:${CURBRANCH} ${PURPLE_BLUE} === ${GRAY241} "
+        echo
+        if [[ "$(uname)" == "Darwin" ]] ; then
+          # Do something under Mac OS X platform
+          unstage_exception_list ;
+
+        elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+          # Do something under GNU/Linux platform
+          ./unstage_exception_list ;
+
+        elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+          # Do something under Windows NT platform
+          unstage_exception_list ;
+          # nothing here
+        fi
+      }
+    fi
+
+
+
+#status
+echo
+echo -e "${PURPLE_BLUE} === ${GRAY241} ${GIT_USER_NAME} ${PURPLE_BLUE} Status for ${CYAN} ${REPONAME} branch:${CURBRANCH} ${PURPLE_BLUE} === ${GRAY241} "
+echo
+    if command -v gsb >/dev/null 2>&1; then
+      gsb
+    elif command -v status >/dev/null 2>&1; then
+      status
+    else
+      git status;
+    fi
+
+echo
+
+#commit
+COMMIT_MESSAGE="refs #${TICKETID} @${TIME_TOOK} ${MESSAGE_ACTIONS_TAKEN}"  # Build message as    refs #30515 @0:20 I fixed some issues here
+
+
+
+echo
+echo -e "${PURPLE_BLUE} === ${GRAY241} ${GIT_USER_NAME} ${PURPLE_BLUE} ${CYAN} commit -m ${BRIGHT_BLUE87} ${COMMIT_MESSAGE} ${PURPLE_BLUE} === ${GRAY241} "
+echo
+
+
+git commit -m "${COMMIT_MESSAGE}";
+#GOAL IS TO WRITE THIS FORM: refs #30515 @0:20 \"message message\"
+# IT means refering to ISSUE NUMBER 30515  IT TOOK 20 Minutes to do doing "message message"
+
+echo -e "${reset}"

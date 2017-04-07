@@ -1,0 +1,871 @@
+#!/bin/bash
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+
+DESCRIPTION="";
+if [[ -z "$1" ]] ; then  # if argument was not passed
+    {
+      . $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
+  		DESCRIPTION=$(git config branch.${CURBRANCH}.description  | sed 's/..............20/„/g' | cut -d'„' -f1);
+      #DESCRIPTION=$(describe | tail -1)
+      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then
+        {
+            DESCRIPTION=$(<.description)
+        }
+      fi
+
+  		echo -e "    - description „${DESCRIPTION}” ";
+    }
+fi
+if [[ ! -z "$1" ]] ; then  # if argument was  passed
+    {
+      . $FOUND_DIR_JOURNAL/journal_get_current_branch
+      YEAR=$(date +%Y);
+      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
+      DESCRIPTION="${1}"
+      echo -e "    - description „${DESCRIPTION}” ";
+    }
+fi
+
+if command -v figlet >/dev/null 2>&1; then
+  {
+    FIGLET_INSTALLED=1
+  }
+else
+  {
+    echo -e "${red} ERROR figlet dependency missing ! Attempting to install ${reset}"
+    brew install figlet
+  }
+fi
+if command -v tree >/dev/null 2>&1; then
+  {
+    TREE_INSTALLED=1
+  }
+else
+  {
+    echo -e "${red} ERROR tree dependency missing ! Attempting to install ${reset}"
+    brew install tree
+  }
+fi
+
+
+
+#
+# DESCRIPTION GET - start
+#
+    # Empty description ?
+    if [[ -z "${DESCRIPTION}"  ]] ; then
+      # show all branches
+      echo " "
+        echo -e "${red} ERROR ! No description. Need description ${reset}"
+        echo "  USE:     describe \"Fix url issue\"     for example to fix "
+        echo " "
+      exit 1;
+    fi
+
+#
+# ESCRIPTION GET - end
+#
+
+
+
+
+. $FOUND_DIR_JOURNAL/journal_get_target_branch
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+
+echo -e "${blue23} • ${blue30} Getting list of commits ${reset}"
+COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
+
+echo -e "${blue23} • ${blue30} Checking commit count ${reset}"
+# is empty
+if [[ -z "${COMMITS}" ]] ; then
+    {
+      echo ""
+      echo -e "${red} There are not commits to compare to. ${yellow220} Make some commits first then try again  ${reset}"
+      echo ""
+      exit 1;
+    }
+  fi
+
+
+
+#
+# TICKETID - start
+#
+echo -e "${blue23} • ${blue30} Prepare new Journal Entry ${reset}"
+# if argument 2 as passed
+TICKETID=""
+NEWBRANCH=""
+if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+  {
+    if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
+      {
+        TICKETID=$( echo ${CURBRANCH} | cut -d'/' -f2)   # split 2nd word out of feature/${TICKETID}
+        NEWBRANCH="feature/${TICKETID}"
+      }
+    fi
+    if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+      {
+        TICKETID=$( echo ${CURBRANCH} | cut -d'-' -f2)   # split 2nd word out of issue-${TICKETID}
+        NEWBRANCH="issue-${TICKETID}"
+      }
+    fi
+  }
+else
+  {
+    TICKETID="${CURBRANCH}"    # JUST USE BRANCH NAME TO COMPARE
+    NEWBRANCH="${TICKETID}"
+
+  }
+fi
+
+if [[ -z "${TICKETID}"  ]] ; then
+  {
+    echo -e "${red} Error ! TICKED_ID:${TICKETID} is empty ${reset}"
+    exit 1;
+  }
+fi
+if [[ -z "${NEWBRANCH}"  ]] ; then
+  {
+    echo -e "${red} Error ! NEW_BRANCH:${NEWBRANCH} is empty ${reset}"
+    exit 1;
+  }
+fi
+#if [[ "${TICKETID}" == "${NEWBRANCH}" ]] ; then
+#  {
+#    echo -e "${red} Error ! TICKED_ID:${TICKETID} and NEW_BRANCH:${NEWBRANCH} are equal and empty. I don't understand this. I am expecting to have an issue Number out of the branch name. Branches I know are feature/12345 and issue-12345 ${reset}"
+#    exit 1;
+#  }
+# fi
+#
+# TICKETID - end
+#
+
+
+. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+
+. $FOUND_DIR_JOURNAL/journal_get_project_name
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+
+CURRENTDATE=`date +%Y%m%d`
+
+JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
+
+
+	echo -e "${blue23} • ${blue30} Generating Added Files entry on Journal ${reset}"
+  ACTION="pull request ${CURRENTDATE}"
+	ACTION_NAME="${CURRENTDATE}"
+  FILENAME_REAL_JOURNAL_NAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION_NAME}.m"
+	# if dir does not exist create it   ---  Update PATH bashrc var if it exists
+	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}" ]] ;	then
+		{
+      mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+			ACTION="pull request ${CURRENTDATE}"
+      FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
+
+		}
+	else
+		{
+			ACTION="pull request ${CURRENTDATE}"
+		}
+	fi
+	mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+
+	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me" ]] ; then
+    {
+      mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+      ACTION="pull request ${CURRENTDATE}"
+      FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
+    }
+  else
+    {
+      ACTION="pull request ${CURRENTDATE}"
+    }
+  fi
+  mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+
+
+
+
+
+  echo -e "${blue23} • ${blue30} Getting todays date ${reset}"
+	# Bash Dates REF: http://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script
+	# Bash times REF: http://www.cyberciti.biz/faq/unix-linux-bash-get-time/
+
+	CURRENTTIME=`date +%H:%M`
+	CURRENTAMPMUPPER=`date +%p`
+	CURRENTAMPM="am"
+	if [[ "${CURRENTAMPMUPPER}" == "AM"  ]] ; then
+		CURRENTAMPM="am"
+	else
+		CURRENTAMPM="pm"
+	fi
+
+	FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
+	TODAYSENTRY=$(echo "${FILENAME}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+	#TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
+	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
+
+  echo " "
+  echo -e "${blue23} • ${blue30} Making entry on Journal ${reset}"
+
+  echo "   ${FILENAME_PULL_REQUEST_JOURNAL}"
+
+	echo -e "${blue23} • ${blue30} Touch Journal file ${reset}"
+	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
+	wait
+
+
+	#pause 'Press [Enter] key to continue...'
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  #TOILET_TEXT=$(toilet -f smblock "${CURRENTDATE}")  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  TOILET_TEXT=$(figlet -f banner.flf "${CURRENTDATE}")
+  echo "${TOILET_TEXT}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo "${CURRENTTIME}${CURRENTAMPM} --- This filename  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
+  echo "${CURRENTTIME}${CURRENTAMPM} --- This filename  ${JOURNAL_PULL_REQUEST_DIRECTORY}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo "${CURRENTTIME}${CURRENTAMPM} --- Journal filename  ${FILENAME_REAL_JOURNAL_NAME}"
+  echo "${CURRENTTIME}${CURRENTAMPM} --- Journal filename  ${FILENAME_REAL_JOURNAL_NAME}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo "${CURRENTTIME}${CURRENTAMPM} --- Saved all the files into folder  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
+	echo "${CURRENTTIME}${CURRENTAMPM} --- Saved all the files into folder  ${JOURNAL_PULL_REQUEST_DIRECTORY}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo "${CURRENTTIME}${CURRENTAMPM} --- ${DESCRIPTION} .. ${ACTION}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " COMMITS:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo "${COMMITS}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " ;)" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+
+
+
+
+
+
+#
+# FULL DESCRIPTION - start
+#
+FULL_DESCRIPTION=$(describe | tail -1)
+if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
+  {
+      FULL_DESCRIPTION=$(<.description)
+  }
+fi
+if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
+  {
+    echo -e "${blue23} • ${blue30} Adding Description ${reset}"
+    . $FOUND_DIR_JOURNAL/journal_get_description_work_link__url
+
+    FILENAME_FOR_DESCRIPTION_ASSEMBLY="${FILENAME_PULL_REQUEST_JOURNAL}"
+    . $FOUND_DIR_JOURNAL/journal_get_description_assembly
+
+
+  }
+fi
+echo -e "${blue23} • ${blue30} Copy file full description to target/.description  ${reset}"
+# if argument 2 as passed
+
+  if [[ ! -z "${DESCRIPTION}" ]] ;  then
+    {
+        touch "${JOURNAL_PULL_REQUEST_DIRECTORY}/.description"
+        touch "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me/.description"
+        echo "${DESCRIPTION}" > "${JOURNAL_PULL_REQUEST_DIRECTORY}/.description"
+        echo "${DESCRIPTION}" > "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me/.description"
+    }
+  fi
+
+#
+# FULL DESCRIPTION - start
+#
+
+
+
+
+
+	echo -e "${blue23} • ${blue30} Open Journal  ${reset}"
+	# st for editor, sublime when I created this using .zshrc  ohmy zsh plugin
+	subl "${FILENAME_PULL_REQUEST_JOURNAL}"
+	wait
+
+	echo -e "${blue23} • ${blue30} Save files  ${reset}"
+	echo -e "${blue23} • ${blue30} Get differences from Branches Respective to Develop  ${reset}"
+  CHANGED_FILES=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH} | cut -c3-)
+	CHANGED_FILES_WITH_STATUS=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH})
+
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " FILES:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo "${CHANGED_FILES_WITH_STATUS}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo "---- ANALISIS"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+
+
+  echo -e "${blue23} • ${blue30} Copy the files to JOURNAL_DIRECTORY ENTRY: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
+	echo -e "${blue23} • ${blue30} The following files changed  ${reset}"
+  echo -e "${green}++++ ${reset}"
+  CHANGED_BY_ME=""
+  ME_NAME=$(git config user.name)
+  ME_EMAIL=$(git config user.email)
+  ME_AUTHOR="Author: ${ME_NAME} <${ME_EMAIL}>"
+  FILES_EXPANDED=""
+
+function remove_empty_lines(){
+  sed '/^$/d'
+}
+                          # duplicated in execute_command.sh:55
+                          function trim_start_space() {
+                              sed -e 's/^[[:space:]]*//' | sed 's/^\ //g' | sed 's/^\t//g'
+                          }
+                          function trim_end_space() {
+                              sed -e 's/[[:space:]]*$//' | sed 's/\ $//g' | sed 's/\t$//g'
+                          }
+                          function trim() {
+                              trim_start_space | trim_end_space
+                          }
+function file_author_last_commit(){
+  git log -n 1 -- """${1}""" | grep --color=no Author
+}
+function file_last_commit(){
+  git log -n 1 -- """${1}""" | egrep --color=no -v "Author: "|  egrep --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
+}
+
+FILENAME_LENGTH=0
+BIGGEST_FILENAME_LENGTH=0
+AUTHOR_LENGTH=0
+BIGGEST_AUTHOR_LENGTH=0
+	while read -r CHANGED_FILE; do
+      # if not empty line
+      if [ ! -z "${CHANGED_FILE}" ] ; then
+      	# if file exists ...like deleted...it will still show in the git diff per se
+      	if [ -f "${CHANGED_FILE}" ] ; then
+      		echo -e "${yellow220} ${CHANGED_FILE} ${reset}"
+          echo "CHANGED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          FILE_LAST_AUTHOR=$(file_author_last_commit """${CHANGED_FILE}""")
+          FILE_LAST_COMMIT=$(file_last_commit """${CHANGED_FILE}""")
+          FILENAME_LENGTH=${#CHANGED_FILE}        # get strlen string length
+          if [ ${FILENAME_LENGTH} -gt ${BIGGEST_FILENAME_LENGTH} ] ;  then
+            {
+              BIGGEST_FILENAME_LENGTH=${FILENAME_LENGTH}
+            }
+          fi
+          AUTHOR_LENGTH=${#FILE_LAST_AUTHOR}       # get strlen string length
+          if [ ${AUTHOR_LENGTH} -gt ${BIGGEST_AUTHOR_LENGTH} ] ;  then
+            {
+              BIGGEST_AUTHOR_LENGTH=${AUTHOR_LENGTH}
+            }
+          fi
+	      	# Copy files recursively keep directories REF: http://stackoverflow.com/questions/1650164/bash-copy-named-files-recursively-preserving-folder-structure
+    			# check operation systems
+          FILES_EXPANDED="${FILES_EXPANDED}
+${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
+          if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+            {
+              CHANGED_BY_ME="${CHANGED_BY_ME}
+${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
+            }
+          fi
+
+          # check operation systems- copy start
+    			(
+    			  if [[ "$(uname)" == "Darwin" ]] ; then
+    			    # Do something under Mac OS X platform
+    				  rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+                {
+                   rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                }
+              fi
+    			  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+    			    # Do something under GNU/Linux platform
+    			    cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+                {
+                   cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                }
+              fi
+    			  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+    			    # Do something under Windows NT platform
+    			    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+                {
+                    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                }
+              fi
+    			    # nothing here
+    			  fi
+    			)
+          # check operation systems - copy end
+
+    		else
+    			echo -e "${red} ${CHANGED_FILE} -deleted or renamed- ${reset}"
+          echo "DELETED OR " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          echo "RENAMED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+    		fi
+
+      fi
+
+	done <<< "${CHANGED_FILES}"
+
+
+
+	#echo "${CHANGED_FILES}"
+	echo -e "${green}++++ ${reset}"
+  echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+
+function _column_print_to_file_worker(){
+  local show_author="${1}"
+  local first_colum="${2}"
+  local first_colum_chars="${2}"
+  local second_colum="${3}"
+  local third_colum="${4}"
+  local journal_file_path_name="${5}"
+  local list="${6}"
+  local one_line=""
+  local filename=""
+  local filename_chars=0
+  local author=""
+  local commit_message=""
+  local expression=""
+  local commit_length=0
+  local biggest_commit_length=0
+
+
+      echo " " >> "${journal_file_path_name}"
+
+              while read -r one_line; do
+                {
+                  # if not empty
+                  if [ ! -z "${one_line}" ] ; then
+                    {
+                      commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+                      commit_length=${#commit_message}     # get strlen string length
+                      if [ ${commit_length} -gt ${biggest_commit_length} ] ;  then
+                        {
+                          biggest_commit_length=${commit_length}
+                        }
+                      fi
+                    }
+                  fi
+                }
+              done <<< "${list}"
+
+
+
+      while read -r one_line; do
+        {
+          # if not empty
+          if [ ! -z "${one_line}" ] ; then
+            {
+              filename=$(cut -d"∆" -f1 <<< "${one_line}")
+              author=$(cut -d"∆" -f2 <<< "${one_line}")
+              commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+
+              filename_chars=$(wc -c <<< "${filename}")
+              if [ "$filename_chars" -gt "$first_colum" ] ; then
+                {
+                  first_colum_chars="$filename_chars"
+                }
+              else
+                {
+                  first_colum_chars="$first_colum"
+                }
+              fi
+
+              if [[ "${show_author}" == "show author" ]] ; then
+                {
+                  expression="%-${first_colum_chars}s | %-${second_colum}s | %-${biggest_commit_length}s\n"   # show author
+                }
+              elif [[ "${show_author}" == "no author" ]]; then
+                {
+                  expression="%-${first_colum_chars}s | %-${biggest_commit_length}s\n"                        # no author
+                }
+              fi
+
+              #debugging
+              #printf "%-"${first_colum_chars}"s | %-"${second_colum}"s | %-"${third_colum}"s\n " "${filename}" "${author}" "${commit_message}"
+              #printf "%-${first_colum_chars}s | %-${second_colum}s | %-${third_colum}s\n " "${filename}" "${author}" "${commit_message}" >> "${journal_file_path_name}"
+              #echo "filename:${filename}"
+              #echo "Author:${author}"
+              #echo "commit_message:${commit_message}"
+              #echo "----"
+              #printf "${expression}" "${filename}" "${author}" "${commit_message}"
+
+              if [[ "${show_author}" == "show author" ]] ; then
+                {
+                  printf "${expression}" "${filename}" "${author}" "${commit_message}" >> "${journal_file_path_name}" # show author
+                }
+              elif [[ "${show_author}" == "no author" ]]; then
+                {
+                  printf "${expression}" "${filename}" "${commit_message}" >> "${journal_file_path_name}"             # no author
+                }
+              fi
+            }
+          fi
+
+        }
+      done <<< "${list}"
+      echo " " >> "${journal_file_path_name}"
+      echo " " >> "${journal_file_path_name}"
+      echo " " >> "${journal_file_path_name}"
+
+}
+
+
+function column_print_to_file(){
+  local first_colum="${1}"
+  local second_colum="${2}"
+  local third_colum="${3}"
+  local journal_file_path_name="${4}"
+  local list="${5}"
+  _column_print_to_file_worker "show author"  "${first_colum}" "${second_colum}" "${third_colum}" "${journal_file_path_name}" "${list}"
+}
+
+#duplicated only removed  author
+function column_print_to_file_no_author(){
+  local first_colum="${1}"
+  local second_colum="${2}"
+  local third_colum="${3}"
+  local journal_file_path_name="${4}"
+  local list="${5}"
+  _column_print_to_file_worker "no author"  "${first_colum}" "${second_colum}" "${third_colum}" "${journal_file_path_name}" "${list}"
+}
+function remove_special_chars(){
+  #echo "├ ─ └ │" | hexdump -c
+  sed 's/├//g' | sed 's/└//g' | sed 's/─//g' | sed 's/│//g'
+}
+
+function change_special_chars(){
+  sed 's/├/mm/g' | sed 's/└/mm/g' | sed 's/─/mm/g' | sed 's/│/mm/g'
+}
+
+function replace_special_chars(){
+  sed 's/├/+/g' | sed 's/└/\\/g' | sed 's/─/-/g' | sed 's/│/|/g'
+}
+
+
+function _match_tree_filenames_with_commits_worker(){
+  local show_author="${1}"
+  local first_colum="${2}"
+  local first_colum_chars="${2}"
+  local second_colum="${3}"
+  local third_colum="${4}"
+  local journal_file_path_name="${5}"
+  local list="${6}"
+  local tree_output="${7}"
+  local one_line=""
+  local one_tree_line=""
+  local filename=""
+  local filepathname=""
+  local filename_chars=0
+  local filename_bytes=0
+  local author=""
+  local commit_message=""
+  local filename_tree_length=0
+  local biggest_filename_tree_length=0
+  local commit_length=0
+  local biggest_commit_length=0
+  local expression=""
+  local tree_expression=""
+  local tree_match="NO"
+
+  # get biggest tree line
+              while read -r one_tree_line; do
+                {
+                  if [ ! -z "${one_tree_line}" ] ; then
+                    {
+                      one_tree_line=$(replace_special_chars <<< "${one_tree_line}")
+                      #one_tree_line=$(trim <<< "${one_tree_line}")
+                      filename_tree_length=${#one_tree_line}     # get strlen string length
+                      if [ ${filename_tree_length} -gt ${biggest_filename_tree_length} ] ;  then
+                        {
+                          biggest_filename_tree_length=${filename_tree_length}
+                        }
+                      fi
+                    }
+                  fi
+                }
+              done <<< "${tree_output}"
+
+              while read -r one_line; do
+                {
+                  # if not empty
+                  if [ ! -z "${one_line}" ] ; then
+                    {
+                      #commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+                      commit_message=$(cut -d"∆" -f3 <<< "${one_line}")
+                      commit_length=${#commit_message}     # get strlen string length
+                      if [ "${commit_length}" -gt "${biggest_commit_length}" ] ;  then
+                        {
+                          biggest_commit_length="${commit_length}"
+                          #echo "${one_line} biggest $biggest_commit_length" >> "${journal_file_path_name}"
+                        }
+                      fi
+                    }
+                  fi
+                }
+              done <<< "${list}"
+
+
+
+                          if [[ "${show_author}" == "show author" ]] ; then
+                            {
+                              expression="%-${first_colum_chars}s | %-${second_colum}s | %-${biggest_commit_length}s\n"                   # show author
+                              tree_expression="%-${biggest_filename_tree_length}s <- %-${second_colum}s -> %-${biggest_commit_length}s\n" # show author
+                              tree_expression_empty="%-${biggest_filename_tree_length}s\n"                                                # show author
+                            }
+                          elif [[ "${show_author}" == "no author" ]] ; then
+                            {
+                              expression="%-${first_colum_chars}s | %-${biggest_commit_length}s\n"                     # no author
+                              tree_expression="%-${biggest_filename_tree_length}s  %-${biggest_commit_length}s\n"      # no author
+                              tree_expression_empty="%-${biggest_filename_tree_length}s\n"                             # no author
+                            }
+                          fi
+
+
+
+      echo " " >> "${journal_file_path_name}"
+
+
+      while read -r one_tree_line; do
+        {
+          if [ ! -z "${one_tree_line}" ] ; then
+            {
+              #
+              one_tree_line=$(trim <<< "${one_tree_line}")
+              one_tree_line=$(replace_special_chars <<< "${one_tree_line}")
+              last_string_after_space=${one_tree_line##* }
+              #echo "last_string_after_space:${last_string_after_space}"
+              tree_match="NO"
+              while read -r one_line; do
+                {
+                  # if not empty
+                  if [ ! -z "${one_line}" ] ; then
+                    {
+                      filepathname=$(cut -d"∆" -f1 <<< "${one_line}")
+                      filename=${filepathname##*/}          # get only last filename
+                      author=$(cut -d"∆" -f2 <<< "${one_line}")
+                      commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+
+                      #debugging
+                      #echo "filepathname:${filepathname}"
+                      #echo "filename:${filename}"
+                      #echo "Author:${author}"
+                      #echo "commit_message:${commit_message}"
+                      #echo "----"
+                      #printf "${expression}" "${filename}" "${author}" "${commit_message}"
+
+                      if [[ "${filename}" == "${last_string_after_space}" ]] ; then
+                        {
+                          tree_match="YES"
+
+                          filename_bytes=$(wc -m <<< change_special_chars <<< "${one_tree_line}") # -c, --bytes  print the byte counts
+                          filename_chars=$(wc -m <<< remove_special_chars <<< "${one_tree_line}") # -m, --chars  print the character counts
+                          #echo "${filename_bytes}  ${filename_chars}" >> "${journal_file_path_name}"
+                          if [ "$filename_bytes" -gt "$filename_chars" ] ; then
+                            {
+                              first_colum_chars="$(($first_colum-$(($filename_bytes-$filename_chars+4))))"
+                              #echo "${first_colum_chars} -gt" >> "${journal_file_path_name}"
+                            }
+                          else
+                            {
+                              first_colum_chars="$first_colum"
+                            }
+                          fi
+
+                          if [[ "${show_author}" == "show author" ]] ; then
+                            {
+                              expression="%-${first_colum_chars}s | %-${second_colum}s | %-${biggest_commit_length}s\n"                   # show author
+                              tree_expression="%-${biggest_filename_tree_length}s <- %-${second_colum}s -> %-${biggest_commit_length}s\n" # show author
+                              tree_expression_empty="%-${biggest_filename_tree_length}s\n"                                                # show author
+                            }
+                          elif [[ "${show_author}" == "no author" ]] ; then
+                            {
+                              expression="%-${first_colum_chars}s | %-${biggest_commit_length}s\n"                     # no author
+                              tree_expression="%-${biggest_filename_tree_length}s  %-${biggest_commit_length}s\n"      # no author
+                              tree_expression_empty="%-${biggest_filename_tree_length}s\n"                             # no author
+                            }
+                          fi
+
+                          break
+                        }
+                      fi
+
+                      #printf "${expression}" "${filename}" "${author}" "${commit_message}" >> "${journal_file_path_name}"
+                    }
+                  fi
+                }
+              done <<< "${list}"
+
+              if [[ "${tree_match}" == "YES" ]] ; then
+                {
+                  if [[ "${show_author}" == "show author" ]] ; then
+                    {
+                      printf "${tree_expression}" "${one_tree_line}" "${author}" "${commit_message}" >> "${journal_file_path_name}"    # show author
+                      #printf "12345678 1 2345678 2 2345678 3 2345678 4 2345678 5 2345678 6 2345678 7 2345678 8 2345678 9 234567890" >> "${journal_file_path_name}"    # show author
+                    }
+                  elif [[ "${show_author}" == "no author" ]]; then
+                    {
+                      printf "${tree_expression}" "${one_tree_line}" "${commit_message}" >> "${journal_file_path_name}"                # no author
+                    }
+                  fi
+                }
+              else
+                {
+                  printf "${tree_expression_empty}" "${one_tree_line}" >> "${journal_file_path_name}"
+                  #echo  "${one_tree_line}" >> "${journal_file_path_name}"
+                }
+              fi
+            }
+          fi
+        }
+      done <<< "${tree_output}"
+
+      echo " " >> "${journal_file_path_name}"
+      echo " " >> "${journal_file_path_name}"
+      echo " " >> "${journal_file_path_name}"
+}
+function match_tree_filenames_with_commits(){
+  local first_colum="${1}"
+  local second_colum="${2}"
+  local third_colum="${3}"
+  local journal_file_path_name="${4}"
+  local list="${5}"
+  local tree_output="${6}"
+  _match_tree_filenames_with_commits_worker "show author" "${first_colum}" "${second_colum}" "${third_colum}" "${journal_file_path_name}" "${list}" "${tree_output}"
+}
+function match_tree_filenames_with_commits_no_author(){
+  local first_colum="${1}"
+  local second_colum="${2}"
+  local third_colum="${3}"
+  local journal_file_path_name="${4}"
+  local list="${5}"
+  local tree_output="${6}"
+  _match_tree_filenames_with_commits_worker "no author" "${first_colum}" "${second_colum}" "${third_colum}" "${journal_file_path_name}" "${list}" "${tree_output}"
+}
+
+
+  if [[ ! -z "${FILES_EXPANDED}" ]] ;  then
+    {
+      echo " EXPANDED DETAIL LAST COMMITS WITH AUTHOR LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+      column_print_to_file ${BIGGEST_FILENAME_LENGTH} ${BIGGEST_AUTHOR_LENGTH} 120 "${FILENAME_PULL_REQUEST_JOURNAL}" "${FILES_EXPANDED}"
+    }
+  fi
+  TREE_PULL_REQUEST=$(tree """${JOURNAL_PULL_REQUEST_DIRECTORY}""")
+
+  if [[ ! -z "${TREE_PULL_REQUEST}" ]] ;  then
+    {
+      echo -e "${blue23} • ${blue30} Saving Complete Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
+      echo " COMPLETE TREE LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+      if [[ ! -z "${FILES_EXPANDED}" ]] ;  then
+        {
+          match_tree_filenames_with_commits ${BIGGEST_FILENAME_LENGTH} ${BIGGEST_AUTHOR_LENGTH} 120 "${FILENAME_PULL_REQUEST_JOURNAL}" "${FILES_EXPANDED}" "${TREE_PULL_REQUEST}"
+        }
+      else
+        {
+          echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          echo "${TREE_PULL_REQUEST}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+          echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+        }
+      fi
+    }
+  fi
+
+
+
+
+  if [[ ! -z "${CHANGED_BY_ME}" ]] ;  then
+    {
+      echo -e "${blue23} • ${blue30} Saving Changed by Me Files and Commits ${reset}"
+      echo " ONLY ME ${ME_NAME} LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+      column_print_to_file_no_author ${BIGGEST_FILENAME_LENGTH} ${BIGGEST_AUTHOR_LENGTH} 120 "${FILENAME_PULL_REQUEST_JOURNAL}" "${CHANGED_BY_ME}"
+
+      TREE_PULL_REQUEST_ONLY_ME=$(tree """${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me""")
+      if [[ ! -z "${TREE_PULL_REQUEST_ONLY_ME}" ]] ;  then
+        {
+            echo -e "${blue23} • ${blue30} Saving Complete Changed by Me Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me ${reset}"
+            echo " ONLY ME ${ME_NAME} TREE LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+            if [[ ! -z "${CHANGED_BY_ME}" ]] ;  then
+              {
+                match_tree_filenames_with_commits_no_author ${BIGGEST_FILENAME_LENGTH} ${BIGGEST_AUTHOR_LENGTH} 120 "${FILENAME_PULL_REQUEST_JOURNAL}" "${CHANGED_BY_ME}" "${TREE_PULL_REQUEST_ONLY_ME}"
+              }
+            else
+              {
+                echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+                echo "${TREE_PULL_REQUEST_ONLY_ME}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+                echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+                echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+                echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+              }
+            fi
+        }
+      fi
+
+
+    }
+  fi
+
+  if [[ -z "${CHANGED_BY_ME}" ]] ;  then   # remove hanging directory is no changes are registered by "me"
+     {
+      rm -rf "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+    }
+  fi
+
+
+
+
+# URL='https://jira.company_name.com/browse/TO-252        '; curl --silent $URL | sift user-content-block | xargs -I {} echo "${URL} -> {}" &&
+# JIRA BLOCKS curl request s  how ?
+
+echo -e "${green} :) ${reset}"
+echo " :) " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+echo " "
+
+
+
+
+
+
+# :)

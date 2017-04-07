@@ -1,0 +1,79 @@
+#!/bin/bash
+# package:symfony-intuivo-cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+set -eu
+set -o pipefail
+set -x
+
+
+function piped_contents_test() {
+  local PIPED COLORED COUNTER ONEPIPE
+  local from1 to2 a filename
+  PIPED="";
+  COLORED="";
+  COUNTER=0;
+
+  if [ -t 0 ]; then  # Do stuff with NO PIPE
+  {
+
+      PIPED=""
+
+      # Execution part - Start
+      echo "there was nothign here"
+      # Execution part - End
+
+  }
+  else               # Do sutff with WITH YES PIPE the contents piped passed
+  {
+
+      PIPED="YES"
+      PIPED=""
+      while read ONEPIPE; do
+      {
+
+          if [ -z "${PIPED}" ]; then     # When pipe if empty, start var
+          {
+            PIPED="${ONEPIPE}"
+          }
+          else                           # When it has something keep adding
+          {
+            PIPED="${PIPED}
+${ONEPIPE}"
+          }
+          fi
+          COUNTER=$((COUNTER+1))
+      }
+      done
+      if [ $COUNTER -eq 0 ]; then   # If there is not contents then exit silently
+        exit
+      fi
+
+      ##Executiong part - Start
+      ## Tip here any command will receive the contents of PIPE
+      ##test: assert to says what ever PIPE receives
+      #when calling from outside: echo "hola" | piped_contents_test
+      #           placing inside: xargs -I {} | echo "{}"
+      #      should respond with: hola
+      xargs -I {} | echo "{}"
+
+
+      ##test: assert to says what ever PIPE receives
+      #when calling from outside: echo "hola" | piped_contents_test
+      #           placing inside: echo "MORE:${PIPED}"
+      #      should respond with: MORE:hola
+      echo "MORE:${PIPED}"
+
+      ##Executiong part - End
+  }
+  fi
+
+}
+#test assert to see
+#: hola
+#: MORE: hola
+echo "hola" | piped_contents_test
+
+
+
+exit
