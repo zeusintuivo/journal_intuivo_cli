@@ -7,7 +7,7 @@
 #set -x
 
 
-function cut_piped_contents_trimed_between() {
+function extract_something_trimmed_between() {
   local PIPED COLORED COUNTER ONEPIPE
   local from1 to2 a filename
   PIPED="";
@@ -22,7 +22,7 @@ function cut_piped_contents_trimed_between() {
       # Execution part - Start
       # Sample use:
       #             echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
-      #             cut_piped_contents_trimed_between "from" ".BASEBRANCH." .description
+      #             extract_something_trimmed_between "from" ".BASEBRANCH." .description
 
       # Technique from:
       # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
@@ -74,8 +74,8 @@ ${ONEPIPE}"
 
       ##Executiong part - Start
       # Sample use:
-      #        cat .description | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
-      #        echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+      #        cat .description | extract_something_trimmed_between "from" ".BASEBRANCH."
+      #        echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | extract_something_trimmed_between "from" ".BASEBRANCH."
 
       # Technique from:
       # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
@@ -95,13 +95,13 @@ ${ONEPIPE}"
 
 }
 #test assert to see : develop
-#cat .description | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
-#echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | cut_piped_contents_trimed_between "from" ".BASEBRANCH."
+#cat .description | extract_something_trimmed_between "from" ".BASEBRANCH."
+#echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | extract_something_trimmed_between "from" ".BASEBRANCH."
 #exit
 
 #test assert to see : develop
 #echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
-#cut_piped_contents_trimed_between "from" ".BASEBRANCH." .description
+#extract_something_trimmed_between "from" ".BASEBRANCH." .description
 #exit
 
 
@@ -114,11 +114,11 @@ ${ONEPIPE}"
 
 
   # Saved on git description from ${TARGETBASEBRANCH} _BASEBRANCH_";
-  BRANCH_MERGE_AGAINST=$(git config branch.${CURBRANCH}.description | cut_piped_contents_trimed_between "from" "_BASEBRANCH_");   # try git config description "from" branch_name ".BASEBRANCH."
+  BRANCH_MERGE_AGAINST=$(git config branch.${CURBRANCH}.description | extract_something_trimmed_between "from" "_BASEBRANCH_");   # try git config description "from" branch_name ".BASEBRANCH."
   #?empty still  --look into .description
   if [[ -z "${BRANCH_MERGE_AGAINST}" ]]  && [ -f .description ] ; then                                                      # try cat .description "from" branch_name ".BASEBRANCH.")
     # Saved on .description?
-    BRANCH_MERGE_AGAINST=$(cut_piped_contents_trimed_between "from" "_BASEBRANCH_" .description);
+    BRANCH_MERGE_AGAINST=$(extract_something_trimmed_between "from" "_BASEBRANCH_" .description);
   fi
 
   #?empty still  --look into .gitignore
