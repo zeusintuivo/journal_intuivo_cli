@@ -2,4 +2,14 @@
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
+  # Old notes
 
+  # Get the current branch name into a variable
+  #CURBRANCH=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')    # expected  output   TO-229
+  #CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+
+
+  #echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
+  #DESCRIPTION=$(git config branch.${CURBRANCH}.description  | sed 's/..............20/„/g' | cut -d'„' -f1)
+  # if description is empty
+. $FOUND_DIR_JOURNAL/journal_get_extract_something_trimmed_between
