@@ -9,7 +9,22 @@
   #CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
 
 
-  #echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
-  #DESCRIPTION=$(git config branch.${CURBRANCH}.description  | sed 's/..............20/„/g' | cut -d'„' -f1)
   # if description is empty
+. journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
 . $FOUND_DIR_JOURNAL/journal_get_extract_something_trimmed_between
+
+#echo -e "${blue23} • ${blue30} Getting Branch description (text only). ${reset}"
+#DESCRIPTION=$(git config branch.${CURBRANCH}.description  | sed 's/..............20/„/g' | cut -d'„' -f1)
+#DESCRIPTION=$(git config branch.${CURBRANCH}.description  | extract_something_trimmed_between )
+
+#branches | grep '*.*feature/DGT-78' | extract_something_trimmed_between  "\033[0;36m"  "${blue33}"
+#branches | grep '*.*feature/DGT-78' #| extract_something_trimmed_between  "\033[0;32m"  "${blue33}"
+#branches | grep '*.*feature/DGT-78' | extract_something_trimmed_between  "033[0;36m"  "033[38;5;33m"
+from1=$(echo -e "\\033[0;36m");
+to2=$(echo -e "\\033[38;5;33m");
+#a="$(branches | grep '*.*feature/DGT-78')";
+#a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
+DESCRIPTION=$(branches -l | grep "*.*${CURBRANCH}" | extract_something_trimmed_between  "$from1"  "$to2")
+#git config branch.${CURBRANCH}.description | extract_something_trimmed_between  "$from1"  "$to2"
+#debug: echo $DESCRIPTION

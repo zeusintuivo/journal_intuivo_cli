@@ -92,13 +92,18 @@ ${ONEPIPE}"
   }
   fi
 
+} # end function  extract_something_trimmed_between
+test_assert_get_develop_from_pipe() {
+  #tests assert to get: develop
+  #given the file contain this string "t.m  033[0m from develop.BASEBRAN"
+  echo "t.m  033[0m from develop.BASEBRAN" > /tmp/.demp
+  cat /tmp/.demp | extract_something_trimmed_between "from" ".BASEBRANCH."
+  rm /tmp/.demp
+  exit
 }
-test_assert_to see : develop
-#cat .description | extract_something_trimmed_between "from" ".BASEBRANCH."
-#echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | extract_something_trimmed_between "from" ".BASEBRANCH."
-#exit
-
-#test assert to see : develop
-#echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
-#extract_something_trimmed_between "from" ".BASEBRANCH." .description
-#exit
+test_assert_obtain_develop_from_file(){
+  #test assert to see : develop
+  echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > /tmp/.demp
+  extract_something_trimmed_between "from" ".BASEBRANCH." /tmp/.demp
+  exit
+}

@@ -24,19 +24,28 @@ USAGE:
                                                                          new description, also date will change
                                                                         with that and filename .m
 "
-# if argument was not passed
+
+                                                                                                   # if argument was not passed
+                                                                                                   # +---- Obtain description text only  from git config
+                                                                                                   # read
 DESCRIPTION=""
 if [[ -z "${1}"  ]] ; then
   {
     . $FOUND_DIR_JOURNAL/journal_get_current_branch
-    . $FOUND_DIR_JOURNAL/journal_get_current_description
+    . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION            # vs
   }
 fi
+                                                                                                   # assign
+                                                                                                   # if passed argument   it means  I want to change the description instead
+                                                                                                   # +----- assing the next passed text instead
 if [[ ! -z "$1"  ]] ; then
   {
     DESCRIPTION="""${@}"""
   }
 fi
+
+
+
 
 
 echo "    - description „${DESCRIPTION}” "

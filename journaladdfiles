@@ -14,10 +14,10 @@ if [[ -z "$1" ]] ; then  # if argument was not passed
     {
       . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
-      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
-  		DESCRIPTION=$(git config branch.${CURBRANCH}.description  | sed 's/..............20/„/g' | cut -d'„' -f1);
-      #DESCRIPTION=$(describe | tail -1)
-      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then
+      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"                                     # Get the description for the git config
+       . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION
+  		#DESCRIPTION=$(describe | tail -1)
+      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then                                               # or get the decsription from the file
         {
             DESCRIPTION=$(<.description)
         }

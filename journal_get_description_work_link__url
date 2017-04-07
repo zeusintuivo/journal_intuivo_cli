@@ -3,9 +3,21 @@
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
 
+. $FOUND_DIR_JOURNAL/journal_get_git_user_name
+
 function get_ticket_link_url() {
 # Get Company and Project Name from Github - start
-GIT_REMOTE_ORIGIN=$(git remote show origin | head -2 | tail -1)
+GIT_REMOTE_ORIGIN=$(git remote show origin 2>&1 )  # Check remote git,capture all output, error will return 1 to $?
+if [[ "${GIT_REMOTE_ORIGIN}" == *"ERROR"* ]]  ; then
+{
+  echo -e "${red} ERROR \! Attempting to access Git remote ${reset}"
+  echo -e "${red} ${GIT_REMOTE_ORIGIN} ${reset}"
+  echo -e "${yellow220} current git user ${GIT_USER_NAME} ${reset}"
+  echo -e "${red} FIX\! ${reset}"
+  exit 130;
+}
+fi
+GIT_REMOTE_ORIGIN=$(echo "${GIT_USER_NAME}" | head -2 | tail -1)
 # expectation is that the url will look like https://github.com/wplib/wplib-box.git
 # We could have  Fetch URL: git@github.com:company/project_name.git
 # or
@@ -13,6 +25,7 @@ GIT_REMOTE_ORIGIN=$(git remote show origin | head -2 | tail -1)
 #
 #
 # expectation is to get github.com  & firma_company &  project_name
+
 GITHUBNAMEPROJECT=""                                                                #Objective is to get the company_name / project_name
 if [[ "${GIT_REMOTE_ORIGIN}" == *"git@"* ]]  ; then
   {

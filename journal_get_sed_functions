@@ -1,4 +1,4 @@
-#!/bin/bas #dependency
+#!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
@@ -36,6 +36,12 @@ function spaces_to_underdash {
 }
 function escape_spaces {
     sed 's/\ /\\\ /g'
+}
+function escape_slashes {
+    sed 's/\//\\\//g'
+}
+function escape_quotes {
+    sed 's/\"/\\\"/g'
 }
 function change_line {
     local OLD_LINE_PATTERN=$1; shift

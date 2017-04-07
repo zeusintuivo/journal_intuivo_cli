@@ -109,7 +109,8 @@ if [[ -z "$1"  ]] ; then
 }
 fi
 
-# Argument was passed then this will continue
+# Argument was passed then this will continue                                                                             # I passed an argument description
+                                                                                                                          # sample "describe new stuff to describe "
 
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 
@@ -117,8 +118,6 @@ echo -e "${blue23} • ${blue30} Prepare new Description Entry ${GRAY241}"
 . $FOUND_DIR_JOURNAL/journal_get_ticketid
 
 DESCRIPTION=""
-
-
 if [[ ! -z "$1"  ]] ; then
 	# show all branches
     DESCRIPTION="$1"

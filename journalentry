@@ -19,8 +19,7 @@ fi
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 echo -e "${blue23} • ${blue30} Prepare new Journal Entry "
-# if argument 2 as passed
-TICKETID=$( echo ${CURBRANCH} | cut -d'/' -f2)
+. $FOUND_DIR_JOURNAL/journal_get_ticketid
 NOTE="$1"
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
@@ -37,7 +36,9 @@ CURDESC=$(branches -l | sed -n -e 's/^\* \(.*\)/\1/p'  | sed 's/${ESCAPEDCURBRAN
 # if it has this char ‡ anywhere in the description then cut of the description
 if [[ $SEEKING == *"‡"* ]]
 then
-	CURDESC=$(echo ¢{CURDESC} | cut -d'‡' -f2)
+    . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION
+    CURDEC="${DESCRIPTION}"
+	CURDESC=$(echo ${CURDESC} | cut -d'‡' -f2)   # nice char ¢
 fi
 
 
