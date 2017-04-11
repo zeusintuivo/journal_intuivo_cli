@@ -3,7 +3,7 @@
 # @author Zeus Intuivo <zeus@intuivo.com>
 # @actioner
 #
-. journal_find_journal_dir
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config
 

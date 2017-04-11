@@ -2,7 +2,7 @@
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
-. journal_find_journal_dir
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config
 
@@ -316,136 +316,9 @@ echo -e "${blue23} • ${blue30} Copy file full description to target/.descripti
 	subl "${FILENAME_PULL_REQUEST_JOURNAL}"
 	wait
 
-	echo -e "${blue23} • ${blue30} Save files  ${reset}"
-	echo -e "${blue23} • ${blue30} Get differences from Branches Respective to Develop  ${reset}"
-  CHANGED_FILES=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH} | cut -c3-)
-	CHANGED_FILES_WITH_STATUS=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH})
+. $FOUND_DIR_JOURNAL/journal_get_changed_files_list
+. $FOUND_DIR_JOURNAL/journal_get_changed_files_list_by_me
 
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " FILES:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo "${CHANGED_FILES_WITH_STATUS}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo "---- ANALISIS"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-
-
-  echo -e "${blue23} • ${blue30} Copy the files to JOURNAL_DIRECTORY ENTRY: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
-	echo -e "${blue23} • ${blue30} The following files changed  ${reset}"
-  echo -e "${green}++++ ${reset}"
-  CHANGED_BY_ME=""
-  ME_NAME=$(git config user.name)
-  ME_EMAIL=$(git config user.email)
-  ME_AUTHOR="Author: ${ME_NAME} <${ME_EMAIL}>"
-  FILES_EXPANDED=""
-
-function remove_empty_lines(){
-  sed '/^$/d'
-}
-                          # duplicated in execute_command.sh:55
-                          function trim_start_space() {
-                              sed -e 's/^[[:space:]]*//' | sed 's/^\ //g' | sed 's/^\t//g'
-                          }
-                          function trim_end_space() {
-                              sed -e 's/[[:space:]]*$//' | sed 's/\ $//g' | sed 's/\t$//g'
-                          }
-                          function trim() {
-                              trim_start_space | trim_end_space
-                          }
-function file_author_last_commit(){
-  git log -n 1 -- """${1}""" | grep --color=no Author
-}
-function file_last_commit(){
-  git log -n 1 -- """${1}""" | egrep --color=no -v "Author: "|  egrep --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
-}
-
-FILENAME_LENGTH=0
-BIGGEST_FILENAME_LENGTH=0
-AUTHOR_LENGTH=0
-BIGGEST_AUTHOR_LENGTH=0
-	while read -r CHANGED_FILE; do
-      # if not empty line
-      if [ ! -z "${CHANGED_FILE}" ] ; then
-      	# if file exists ...like deleted...it will still show in the git diff per se
-      	if [ -f "${CHANGED_FILE}" ] ; then
-      		echo -e "${yellow220} ${CHANGED_FILE} ${reset}"
-          echo "CHANGED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-          FILE_LAST_AUTHOR=$(file_author_last_commit """${CHANGED_FILE}""")
-          FILE_LAST_COMMIT=$(file_last_commit """${CHANGED_FILE}""")
-          FILENAME_LENGTH=${#CHANGED_FILE}        # get strlen string length
-          if [ ${FILENAME_LENGTH} -gt ${BIGGEST_FILENAME_LENGTH} ] ;  then
-            {
-              BIGGEST_FILENAME_LENGTH=${FILENAME_LENGTH}
-            }
-          fi
-          AUTHOR_LENGTH=${#FILE_LAST_AUTHOR}       # get strlen string length
-          if [ ${AUTHOR_LENGTH} -gt ${BIGGEST_AUTHOR_LENGTH} ] ;  then
-            {
-              BIGGEST_AUTHOR_LENGTH=${AUTHOR_LENGTH}
-            }
-          fi
-	      	# Copy files recursively keep directories REF: http://stackoverflow.com/questions/1650164/bash-copy-named-files-recursively-preserving-folder-structure
-    			# check operation systems
-          FILES_EXPANDED="${FILES_EXPANDED}
-${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
-          if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-            {
-              CHANGED_BY_ME="${CHANGED_BY_ME}
-${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
-            }
-          fi
-
-          # check operation systems- copy start
-    			(
-    			  if [[ "$(uname)" == "Darwin" ]] ; then
-    			    # Do something under Mac OS X platform
-    				  rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                   rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
-    			    # Do something under GNU/Linux platform
-    			    cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                   cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
-    			    # Do something under Windows NT platform
-    			    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			    # nothing here
-    			  fi
-    			)
-          # check operation systems - copy end
-
-    		else
-    			echo -e "${red} ${CHANGED_FILE} -deleted or renamed- ${reset}"
-          echo "DELETED OR " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-          echo "RENAMED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-    		fi
-
-      fi
-
-	done <<< "${CHANGED_FILES}"
-
-
-
-	#echo "${CHANGED_FILES}"
-	echo -e "${green}++++ ${reset}"
   echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"

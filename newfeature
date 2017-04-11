@@ -5,7 +5,7 @@
 #set -eu
 #set -o pipefail
 #set -x
-. journal_find_journal_dir
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config
 

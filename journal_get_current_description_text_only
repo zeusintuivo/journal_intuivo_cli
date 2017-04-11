@@ -10,7 +10,7 @@
 
 
   # if description is empty
-. journal_find_journal_dir
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 . $FOUND_DIR_JOURNAL/journal_get_extract_something_trimmed_between
 
