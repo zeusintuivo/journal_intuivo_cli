@@ -319,11 +319,7 @@ echo -e "${blue23} • ${blue30} Copy file full description to target/.descripti
 . $FOUND_DIR_JOURNAL/journal_get_changed_files_list
 . $FOUND_DIR_JOURNAL/journal_get_changed_files_list_by_me
 
-  echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+
 
 function _column_print_to_file_worker(){
   local show_author="${1}"

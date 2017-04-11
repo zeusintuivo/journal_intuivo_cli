@@ -7,10 +7,12 @@
 [[ -z "${CURBRANCH}" ]] && . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 	echo -e "${blue23} • ${blue30} Save files  ${reset}"
-	echo -e "${blue23} • ${blue30} Get differences from Branches Respective to Develop  ${reset}"
+	echo -e "${blue23} • ${blue30} Get differences from Branches Respective to ${BRANCH_MERGE_AGAINST}  ${reset}"
   CHANGED_FILES=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH} | cut -c3-)
 	CHANGED_FILES_WITH_STATUS=$(git diff --name-status ${BRANCH_MERGE_AGAINST}..${CURBRANCH})
 
+if [[ ! -z "${FILENAME_PULL_REQUEST_JOURNAL}"  && -f "${FILENAME_PULL_REQUEST_JOURNAL}" ]] ; then
+{
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
@@ -24,8 +26,20 @@
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo "---- ANALISIS"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+}
+fi
 
 
   echo -e "${blue23} • ${blue30} Copy the files to JOURNAL_DIRECTORY ENTRY: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
 	echo -e "${blue23} • ${blue30} The following files changed  ${reset}"
   echo -e "${green}++++ ${reset}"
+
+if [[ ! -z "${FILENAME_PULL_REQUEST_JOURNAL}"  && -f "${FILENAME_PULL_REQUEST_JOURNAL}" ]] ; then
+{
+  echo "++++"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+  echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+}
+fi
