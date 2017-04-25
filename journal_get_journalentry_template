@@ -36,7 +36,7 @@
     CURRENTAMPM="pm"
   fi
   FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
-  TODAYSENTRY=$(echo "${FILENAME}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+  TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
 
   #TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
   JOURNALENTRY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}/${TODAYSENTRY}"

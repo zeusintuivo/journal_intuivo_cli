@@ -74,7 +74,7 @@ fi
 
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 

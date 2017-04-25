@@ -155,7 +155,7 @@ fi
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
 
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
@@ -218,7 +218,7 @@ JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
 	fi
 
 	FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
-	TODAYSENTRY=$(echo "${FILENAME}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+	TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
 	#TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
 

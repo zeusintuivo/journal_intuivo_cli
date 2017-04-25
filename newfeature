@@ -12,8 +12,7 @@
 
 THISSCRIPTNAME=`basename "$0"`
 
-
-if [[ -z "$1"  ]] ; then  # if argument was not passed
+show_help() {
     echo -e ""
     echo -e "${red} Error, showing all Local Branches:  ${blue23} Hint... Write the name of one ... Pick one ..   ${reset}"
     echo -e ""
@@ -50,6 +49,11 @@ if [[ -z "$1"  ]] ; then  # if argument was not passed
     echo -e "${blue30}            ${THISSCRIPTNAME} MDM-35  \"Fix no index SEO\" from gh-pages   ${reset}"
     echo -e ""
     echo -e ""
+} # end show_help
+
+
+if [[ -z "$1"  ]] ; then  # if argument was not passed
+    show_help
     exit 0;
 fi
 
@@ -69,7 +73,7 @@ fi
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
 
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | ae_to_underdash | oe_to_underdash | ue_to_underdash | ss_to_underdash | spaces_to_underdash | house_to_underdash | money_to_underdash | equal_to_underdash | quotes_to_underdash | slash_to_underdash)
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
