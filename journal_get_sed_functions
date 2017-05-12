@@ -7,11 +7,8 @@
 function slash_to_underdash {
     sed 's/\//\_/g'
 }
-function quote_to_underdash {
-    sed "s/\'/\_/g"
-}
-function double_qoute_to_underdash {
-    sed 's/\"/\_/g'
+function single_quote_to_underdash {
+   sed "s/'/\_/g"
 }
 function house_to_underdash {
     sed 's/\^/\_/g'
@@ -37,7 +34,7 @@ function equal_to_underdash {
 function plus_to_underdash {
     sed 's/\+/\_/g'
 }
-function quotes_to_underdash {
+function double_quotes_to_underdash {
     sed 's/\"/\_/g'
 }
 function commas_to_underdash {
@@ -55,14 +52,13 @@ function convert_to_underdash {
  | oe_to_underdash \
  | ue_to_underdash \
  | ss_to_underdash \
- | quote_to_underdash \
- | double_qoute_to_underdash \
  | spaces_to_underdash \
  | house_to_underdash \
  | money_to_underdash \
  | equal_to_underdash \
  | plus_to_underdash \
- | quotes_to_underdash \
+ | single_quote_to_underdash \
+ | double_quotes_to_underdash \
  | slash_to_underdash \
  | commas_to_underdash \
  | remove_double_underdash
