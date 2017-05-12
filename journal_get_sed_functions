@@ -28,6 +28,9 @@ function money_to_underdash {
 function equal_to_underdash {
     sed 's/\=/\_/g'
 }
+function plus_to_underdash {
+    sed 's/\+/\_/g'
+}
 function quotes_to_underdash {
     sed 's/\"/\_/g'
 }
@@ -38,8 +41,9 @@ function spaces_to_underdash {
     sed 's/\ /\_/g'
 }
 function remove_double_underdash {
-    sed 's/__/\_/g'
+    sed 's/__/\_/g' | sed 's/__/\_/g'
 }
+
 function convert_to_underdash {
    ae_to_underdash \
  | oe_to_underdash \
@@ -49,6 +53,7 @@ function convert_to_underdash {
  | house_to_underdash \
  | money_to_underdash \
  | equal_to_underdash \
+ | plus_to_underdash \
  | quotes_to_underdash \
  | slash_to_underdash \
  | commas_to_underdash \

@@ -34,7 +34,7 @@ CURDESC=$(branches -l | sed -n -e 's/^\* \(.*\)/\1/p'  | sed 's/${ESCAPEDCURBRAN
 
 
 # if it has this char ‡ anywhere in the description then cut of the description
-if [[ $SEEKING == *"‡"* ]]
+if [[ $CURDESC == *"‡"* ]]
 then
     . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION
     CURDEC="${DESCRIPTION}"

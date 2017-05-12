@@ -346,7 +346,7 @@ function _column_print_to_file_worker(){
                   # if not empty
                   if [ ! -z "${one_line}" ] ; then
                     {
-                      commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+                      commit_message=$(cut -d"|" -f3 <<< trim <<< "${one_line}")
                       commit_length=${#commit_message}     # get strlen string length
                       if [ ${commit_length} -gt ${biggest_commit_length} ] ;  then
                         {
@@ -365,9 +365,9 @@ function _column_print_to_file_worker(){
           # if not empty
           if [ ! -z "${one_line}" ] ; then
             {
-              filename=$(cut -d"∆" -f1 <<< "${one_line}")
-              author=$(cut -d"∆" -f2 <<< "${one_line}")
-              commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+              filename=$(cut -d"|" -f1 <<< "${one_line}")
+              author=$(cut -d"|" -f2 <<< "${one_line}")
+              commit_message=$(cut -d"|" -f3 <<< trim <<< "${one_line}")
 
               filename_chars=$(wc -c <<< "${filename}")
               if [ "$filename_chars" -gt "$first_colum" ] ; then
@@ -500,8 +500,8 @@ function _match_tree_filenames_with_commits_worker(){
                   # if not empty
                   if [ ! -z "${one_line}" ] ; then
                     {
-                      #commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
-                      commit_message=$(cut -d"∆" -f3 <<< "${one_line}")
+                      #commit_message=$(cut -d"|" -f3 <<< trim <<< "${one_line}")
+                      commit_message=$(cut -d"|" -f3 <<< "${one_line}")
                       commit_length=${#commit_message}     # get strlen string length
                       if [ "${commit_length}" -gt "${biggest_commit_length}" ] ;  then
                         {
@@ -550,10 +550,10 @@ function _match_tree_filenames_with_commits_worker(){
                   # if not empty
                   if [ ! -z "${one_line}" ] ; then
                     {
-                      filepathname=$(cut -d"∆" -f1 <<< "${one_line}")
+                      filepathname=$(cut -d"|" -f1 <<< "${one_line}")
                       filename=${filepathname##*/}          # get only last filename
-                      author=$(cut -d"∆" -f2 <<< "${one_line}")
-                      commit_message=$(cut -d"∆" -f3 <<< trim <<< "${one_line}")
+                      author=$(cut -d"|" -f2 <<< "${one_line}")
+                      commit_message=$(cut -d"|" -f3 <<< trim <<< "${one_line}")
 
                       #debugging
                       #echo "filepathname:${filepathname}"

@@ -60,11 +60,11 @@ BIGGEST_AUTHOR_LENGTH=0
 	      	# Copy files recursively keep directories REF: http://stackoverflow.com/questions/1650164/bash-copy-named-files-recursively-preserving-folder-structure
     			# check operation systems
           FILES_EXPANDED="${FILES_EXPANDED}
-${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
+${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
           if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
             {
               CHANGED_BY_ME="${CHANGED_BY_ME}
-${CHANGED_FILE}∆${FILE_LAST_AUTHOR}∆${FILE_LAST_COMMIT}"
+${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
             }
           fi
 
