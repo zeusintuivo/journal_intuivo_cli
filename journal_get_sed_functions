@@ -47,6 +47,14 @@ function remove_double_underdash {
     sed 's/__/\_/g' | sed 's/__/\_/g'
 }
 
+function squared_braket_open_to_underdash {
+    sed "s/\[/\_/g"
+}
+
+function squared_braket_close_to_underdash {
+    sed "s/\]/\_/g"
+}
+
 function convert_to_underdash {
    ae_to_underdash \
  | oe_to_underdash \
@@ -61,6 +69,8 @@ function convert_to_underdash {
  | double_quotes_to_underdash \
  | slash_to_underdash \
  | commas_to_underdash \
+ | squared_braket_open_to_underdash \
+ | squared_braket_close_to_underdash \
  | remove_double_underdash
 }
 function escape_spaces {
