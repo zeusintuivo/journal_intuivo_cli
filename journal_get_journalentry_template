@@ -9,7 +9,11 @@
 
   ACTION="start"
   # if dir does not exist create it   ---  Update PATH bashrc var if it exists
-  THIS_JOURNAL_ENTRY_TARGET_DIR="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+  if [[ ! -z "${JOURNALDIR}"  ]] ; then
+    THIS_JOURNAL_ENTRY_TARGET_DIR="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+  else
+    THIS_JOURNAL_ENTRY_TARGET_DIR="${JOURNAL_HOME}/journals/${PROJECTNAME}"
+  fi
   # if dir does not exist create it   ---  Update PATH bashrc var if it exists
   if [[ !  -d "${THIS_JOURNAL_ENTRY_TARGET_DIR}/" ]] ;  then
     {
@@ -39,8 +43,11 @@
   TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
 
   #TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
-  JOURNALENTRY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}/${TODAYSENTRY}"
-
+  if [[ ! -z "${JOURNALDIR}"  ]] ; then
+    JOURNALENTRY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}/${TODAYSENTRY}"
+  else
+    JOURNALENTRY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${TODAYSENTRY}"
+  fi
   echo -e "${blue23} • ${blue30} Making entry on Journal ${reset}"
   echo -e "${JOURNALENTRY} ${reset}"
   touch "${JOURNALENTRY}"

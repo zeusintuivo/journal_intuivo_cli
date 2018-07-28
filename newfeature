@@ -9,7 +9,6 @@
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config
 
-
 THISSCRIPTNAME=`basename "$0"`
 
 show_help() {
@@ -59,21 +58,40 @@ fi
 
 
 echo -e "${blue23} • ${blue30} Prepare new Journal Entry ${reset}"
-# if argument 2 has passed
 TICKETID="$1"
 DESCRIPTION=""
 NEWBRANCH="feature/${TICKETID}"
+# if argument 2 was passed
 if [[ ! -z "$2"  ]] ; then
-	# show all branches
-    DESCRIPTION="$2"
-
+  # grab for description
+	DESCRIPTION="$2"
 fi
+
 
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
 
+JOURNAL_PROJECT_WORKING_ON=${PWD}
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
+
 JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
+
+if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] ; then
+	NEWBRANCH="feature/${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"
+fi
+
+echo "${NEWBRANCH}"
+exit 1
+
+if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
+	if [[ "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}" != "empty"  ]] ; then
+		JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  | convert_to_underdash )
+	else
+		JOURNALDIR=""
+	fi
+fi
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 

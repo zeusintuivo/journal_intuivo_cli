@@ -46,17 +46,49 @@ function spaces_to_underdash {
 function remove_double_underdash {
     sed 's/__/\_/g' | sed 's/__/\_/g'
 }
-
 function squared_braket_open_to_underdash {
     sed "s/\[/\_/g"
 }
-
 function squared_braket_close_to_underdash {
     sed "s/\]/\_/g"
 }
-
+function remove_starting_underdash {
+    sed 's/^\(\_\)*//'
+}
+function remove_last_underdash {
+    sed 's/\_$//'
+}
+function cut_only_35 {
+    cut -c 1-35
+}
+function spaces_to_newlines() {
+    sed 's/ /\n/g'
+}
+function underdash_to_newlines() {
+    sed 's/\_/\n/g'
+}
+function use_5_words {
+    local COUNTER=0
+    local COMBINED=''
+    # echo "${hola}"
+    while read -r one_word; do
+    {
+        #echo "${one_word}r"
+        COMBINED="${COMBINED} ${one_word}"
+        (( COUNTER++ ))
+        if [ $COUNTER -eq 5 ]; then
+          echo "${COMBINED}"
+          exit
+        fi
+    }
+    done <<< "$(underdash_to_newlines)"
+}
+function dash_to_underdash {
+    sed 's/\-/\_/g'
+}
 function convert_to_underdash {
    ae_to_underdash \
+ | dash_to_underdash \
  | oe_to_underdash \
  | ue_to_underdash \
  | ss_to_underdash \
@@ -71,7 +103,33 @@ function convert_to_underdash {
  | commas_to_underdash \
  | squared_braket_open_to_underdash \
  | squared_braket_close_to_underdash \
- | remove_double_underdash
+ | remove_double_underdash \
+ | remove_starting_underdash \
+ | remove_last_underdash
+}
+function underscore_to_dash {
+    sed "s/\_/\-/g"
+}
+function underscore_to_space {
+    sed "s/\_/ /g"
+}
+function convert_to_dash {
+    convert_to_underdash \
+  | underscore_to_dash
+}
+function convert_to_35_dashed {
+    convert_to_underdash \
+  | cut_only_35 \
+  | underscore_to_dash \
+  | remove_last_underdash
+}
+function only_5_dashed_words {
+    convert_to_underdash \
+  | use_5_words \
+  | spaces_to_underdash \
+  | remove_starting_underdash \
+  | remove_last_underdash \
+  | underscore_to_dash
 }
 function escape_spaces {
     sed 's/\ /\\\ /g'
