@@ -57,11 +57,19 @@ if [[ -z "$1"  ]] ; then
 		echo -e "${green50}            ${THISSCRIPTNAME} MDM-35  \"Fix no index SEO\" from gh-pages   ${reset}"
 		echo -e ""
 		echo -e ""
+		echo -e "${blue30}            ${THISSCRIPTNAME}  --debug "
+    echo -e "              start debugging and git create, pull, push will not be executed"
+    echo -e ""
     exit 0;
 fi
 
+DEBUG_PROCESS=0
+[[ "${@}" == *"--debug"* ]] && DEBUG_PROCESS=1
+(( $DEBUG_PROCESS )) &&
+(( $DEBUG_PROCESS )) && echo -e "\\033[38;5;DEBUG_PROCESS: ON \\033[38;5;32m : ${DEBUG_PROCESS} :"
 
-echo -e "${blue23} • ${blue30} Prepare new Issue Entry ${reset}"
+
+msg_bullet "Prepare new Issue Entry ${reset}"
 # if argument 2 has passed
 TICKETID="$1"
 DESCRIPTION=""
@@ -76,76 +84,96 @@ fi
 
 JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
+#
+JOURNAL_PROJECT_WORKING_ON=${PWD}
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
+if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] ; then
+	NEWBRANCH="issue-${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"
+fi
+
+if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
+	if [[ "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}" != "empty"  ]] ; then
+		JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  | convert_to_underdash )
+	else
+		JOURNALDIR=""
+	fi
+fi
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
+#
+
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
-echo -e "${blue23} • ${blue30} Go to ${TARGETBASEBRANCH}  ${reset}"
-git checkout """${TARGETBASEBRANCH}"""
+msg_bullet "Go to ${TARGETBASEBRANCH}  ${reset}"
+(( ! $DEBUG_PROCESS )) && git checkout """${TARGETBASEBRANCH}"""
 
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 if [[ "${CURBRANCH}" != "${TARGETBASEBRANCH}"  ]] ; then
-	echo -e "${red} ERROR ! We did not switch to branch '${TARGETBASEBRANCH}' ${reset}"
-	exit 1;
+	msg_error "We did not switch to branch '${TARGETBASEBRANCH}' ${reset}"
+	(( ! $DEBUG_PROCESS )) && exit 1;
 fi
 # if file exists, I assume this is a shallow copy
 # REF: http://stackoverflow.com/questions/6941889/is-it-safe-to-shallow-clone-with-depth-1-create-commits-and-pull-updates-aga
 # REF: https://github.com/git/git/commit/9cfde9ee8f6dc82365f1e977935960f34108076b documentation on Shallow I viewd on 2016 07 July 02
 if [[ -f ".git/shallow" ]] ;	then
-	echo -e "${blue23} • ${blue30} This is a shallow REPO ${TARGETBASEBRANCH}  ${reset}"
-	git fetch --depth 1
-	git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
+	msg_bullet "This is a shallow REPO ${TARGETBASEBRANCH}  ${reset}"
+	(( ! $DEBUG_PROCESS )) && git fetch --depth 1
+	(( ! $DEBUG_PROCESS )) && git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
 	#git pull  --progress --depth 1 origin """${TARGETBASEBRANCH}"""
 else
-	echo -e "${blue23} • ${blue30} This is a Normal repo.. not shallow ${TARGETBASEBRANCH}  ${reset}"
-	git fetch
-	git pull  origin """${TARGETBASEBRANCH}"""
+	msg_bullet "This is a Normal repo.. not shallow ${TARGETBASEBRANCH}  ${reset}"
+	(( ! $DEBUG_PROCESS )) && git fetch
+	(( ! $DEBUG_PROCESS )) && git pull  origin """${TARGETBASEBRANCH}"""
 
 fi
 
-
-echo -e "${blue23} • ${blue30} Create from ${TARGETBASEBRANCH}"
-echo -e "${blue23} • ${blue30} Create new branch ${green} """"${NEWBRANCH}""""${reset} using git flow ${reset}"
+msg_bullet "Create from ${TARGETBASEBRANCH}"
 if [[ "develop" == "${TARGETBASEBRANCH}"  ]] ; then
-	git flow feature start """${TICKETID}""";
+	msg_bullet "Create new branch ${green} """"${NEWBRANCH}""""${reset} using git flow ${reset}"
+	(( ! $DEBUG_PROCESS )) && git flow feature start """${TICKETID}""";
 		if [ $? != 0 ]; then
-			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi
 else
-	git checkout -b """${NEWBRANCH}""";  # This is set to "feature/${TICKETID}" line 47-ish above
+	(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";  # This is set to "issue-${TICKETID}" line 47-ish above
 		if [ $? != 0 ]; then
-			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi
 fi
 
 wait
 
-
-	CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+#	CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output issue-TO-229
 
 	# Stop here to now ruin branch .. if we are still in ${TARGETBASEBRANCH}
 	if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
-		echo "${yellow220} WARNING ! we are still in '${TARGETBASEBRANCH}' ${reset}"
-		echo -e "${blue23} • ${blue30} Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation ${reset}"
-		git checkout -b """${NEWBRANCH}""";
+		msg_warning "we are still in '${TARGETBASEBRANCH}' ${reset}"
+		msg_bullet "Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation ${reset}"
+		(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";
 		if [ $? != 0 ]; then
-			echo "${yellow220} WARNING !  '${NEWBRANCH}' could not be created!. ${reset}"
+			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi
 		wait
-		CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
-		echo -e "${blue23} • ${blue30} Checking for branch """"${NEWBRANCH}"""" again ${reset}"
+		. $FOUND_DIR_JOURNAL/journal_get_current_branch
+		# CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output issue-TO-229
+		msg_bullet "Checking for branch """"${NEWBRANCH}"""" again ${reset}"
 		if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
 			if [[ "${SAMEBRANCH}" == "YES"  ]] ; then
-				echo -e "${blue23} • ${blue30} Commiting and Base are the same ${reset}"
+				msg_bullet "Commiting and Base are the same ${reset}"
 			else
 				# Base branch should have been 'develop' or different from the current branch
-				echo -e "${red} ERROR ! we are still in ${TARGETBASEBRANCH} ${reset}"
+				msg_error "we are still in ${TARGETBASEBRANCH} ${reset}"
 				exit 1;
 			fi
 		fi
 	fi
 
-	CURRENTDATE=`date +%Y%m%d`
-	echo -e "${blue23} • ${blue30} New Feature Created: """"${CURBRANCH}""""${reset}";
+	msg_bullet "New Issue Created: """"${CURBRANCH}""""${reset}";
 
 . $FOUND_DIR_JOURNAL/journal_get_journalentry_template
 . $FOUND_DIR_JOURNAL/journal_get_description_one_liner_construct

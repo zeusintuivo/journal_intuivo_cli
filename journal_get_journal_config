@@ -10,3 +10,13 @@ JOURNAL_HOME="/_" # <-- I used for mac
 
 CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
+
+function msg_bullet() {
+	echo -e "${blue23} • ${blue30} ${@} ${reset}"
+}
+function msg_error() {
+	echo -e "${red} ERROR ! ${@} ${reset}"
+}
+function msg_warning() {
+	echo -e "${yellow220} WARNING ! ${@} ${reset}"
+}

@@ -53,15 +53,6 @@ show_help() {
     echo -e ""
 } # end show_help
 
-function msg_bullet() {
-	echo -e "${blue23} • ${blue30} ${@} ${reset}"
-}
-function msg_error() {
-	echo -e "${red} ERROR ! ${@} ${reset}"
-}
-function msg_warning() {
-	echo -e "${yellow220} WARNING ! ${@} ${reset}"
-}
 if [[ -z "$1"  ]] ; then  # if argument was not passed
     show_help
     exit 0;
@@ -135,18 +126,21 @@ fi
 msg_bullet Create from ${TARGETBASEBRANCH}
 if [[ "develop" == "${TARGETBASEBRANCH}"  ]] ; then
   msg_bullet Create new branch ${green} """"${NEWBRANCH}""""${yellow220} using git flow
-	#DEBUG # git flow feature start """${TICKETID}""";
+	(( ! $DEBUG_PROCESS )) && git flow feature start """${TICKETID}""";
 		if [ $? != 0 ]; then
 			msg_warning "'${NEWBRANCH}' could not be created!."
 		fi
 else
-	# git checkout -b """${NEWBRANCH}""";  # This is set to "feature/${TICKETID}" line 47-ish above
+	(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";  # This is set to "feature/${TICKETID}" line 47-ish above
 		if [ $? != 0 ]; then
 			msg_warning "'${NEWBRANCH}' could not be created!."
 		fi
 fi
 
 wait
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+	# CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
 
 
 	# Stop here to now ruin branch .. if we are still in ${TARGETBASEBRANCH}
