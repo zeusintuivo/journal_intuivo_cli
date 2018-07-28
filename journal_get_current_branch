@@ -5,7 +5,6 @@
     #
     # CURBRANCH - start
     #
-
       # Get the current branch name into a variable
       #CURBRANCH=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')   # wrong output   TO-229
       #echo -e "${blue23} • ${blue30} Get current branch name  "

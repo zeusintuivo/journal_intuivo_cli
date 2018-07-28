@@ -40,6 +40,12 @@ function double_quotes_to_underdash {
 function commas_to_underdash {
     sed 's/\,/\_/g'
 }
+function common_to_underdash {
+    sed 's/\:/\_/g'
+}
+function semicommon_to_underdash {
+    sed 's/\;/\_/g'
+}
 function spaces_to_underdash {
     sed 's/\ /\_/g'
 }
@@ -67,21 +73,26 @@ function spaces_to_newlines() {
 function underdash_to_newlines() {
     sed 's/\_/\n/g'
 }
-function use_5_words {
+function limit_words {
+    local LIMIT=$1
     local COUNTER=0
     local COMBINED=''
-    # echo "${hola}"
     while read -r one_word; do
     {
-        #echo "${one_word}r"
         COMBINED="${COMBINED} ${one_word}"
         (( COUNTER++ ))
-        if [ $COUNTER -eq 5 ]; then
+        if [ $COUNTER -eq $LIMIT ]; then
           echo "${COMBINED}"
           exit
         fi
     }
     done <<< "$(underdash_to_newlines)"
+}
+function use_5_words {
+    limit_words 5 """${@}"""
+}
+function use_7_words {
+    limit_words 7 """${@}"""
 }
 function dash_to_underdash {
     sed 's/\-/\_/g'
@@ -92,6 +103,8 @@ function convert_to_underdash {
  | oe_to_underdash \
  | ue_to_underdash \
  | ss_to_underdash \
+ | semicommon_to_underdash \
+ | common_to_underdash \
  | spaces_to_underdash \
  | house_to_underdash \
  | money_to_underdash \
@@ -126,6 +139,14 @@ function convert_to_35_dashed {
 function only_5_dashed_words {
     convert_to_underdash \
   | use_5_words \
+  | spaces_to_underdash \
+  | remove_starting_underdash \
+  | remove_last_underdash \
+  | underscore_to_dash
+}
+function only_7_dashed_words {
+    convert_to_underdash \
+  | use_7_words \
   | spaces_to_underdash \
   | remove_starting_underdash \
   | remove_last_underdash \
