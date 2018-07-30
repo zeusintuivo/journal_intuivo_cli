@@ -57,6 +57,11 @@ else
   }
 fi
 
+DEBUG_PROCESS=0
+[[ "${@}" == *"--debug"* ]] && DEBUG_PROCESS=1
+(( $DEBUG_PROCESS )) &&
+(( $DEBUG_PROCESS )) && echo -e "\\033[38;5;DEBUG_PROCESS: ON \\033[38;5;32m : ${DEBUG_PROCESS} :"
+
 
 
 #
@@ -126,7 +131,6 @@ else
   {
     TICKETID="${CURBRANCH}"    # JUST USE BRANCH NAME TO COMPARE
     NEWBRANCH="${TICKETID}"
-
   }
 fi
 
@@ -156,6 +160,50 @@ fi
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
 
 JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
+
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
+#
+JOURNAL_PROJECT_WORKING_ON=${PWD}
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
+if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+  {
+    if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
+      {
+        if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] ; then
+          NEWBRANCH="feature/${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"
+        fi
+
+        if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
+          if [[ "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}" != "empty"  ]] ; then
+            JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  | convert_to_underdash )
+          else
+            JOURNALDIR=""
+          fi
+        fi
+      }
+    fi
+    if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+      {
+        if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] ; then
+          NEWBRANCH="issue-${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"
+        fi
+
+        if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
+          if [[ "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}" != "empty"  ]] ; then
+            JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  | convert_to_underdash )
+          else
+            JOURNALDIR=""
+          fi
+        fi
+      }
+    fi
+  }
+fi
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
+#
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
