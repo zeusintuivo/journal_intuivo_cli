@@ -61,7 +61,7 @@ fi
 DEBUG_PROCESS=0
 [[ "${@}" == *"--debug"* ]] && DEBUG_PROCESS=1
 (( $DEBUG_PROCESS )) &&
-(( $DEBUG_PROCESS )) && echo -e "\\033[38;5;DEBUG_PROCESS: ON \\033[38;5;32m : ${DEBUG_PROCESS} :"
+(( $DEBUG_PROCESS )) && echo -e "${voilet}DEBUG_PROCESS${yellow220}:${green} ON ${yellow220}== ${blue32}${DEBUG_PROCESS} ${yellow220}:"
 
 msg_bullet Prepare new Journal Entry
 TICKETID="$1"
@@ -94,6 +94,7 @@ if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
 		JOURNALDIR=""
 	fi
 fi
+
 #
 # Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
 #
@@ -149,7 +150,7 @@ wait
 		msg_bullet Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation
 		(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}"""
 		if [ $? != 0 ]; then
-			msg_warning '${NEWBRANCH}' could not be created!.
+			msg_warning "'${NEWBRANCH}' could not be created!."
 		fi
 		wait
 

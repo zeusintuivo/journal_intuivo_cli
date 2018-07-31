@@ -1,9 +1,9 @@
 export SSH_KEY="zeus"
 export GITUSER="zeusintuivo"
 export JOURNAL_PUT_COMMIT_METHOD="commit"  # put or commit
-(( only_7_dashed_words )) && export JOURNAL_NEWBRANCH_STYLE_4_FEATURE=$(echo "${TICKETID}_${DESCRIPTION}" |  only_7_dashed_words ) # methods from sed_function inside journal
+[[ type -t only_7_dashed_words == *"function"* ]] && export JOURNAL_NEWBRANCH_STYLE_4_FEATURE=$(echo "${TICKETID}_${DESCRIPTION}" |  only_7_dashed_words ) # methods from sed_function inside journal
 export JOURNAL_JOURNALDIR_STYLE_4_FEATURE="empty"  # empty will behave as empty directory when creating it.
-(( only_7_dashed_words )) && export JOURNAL_NEWBRANCH_STYLE_4_ISSUE=$(echo "${TICKETID}_${DESCRIPTION}" |  only_7_dashed_words )  # methods from sed_function inside journal
+[[ type -t only_7_dashed_words == *"function"* ]] && export JOURNAL_NEWBRANCH_STYLE_4_ISSUE=$(echo "${TICKETID}_${DESCRIPTION}" |  only_7_dashed_words )  # methods from sed_function inside journal
 export JOURNAL_JOURNALDIR_STYLE_4_ISSUE="empty"
 export BUNDLE_GITHUB__COM=qweqwerqwerqwerqwerqwerqwerqwerqwerqwerq
 export GITHUB_TOKEN=qweqwerqwerqwerqwerqwerqwerqwerqwerqwerq
