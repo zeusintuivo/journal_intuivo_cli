@@ -80,7 +80,7 @@ FILENAME_FOR_DESCRIPTION_ASSEMBLY="${JOURNALENTRY}"
   echo -e "${blue23} ${blue30} Confirm Branch description: ${reset}"
   CONFIRM_BRANCH_DESCRIPTION=$(<.description)
   echo -e "${blue23} ${blue30}                           : ${reset} ${CONFIRM_BRANCH_DESCRIPTION} ${reset}"
-  git config branch.${CURBRANCH}.description
+  echo -e "${blue23} ${blue30}                           : ${reset} $(git config branch.${CURBRANCH}.description)"
 
   echo -e "${blue23} • ${blue30} Set tracking information for this branch """${CURBRANCH}""" ${reset}"
   git branch --set-upstream-to=origin/"""${CURBRANCH}""" """${CURBRANCH}"""
@@ -92,7 +92,7 @@ FILENAME_FOR_DESCRIPTION_ASSEMBLY="${JOURNALENTRY}"
   fi
   wait
 
-  subl "${JOURNALENTRY}"
+  code "${JOURNALENTRY}"
   echo -e "${blue23} • ${blue30} Show branches ${reset}"
   branches -l
 
