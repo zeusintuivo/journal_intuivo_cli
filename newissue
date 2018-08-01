@@ -63,11 +63,6 @@ if [[ -z "$1"  ]] ; then
     exit 0;
 fi
 
-DEBUG_PROCESS=0
-[[ "${@}" == *"--debug"* ]] && DEBUG_PROCESS=1
-(( $DEBUG_PROCESS )) &&
-(( $DEBUG_PROCESS )) && echo -e "\\033[38;5;DEBUG_PROCESS: ON \\033[38;5;32m : ${DEBUG_PROCESS} :"
-
 
 msg_bullet "Prepare new Issue Entry ${reset}"
 # if argument 2 has passed
@@ -108,38 +103,38 @@ fi
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
 msg_bullet "Go to ${TARGETBASEBRANCH}  ${reset}"
-(( ! $DEBUG_PROCESS )) && git checkout """${TARGETBASEBRANCH}"""
+(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout """${TARGETBASEBRANCH}"""
 
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 if [[ "${CURBRANCH}" != "${TARGETBASEBRANCH}"  ]] ; then
 	msg_error "We did not switch to branch '${TARGETBASEBRANCH}' ${reset}"
-	(( ! $DEBUG_PROCESS )) && exit 1;
+	(( ! $JOURNAL_DEBUG_PROCESS )) && exit 1;
 fi
 # if file exists, I assume this is a shallow copy
 # REF: http://stackoverflow.com/questions/6941889/is-it-safe-to-shallow-clone-with-depth-1-create-commits-and-pull-updates-aga
 # REF: https://github.com/git/git/commit/9cfde9ee8f6dc82365f1e977935960f34108076b documentation on Shallow I viewd on 2016 07 July 02
 if [[ -f ".git/shallow" ]] ;	then
 	msg_bullet "This is a shallow REPO ${TARGETBASEBRANCH}  ${reset}"
-	(( ! $DEBUG_PROCESS )) && git fetch --depth 1
-	(( ! $DEBUG_PROCESS )) && git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git fetch --depth 1
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
 	#git pull  --progress --depth 1 origin """${TARGETBASEBRANCH}"""
 else
 	msg_bullet "This is a Normal repo.. not shallow ${TARGETBASEBRANCH}  ${reset}"
-	(( ! $DEBUG_PROCESS )) && git fetch
-	(( ! $DEBUG_PROCESS )) && git pull  origin """${TARGETBASEBRANCH}"""
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git fetch
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git pull  origin """${TARGETBASEBRANCH}"""
 
 fi
 
 msg_bullet "Create from ${TARGETBASEBRANCH}"
 if [[ "develop" == "${TARGETBASEBRANCH}"  ]] ; then
 	msg_bullet "Create new branch ${green} """"${NEWBRANCH}""""${reset} using git flow ${reset}"
-	(( ! $DEBUG_PROCESS )) && git flow feature start """${TICKETID}""";
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git flow feature start """${TICKETID}""";
 		if [ $? != 0 ]; then
 			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi
 else
-	(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";  # This is set to "issue-${TICKETID}" line 47-ish above
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";  # This is set to "issue-${TICKETID}" line 47-ish above
 		if [ $? != 0 ]; then
 			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi
@@ -154,7 +149,7 @@ wait
 	if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
 		msg_warning "we are still in '${TARGETBASEBRANCH}' ${reset}"
 		msg_bullet "Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation ${reset}"
-		(( ! $DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";
+		(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";
 		if [ $? != 0 ]; then
 			msg_warning " '${NEWBRANCH}' could not be created!. ${reset}"
 		fi

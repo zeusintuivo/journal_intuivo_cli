@@ -57,35 +57,12 @@ else
   }
 fi
 
-DEBUG_PROCESS=0
-[[ "${@}" == *"--debug"* ]] && DEBUG_PROCESS=1
-(( $DEBUG_PROCESS )) &&
-(( $DEBUG_PROCESS )) && echo -e "\\033[38;5;DEBUG_PROCESS: ON \\033[38;5;32m : ${DEBUG_PROCESS} :"
-
-
-
-#
-# DESCRIPTION GET - start
-#
-    # Empty description ?
-    if [[ -z "${DESCRIPTION}"  ]] ; then
-      # show all branches
-      echo " "
-        echo -e "${red} ERROR ! No description. Need description ${reset}"
-        echo "  USE:     describe \"Fix url issue\"     for example to fix "
-        echo " "
-      exit 1;
-    fi
-
-#
-# ESCRIPTION GET - end
-#
 
 
 
 
+. $FOUND_DIR_JOURNAL/journal_get_description_not_found_exit
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
-
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 
@@ -204,6 +181,8 @@ fi
 #
 # Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
 #
+
+
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 

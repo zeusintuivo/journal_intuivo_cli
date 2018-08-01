@@ -20,3 +20,8 @@ function msg_error() {
 function msg_warning() {
 	echo -e "${yellow220} WARNING ! ${@} ${reset}"
 }
+
+JOURNAL_DEBUG_PROCESS=0
+[[ "${@}" == *"--debug"* ]] && JOURNAL_DEBUG_PROCESS=1
+(( $JOURNAL_DEBUG_PROCESS )) &&
+(( $JOURNAL_DEBUG_PROCESS )) && echo -e "${voilet}JOURNAL_DEBUG_PROCESS${yellow220}:${green} ON ${yellow220}== ${blue32}${JOURNAL_DEBUG_PROCESS} ${yellow220}:"
