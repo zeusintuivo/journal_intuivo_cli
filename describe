@@ -46,27 +46,27 @@ obtain_description() {
   local full_description
 
   (( THINKING_MACHINE )) && echo -e "${blue23} - Branch description: - ${reset}"
-  full_description=$(git config branch.${CURBRANCH}.description)                                                             # try git config description
+  full_description=$(git config branch.${CURBRANCH}.description)                           # try git config description
 
   (( THINKING_MACHINE )) && echo -e "${blue23} - First I think  full_description: ${reset}$full_description"
-  if [[ -z "${full_description}" ]]  && [ -f .description ] ; then                                                           # try cat .description
+  if [[ -z "${full_description}" ]]  && [ -f .description ] ; then                          # try cat .description
     # Saved on .description?
     (( THINKING_MACHINE )) && echo -e "${blue23} - I think this is empty, and I see a .description file, so am testing for .description file ${reset}"
 
     full_description=$(<.description);
   fi
-                                                                                                                             # did we get any ?
-                                                                                                                             # +-- Yes
-                                                                                                                             #   +-- check if branch or ticket is metioned
-                                                                                                                             #       in the description
-                                                                                                                             #       Are they mentioǹed?
-                                                                                                                             #      +-- Yes
-                                                                                                                             #         +--- Provide this description
-                                                                                                                             #      +-- No
-                                                                                                                             #         +--- then say empty
-                                                                                                                             #
-                                                                                                                             # +-- No
-                                                                                                                             #   +-- then say empty
+                                                                                            # did we get any ?
+                                                                                            # +-- Yes
+                                                                                            #   +-- check if branch or ticket is metioned
+                                                                                            #       in the description
+                                                                                            #       Are they mentioǹed?
+                                                                                            #      +-- Yes
+                                                                                            #         +--- Provide this description
+                                                                                            #      +-- No
+                                                                                            #         +--- then say empty
+                                                                                            #
+                                                                                            # +-- No
+                                                                                            #   +-- then say empty
   (( THINKING_MACHINE )) && echo -e "${blue23} - Now I think full_description is: ${reset}$full_description"
   if [[ ! -z "${full_description}" ]] ; then
   {
@@ -79,7 +79,7 @@ obtain_description() {
     else
     {
       echo -e ""
-      (( THINKING_MACHINE )) && echo -e "${blue23} - but the description does not contain a reference to the branch name:${CURBRANCH} or ticket:${TICKETID} name. so I think it is incorrect ${reset}"
+      (( THINKING_MACHINE )) && echo -e "${blue23} - but the description ${red}does not contain ${blue23}a reference to the branch name:${CURBRANCH} or ticket:${TICKETID} name. so I think it is incorrect ${reset}"
     }
     fi
   }
@@ -109,8 +109,8 @@ if [[ -z "$1"  ]] ; then
 }
 fi
 
-# Argument was passed then this will continue                                                                             # I passed an argument description
-                                                                                                                          # sample "describe new stuff to describe "
+# Argument was passed then this will continue                                          # I passed an argument description
+                                                                                       # sample "describe new stuff to describe "
 
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 

@@ -17,7 +17,13 @@ if [[ "${GIT_REMOTE_ORIGIN}" == *"ERROR"* ]]  ; then
   exit 130;
 }
 fi
-GIT_REMOTE_ORIGIN=$(echo "${GIT_USER_NAME}" | head -2 | tail -1)
+if [[ -z "${GIT_REMOTE_ORIGIN}"]]  ; then              # If empty
+{
+  GIT_REMOTE_ORIGIN=$(git remote -v 2>&1 )  # Check remote git,capture all output, error will return 1 to $?
+}
+fi
+
+GIT_REMOTE_ORIGIN=$(echo "${GIT_REMOTE_ORIGIN}" | head -2 | tail -1)
 # expectation is that the url will look like https://github.com/wplib/wplib-box.git
 # We could have  Fetch URL: git@github.com:company/project_name.git
 # or
@@ -25,6 +31,8 @@ GIT_REMOTE_ORIGIN=$(echo "${GIT_USER_NAME}" | head -2 | tail -1)
 #
 #
 # expectation is to get github.com  & firma_company &  project_name
+
+
 
 GITHUBNAMEPROJECT=""                                                                #Objective is to get the company_name / project_name
 if [[ "${GIT_REMOTE_ORIGIN}" == *"git@"* ]]  ; then
@@ -90,5 +98,11 @@ JIRA_TICKET_LINK="https://${PART_COMPANY_NAME}.atlassian.net/browse/${TICKETID}"
 #ISSUETRACKERLOCATION="${JIRA_TICKET_LINK} ${GITHUB_TICKET_LINK}"
 ISSUETRACKERLOCATION="${JIRA_TICKET_LINK}"
 # Jira sample - end
+
+# Phabricator sample - start
+PHABRICATOR_TICKET_LINK="https://projects.${PART_COMPANY_NAME}.de/${TICKETID}"
+ISSUETRACKERLOCATION="${PHABRICATOR_TICKET_LINK}"
+# Phabricator sample - end
+
 }
 get_ticket_link_url
