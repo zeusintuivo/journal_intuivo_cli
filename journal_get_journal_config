@@ -12,7 +12,6 @@ CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
 
 JOURNAL_PROJECT_WORKING_ON=${PWD}
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
 
 function msg_bullet() {
 	echo -e "${blue23} • ${blue30} ${@} ${reset}"

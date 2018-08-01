@@ -35,7 +35,6 @@ if [[ ! -z "$1" ]] ; then  # if argument was  passed
       echo -e "    - description „${DESCRIPTION}” ";
     }
 fi
-echo $DESCRIPTION
 if command -v figlet >/dev/null 2>&1; then
   {
     FIGLET_INSTALLED=1
@@ -61,7 +60,6 @@ fi
 . $FOUND_DIR_JOURNAL/journal_get_description_not_found_exit
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
-echo $DESCRIPTION
 
 msg_bullet "Getting list of commits."
 COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
@@ -133,27 +131,34 @@ fi
 
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
-echo $DESCRIPTION
-echo $TICKETID
 JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
-echo $JOURNALDIR
+
+. $FOUND_DIR_JOURNAL/journal_get_project_name
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+CURRENTDATE=`date +%Y%m%d`
+
+JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+
 echo $NEWBRANCH
 #
-# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
+# Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY - START
 #
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
 if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
   {
     if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
       {
-        if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] ; then
-          NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"
-        fi
+        [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}_${DESCRIPTION}" | convert_to_underdash )
 
         if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
           if [[ "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}" != "empty"  ]] ; then
             JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  | convert_to_underdash )
+            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
           else
+            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
             JOURNALDIR=""
           fi
         fi
@@ -161,14 +166,14 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
     fi
     if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
       {
-        if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] ; then
-          NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"
-        fi
+        [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}_${DESCRIPTION}" | convert_to_underdash )
 
         if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
           if [[ "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}" != "empty"  ]] ; then
             JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  | convert_to_underdash )
+            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
           else
+            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
             JOURNALDIR=""
           fi
         fi
@@ -176,27 +181,15 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
     fi
   }
 fi
-#
-# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
-#
-
-echo $JOURNALDIR
-echo $NEWBRANCH
-
-
-. $FOUND_DIR_JOURNAL/journal_get_project_name
-
-. $FOUND_DIR_JOURNAL/journal_get_current_branch
-
-
-CURRENTDATE=`date +%Y%m%d`
-
-JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
 JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
+#
+# Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY  - END
+#
 
-echo $JOURNAL_DIRECTORY
-echo $JOURNAL_PULL_REQUEST_DIRECTORY
-exit 1
+# DEBUG POINT
+# echo $JOURNAL_DIRECTORY
+# echo $JOURNAL_PULL_REQUEST_DIRECTORY
+# exit 1
 
 	msg_bullet "Generating Added Files entry on Journal."
   ACTION="pull request ${CURRENTDATE}"
@@ -208,7 +201,6 @@ exit 1
       mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 			ACTION="pull request ${CURRENTDATE}"
       FILENAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION}.m"
-
 		}
 	else
 		{
