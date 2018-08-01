@@ -14,10 +14,10 @@ if [[ -z "$1" ]] ; then  # if argument was not passed
     {
       . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
-      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"                                     # Get the description for the git config
+      msg_bullet "Getting Branch description."                         # Get the description for the git config
        . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION
   		#DESCRIPTION=$(describe | tail -1)
-      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then                                               # or get the decsription from the file
+      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then       # or get the decsription from the file
         {
             DESCRIPTION=$(<.description)
         }
@@ -30,19 +30,19 @@ if [[ ! -z "$1" ]] ; then  # if argument was  passed
     {
       . $FOUND_DIR_JOURNAL/journal_get_current_branch
       YEAR=$(date +%Y);
-      echo -e "${blue23} • ${blue30} Getting Branch description. ${reset}"
+      msg_bullet "Getting Branch description."
       DESCRIPTION="${1}"
       echo -e "    - description „${DESCRIPTION}” ";
     }
 fi
-
+echo $DESCRIPTION
 if command -v figlet >/dev/null 2>&1; then
   {
     FIGLET_INSTALLED=1
   }
 else
   {
-    echo -e "${red} ERROR figlet dependency missing ! Attempting to install ${reset}"
+    msg_error "figlet dependency missing ! Attempting to install."
     brew install figlet
   }
 fi
@@ -52,29 +52,26 @@ if command -v tree >/dev/null 2>&1; then
   }
 else
   {
-    echo -e "${red} ERROR tree dependency missing ! Attempting to install ${reset}"
+    msg_error "tree dependency missing ! Attempting to install."
     brew install tree
   }
 fi
 
 
-
-
-
 . $FOUND_DIR_JOURNAL/journal_get_description_not_found_exit
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
+echo $DESCRIPTION
 
-
-echo -e "${blue23} • ${blue30} Getting list of commits ${reset}"
+msg_bullet "Getting list of commits."
 COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
 
-echo -e "${blue23} • ${blue30} Checking commit count ${reset}"
+msg_bullet "Checking commit count."
 # is empty
 if [[ -z "${COMMITS}" ]] ; then
     {
       echo ""
-      echo -e "${red} There are not commits to compare to. ${yellow220} Make some commits first then try again  ${reset}"
+      msg_error "There are not commits to compare to. ${yellow220} Make some commits first then try again."
       echo ""
       exit 1;
     }
@@ -85,10 +82,11 @@ if [[ -z "${COMMITS}" ]] ; then
 #
 # TICKETID - start
 #
-echo -e "${blue23} • ${blue30} Prepare new Journal Entry ${reset}"
+msg_bullet "Prepare new Journal Entry."
 # if argument 2 as passed
 TICKETID=""
 NEWBRANCH=""
+
 if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
   {
     if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
@@ -113,19 +111,19 @@ fi
 
 if [[ -z "${TICKETID}"  ]] ; then
   {
-    echo -e "${red} Error ! TICKED_ID:${TICKETID} is empty ${reset}"
+    msg_error "! TICKED_ID:${TICKETID} is empty ${reset}"
     exit 1;
   }
 fi
 if [[ -z "${NEWBRANCH}"  ]] ; then
   {
-    echo -e "${red} Error ! NEW_BRANCH:${NEWBRANCH} is empty ${reset}"
+    msg_error "! NEW_BRANCH:${NEWBRANCH} is empty ${reset}"
     exit 1;
   }
 fi
 #if [[ "${TICKETID}" == "${NEWBRANCH}" ]] ; then
 #  {
-#    echo -e "${red} Error ! TICKED_ID:${TICKETID} and NEW_BRANCH:${NEWBRANCH} are equal and empty. I don't understand this. I am expecting to have an issue Number out of the branch name. Branches I know are feature/12345 and issue-12345 ${reset}"
+#    msg_error "! TICKED_ID:${TICKETID} and NEW_BRANCH:${NEWBRANCH} are equal and empty. I don't understand this. I am expecting to have an issue Number out of the branch name. Branches I know are feature/12345 and issue-12345 ${reset}"
 #    exit 1;
 #  }
 # fi
@@ -135,21 +133,21 @@ fi
 
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
-
+echo $DESCRIPTION
+echo $TICKETID
 JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
+echo $JOURNALDIR
+echo $NEWBRANCH
 #
 # Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
 #
-JOURNAL_PROJECT_WORKING_ON=${PWD}
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
-
 if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
   {
     if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
       {
         if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] ; then
-          NEWBRANCH="feature/${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"
+          NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"
         fi
 
         if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
@@ -164,7 +162,7 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
     if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
       {
         if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] ; then
-          NEWBRANCH="issue-${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"
+          NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"
         fi
 
         if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
@@ -182,6 +180,8 @@ fi
 # Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
 #
 
+echo $JOURNALDIR
+echo $NEWBRANCH
 
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
@@ -194,8 +194,11 @@ CURRENTDATE=`date +%Y%m%d`
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
 JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
 
+echo $JOURNAL_DIRECTORY
+echo $JOURNAL_PULL_REQUEST_DIRECTORY
+exit 1
 
-	echo -e "${blue23} • ${blue30} Generating Added Files entry on Journal ${reset}"
+	msg_bullet "Generating Added Files entry on Journal."
   ACTION="pull request ${CURRENTDATE}"
 	ACTION_NAME="${CURRENTDATE}"
   FILENAME_REAL_JOURNAL_NAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION} ${ACTION_NAME}.m"
@@ -231,7 +234,7 @@ JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
 
 
 
-  echo -e "${blue23} • ${blue30} Getting todays date ${reset}"
+  msg_bullet "Getting todays date ${reset}"
 	# Bash Dates REF: http://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script
 	# Bash times REF: http://www.cyberciti.biz/faq/unix-linux-bash-get-time/
 
@@ -250,11 +253,11 @@ JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/pullrequest_${CURRENTDATE}"
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
 
   echo " "
-  echo -e "${blue23} • ${blue30} Making entry on Journal ${reset}"
+  msg_bullet "Making entry on Journal ${reset}"
 
   echo "   ${FILENAME_PULL_REQUEST_JOURNAL}"
 
-	echo -e "${blue23} • ${blue30} Touch Journal file ${reset}"
+	msg_bullet "Touch Journal file ${reset}"
 	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
 	wait
 
@@ -309,7 +312,7 @@ if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
 fi
 if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
   {
-    echo -e "${blue23} • ${blue30} Adding Description ${reset}"
+    msg_bullet "Adding Description ${reset}"
     . $FOUND_DIR_JOURNAL/journal_get_description_work_link__url
 
     FILENAME_FOR_DESCRIPTION_ASSEMBLY="${FILENAME_PULL_REQUEST_JOURNAL}"
@@ -318,7 +321,7 @@ if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
 
   }
 fi
-echo -e "${blue23} • ${blue30} Copy file full description to target/.description  ${reset}"
+msg_bullet "Copy file full description to target/.description  ${reset}"
 # if argument 2 as passed
 
   if [[ ! -z "${DESCRIPTION}" ]] ;  then
@@ -338,7 +341,7 @@ echo -e "${blue23} • ${blue30} Copy file full description to target/.descripti
 
 
 
-	echo -e "${blue23} • ${blue30} Open Journal  ${reset}"
+	msg_bullet "Open Journal  ${reset}"
 	# st for editor, sublime when I created this using .zshrc  ohmy zsh plugin
 	subl "${FILENAME_PULL_REQUEST_JOURNAL}"
 	wait
@@ -690,7 +693,7 @@ function match_tree_filenames_with_commits_no_author(){
 
   if [[ ! -z "${TREE_PULL_REQUEST}" ]] ;  then
     {
-      echo -e "${blue23} • ${blue30} Saving Complete Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
+      msg_bullet "Saving Complete Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY} ${reset}"
       echo " COMPLETE TREE LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
       if [[ ! -z "${FILES_EXPANDED}" ]] ;  then
         {
@@ -713,14 +716,14 @@ function match_tree_filenames_with_commits_no_author(){
 
   if [[ ! -z "${CHANGED_BY_ME}" ]] ;  then
     {
-      echo -e "${blue23} • ${blue30} Saving Changed by Me Files and Commits ${reset}"
+      msg_bullet "Saving Changed by Me Files and Commits ${reset}"
       echo " ONLY ME ${ME_NAME} LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
       column_print_to_file_no_author ${BIGGEST_FILENAME_LENGTH} ${BIGGEST_AUTHOR_LENGTH} 120 "${FILENAME_PULL_REQUEST_JOURNAL}" "${CHANGED_BY_ME}"
 
       TREE_PULL_REQUEST_ONLY_ME=$(tree """${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me""")
       if [[ ! -z "${TREE_PULL_REQUEST_ONLY_ME}" ]] ;  then
         {
-            echo -e "${blue23} • ${blue30} Saving Complete Changed by Me Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me ${reset}"
+            msg_bullet "Saving Complete Changed by Me Tree List from: ${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me ${reset}"
             echo " ONLY ME ${ME_NAME} TREE LIST:" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
             if [[ ! -z "${CHANGED_BY_ME}" ]] ;  then
               {
