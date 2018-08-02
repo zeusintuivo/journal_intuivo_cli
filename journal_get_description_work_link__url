@@ -17,7 +17,7 @@ if [[ "${GIT_REMOTE_ORIGIN}" == *"ERROR"* ]]  ; then
   exit 130;
 }
 fi
-if [[ -z "${GIT_REMOTE_ORIGIN}"]]  ; then              # If empty
+if [[ -z "${GIT_REMOTE_ORIGIN}" ]] ; then              # If empty
 {
   GIT_REMOTE_ORIGIN=$(git remote -v 2>&1 )  # Check remote git,capture all output, error will return 1 to $?
 }
