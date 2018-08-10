@@ -181,25 +181,25 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
     fi
   }
 fi
-JOURNAL_PULL_REQUEST_DIRECTORY="pr_${CURRENTDATE}/${JOURNAL_DIRECTORY}"
+ACTION="pr_${CURRENTDATE}"
+JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/${ACTION}"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY  - END
 #
 
 # DEBUG POINT
-# echo $JOURNAL_DIRECTORY
-# echo $JOURNAL_PULL_REQUEST_DIRECTORY
+# msg_error $JOURNAL_DIRECTORY
+# msg_error $JOURNAL_PULL_REQUEST_DIRECTORY
 # exit 1
 
 	msg_bullet "Generating Added Files entry on Journal."
-  ACTION="pr_${CURRENTDATE}"
-
   FILENAME_REAL_JOURNAL_NAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
 	# if dir does not exist create it   ---  Update PATH bashrc var if it exists
 	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}" ]] ;	then
 		{
       mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-			ACTION="pr_${CURRENTDATE}"
+      directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+      ACTION="pr_${CURRENTDATE}"
       FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
 		}
 	else
@@ -208,10 +208,12 @@ JOURNAL_PULL_REQUEST_DIRECTORY="pr_${CURRENTDATE}/${JOURNAL_DIRECTORY}"
 		}
 	fi
 	mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+  directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
 	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me" ]] ; then
     {
       mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+      directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
       ACTION="pr_${CURRENTDATE}"
       FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
     }
@@ -221,7 +223,7 @@ JOURNAL_PULL_REQUEST_DIRECTORY="pr_${CURRENTDATE}/${JOURNAL_DIRECTORY}"
     }
   fi
   mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-
+directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 
 
 
@@ -239,23 +241,16 @@ JOURNAL_PULL_REQUEST_DIRECTORY="pr_${CURRENTDATE}/${JOURNAL_DIRECTORY}"
 		CURRENTAMPM="pm"
 	fi
 
-	FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
+	FILENAME="${ACTION} ${TICKETID} ${DESCRIPTION}.m"
 	TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
 	#TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
   mkdir -p "${JOURNAL_DIRECTORY}"
   directory_exists "${JOURNAL_DIRECTORY}"
 
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
-  msg_bullet "    ${JOURNAL_DIRECTORY}"
-
-  echo " "
   msg_bullet "Making entry on Journal ${reset}"
-  msg_bullet "    ${FILENAME_PULL_REQUEST_JOURNAL}"
-	msg_bullet "Touch Journal file ${reset}"
 	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
-	wait
-  directory_exists "${FILENAME_PULL_REQUEST_JOURNAL}"
-exit 1
+  file_exists "${FILENAME_PULL_REQUEST_JOURNAL}"
 
 	#pause 'Press [Enter] key to continue...'
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
