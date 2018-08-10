@@ -242,17 +242,20 @@ JOURNAL_PULL_REQUEST_DIRECTORY="pr_${CURRENTDATE}/${JOURNAL_DIRECTORY}"
 	FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
 	TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
 	#TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
+  mkdir -p "${JOURNAL_DIRECTORY}"
+  directory_exists "${JOURNAL_DIRECTORY}"
+
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
+  msg_bullet "    ${JOURNAL_DIRECTORY}"
 
   echo " "
   msg_bullet "Making entry on Journal ${reset}"
-
-  echo "   ${FILENAME_PULL_REQUEST_JOURNAL}"
-
+  msg_bullet "    ${FILENAME_PULL_REQUEST_JOURNAL}"
 	msg_bullet "Touch Journal file ${reset}"
 	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
 	wait
-
+  directory_exists "${FILENAME_PULL_REQUEST_JOURNAL}"
+exit 1
 
 	#pause 'Press [Enter] key to continue...'
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"

@@ -27,3 +27,14 @@ JOURNAL_DEBUG_PROCESS=0
 [[ "${@}" == *"--debug"* ]] && JOURNAL_DEBUG_PROCESS=1
 (( $JOURNAL_DEBUG_PROCESS )) &&
 (( $JOURNAL_DEBUG_PROCESS )) && echo -e "${voilet}JOURNAL_DEBUG_PROCESS${yellow220}:${green} ON ${yellow220}== ${blue32}${JOURNAL_DEBUG_PROCESS} ${yellow220}:"
+
+load_struct_testing_wget(){
+    local provider="/_/clis/execute_command_intuivo_cli/struct_testing"
+    [   -e "${provider}"  ] && source "${provider}"
+		( ( ! command -v type wget >/dev/null 2>&1; ) && echo -e "\n \n  ERROR! Loading struct_testing. You need wget installed \n \n " && exit 69; )
+    [ ! -e "${provider}"  ] && eval """$(wget --quiet --no-check-certificate  https://raw.githubusercontent.com/zeusintuivo/execute_command_intuivo_cli/master/struct_testing -O -  2>/dev/null )"""   # suppress only wget download messages, but keep wget output for variable
+    ( ( ! command -v type passed >/dev/null 2>&1; ) && echo -e "\n \n  ERROR! Loading struct_testing \n \n " && exit 69; )
+} # end load_struct_testing_wget
+load_struct_testing_wget
+
+
