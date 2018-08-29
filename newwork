@@ -1,0 +1,168 @@
+#!/bin/bash
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+#
+#set -eu
+#set -o pipefail
+#set -x
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
+. $FOUND_DIR_JOURNAL/journal_get_bash_colors
+. $FOUND_DIR_JOURNAL/journal_get_journal_config
+
+THISSCRIPTNAME=`basename "$0"`
+
+show_help() {
+    echo -e ""
+    echo -e "${red} Error, showing all Local Branches:  ${blue23} Hint... Write the name of one ... Pick one ..   ${reset}"
+    echo -e ""
+    branches -l
+    wait
+    echo -e ""
+    echo -e "${yellow220} Missing Arguments: ${reset}"
+    echo -e ""
+    echo -e "${blue23} Call: ${reset}"
+    echo -e "${blue30}            ${THISSCRIPTNAME} JIRA-TICKET-ID-or-GITHUB-ISSUE-NUMMER  \"DESCRIPTION\" [from basebranchname]   ${reset}"
+    echo -e "                                                                                                                                                             ${reset}  "
+    echo -e "sample:               ${THISSCRIPTNAME} FRO-2681 \"Allow for some method to measure the number of cache hits/misses in api.fronter.com\" from master         ${reset}  "
+    echo -e "                                                                                      ${reset} "
+    echo -e "                                                                                      will create a branch called ${green50} feature/FRO-2681 ${reset} "
+    echo -e "                                                                                      ${reset} "
+    echo -e "                                                                                      will create a description like this ${reset} "
+    echo -e "                                                                                     ${reset} "
+    echo -e "   make a .describe filename with -> {                      ${reset} "
+    echo -e "                                 Allow for some method to measure the number of cache hits/misses in api.fronter.com  [38;5;33m  }                    ${reset} "
+    echo -e "                                [32m ‡ https://jira.company_name.com/browse/FRO-2681 (B[m  user_name  opened  [32m  ${CURRENTLONG_DATE}  ${reset} "
+    echo -e "      makes this filename ->    ${blue30} ${JOURNAL_HOME}/journals/api-endpoint/FRO-2681_Allow_for_some_method_to_measure_the_number_of_cache_hits  ${reset} "
+    echo -e "                                [38;5;238m _misses_in_api.fronter.com/}_FRO-2681_Allow_for_some_method_to_measure_the_number_of_cache_hits_mis ${reset} "
+    echo -e "                                 [38;5;238mses_in_api.fronter.com_stat.m  ${reset} "
+    echo -e "                                (B[m from master or develop or gh-pages _BASEBRANCH_${reset} "
+    echo -e "                                      }        ${reset} "
+    echo -e " "
+    echo -e "${blue23} Sample Calls: ${reset}"
+    echo -e "${blue30}            ${THISSCRIPTNAME} 10930  \"Rename check_no_unwrap.sh to check_no_panic.sh\"   ${reset}   <- This will check out from 'develop' banch"
+    echo -e "                                                                                                              using develop will default to trying to "
+    echo -e "                                                                                                               use ${yellow220}git flow${reset} first other wise it"
+    echo -e "                                                                                                               will use ${yellow220}git branch${reset}. ${reset}"
+    echo -e " "
+    echo -e "${blue30}            ${THISSCRIPTNAME} 10930  \"Rename check_no_unwrap.sh to check_no_panic.sh\" from master   ${reset}"
+    echo -e "${blue30}            ${THISSCRIPTNAME} MDM-35  \"Fix no index SEO\" from gh-pages   ${reset}"
+    echo -e ""
+    echo -e ""
+    echo -e "${blue30}            ${THISSCRIPTNAME}  --debug "
+    echo -e "              start debugging and git create, pull, push will not be executed"
+    echo -e ""
+} # end show_help
+
+if [[ -z "$1"  ]] ; then  # if argument was not passed
+    show_help
+    exit 0;
+fi
+
+msg_bullet Prepare new Journal Entry
+TICKETID="$1"
+DESCRIPTION=""
+NEWBRANCH="${TICKETID}"
+# if argument 2 was passed
+if [[ ! -z "$2"  ]] ; then
+  # grab for description
+	DESCRIPTION="$2"
+fi
+
+. $FOUND_DIR_JOURNAL/journal_get_target_branch
+. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
+
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
+#
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
+if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_WORK}"  ]] ; then
+	NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_WORK}"
+fi
+
+if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_WORK}"  ]] ; then
+	if [[ "${JOURNAL_JOURNALDIR_STYLE_4_WORK}" != "empty"  ]] ; then
+		JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_WORK}"  | convert_to_underdash )
+	else
+		JOURNALDIR=""
+	fi
+fi
+
+#
+# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
+#
+
+. $FOUND_DIR_JOURNAL/journal_get_project_name
+
+msg_bullet Change branch to ${TARGETBASEBRANCH}
+(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout """${TARGETBASEBRANCH}"""
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+
+if [[ "${CURBRANCH}" != "${TARGETBASEBRANCH}"  ]] ; then
+  msg_error We did not switch to branch
+	(( ! $JOURNAL_DEBUG_PROCESS )) && exit 1
+fi
+# if file exists, I assume this is a shallow copy
+# REF: http://stackoverflow.com/questions/6941889/is-it-safe-to-shallow-clone-with-depth-1-create-commits-and-pull-updates-aga
+# REF: https://github.com/git/git/commit/9cfde9ee8f6dc82365f1e977935960f34108076b documentation on Shallow I viewed on 2016 07 July 02
+if [[ -f ".git/shallow" ]] ;	then
+	msg_bullet This is a shallow REPO ${TARGETBASEBRANCH}
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git fetch --depth 1
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git pull  --depth 1 origin """${TARGETBASEBRANCH}"""
+	#(( ! $JOURNAL_DEBUG_PROCESS )) && git pull  --progress --depth 1 origin """${TARGETBASEBRANCH}"""
+else
+	msg_bullet This is a Normal repo.. not shallow ${TARGETBASEBRANCH}
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git fetch
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git pull  origin """${TARGETBASEBRANCH}"""
+fi
+
+msg_bullet Create from ${TARGETBASEBRANCH}
+if [[ "develop" == "${TARGETBASEBRANCH}"  ]] ; then
+  msg_bullet Create new branch ${green} """"${NEWBRANCH}""""${yellow220} using git flow
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git flow feature start """${TICKETID}""";
+		if [ $? != 0 ]; then
+			msg_warning "'${NEWBRANCH}' could not be created!."
+		fi
+else
+	(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}""";  # This is set to "feature/${TICKETID}" line 47-ish above
+		if [ $? != 0 ]; then
+			msg_warning "'${NEWBRANCH}' could not be created!."
+		fi
+fi
+
+wait
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+	# CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+
+
+	# Stop here to now ruin branch .. if we are still in ${TARGETBASEBRANCH}
+	if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
+		msg_warning "we are still in '${TARGETBASEBRANCH}'"
+		msg_bullet Trying two Create new branch """"${NEWBRANCH}"""" using regular branch creation
+		(( ! $JOURNAL_DEBUG_PROCESS )) && git checkout -b """${NEWBRANCH}"""
+		if [ $? != 0 ]; then
+			msg_warning "'${NEWBRANCH}' could not be created!."
+		fi
+		wait
+
+. $FOUND_DIR_JOURNAL/journal_get_current_branch #Required to get branch once more after creating it, should be the same sa NEWBRANCH
+
+		msg_bullet Checking for branch """"${NEWBRANCH}"""" again
+		if [[ "${CURBRANCH}" == "${TARGETBASEBRANCH}"  ]] ; then
+			if [[ "${SAMEBRANCH}" == "YES"  ]] ; then
+				msg_bullet Commiting and Base are the same ${reset}
+			else
+				# Base branch should have been 'develop' or different from the current branch
+			  msg_error we are still in ${TARGETBASEBRANCH}
+				exit 1;
+			fi
+		fi
+	fi
+
+(( ! $JOURNAL_DEBUG_PROCESS )) && . $FOUND_DIR_JOURNAL/journal_get_journalentry_template
+(( ! $JOURNAL_DEBUG_PROCESS )) && . $FOUND_DIR_JOURNAL/journal_get_description_one_liner_construct
+
+# :)
