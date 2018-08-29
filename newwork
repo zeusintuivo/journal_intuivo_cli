@@ -70,28 +70,12 @@ fi
 
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 
-#
-# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - START
-#
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}" | convert_to_underdash )
+NEWBRANCH=$(echo "${TICKETID}_${DESCRIPTION}" | convert_to_underdash )
 
-if [[ ! -z "${JOURNAL_NEWBRANCH_STYLE_4_WORK}"  ]] ; then
-	NEWBRANCH="${JOURNAL_NEWBRANCH_STYLE_4_WORK}"
-fi
-
-if [[ ! -z "${JOURNAL_JOURNALDIR_STYLE_4_WORK}"  ]] ; then
-	if [[ "${JOURNAL_JOURNALDIR_STYLE_4_WORK}" != "empty"  ]] ; then
-		JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_WORK}"  | convert_to_underdash )
-	else
-		JOURNALDIR=""
-	fi
-fi
-
-#
-# Overwrite NEWBRANCH and - or - JOURNALDIR if values provided in local file .temp_keys  - END
-#
+(( $JOURNAL_DEBUG_PROCESS )) && msg_warning "NEWBRANCH:""""${NEWBRANCH}"""
+(( $JOURNAL_DEBUG_PROCESS )) && msg_warning "JOURNALDIR:""""${JOURNALDIR}"""
 
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 
