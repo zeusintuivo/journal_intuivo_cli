@@ -250,7 +250,8 @@ directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
   msg_bullet "Making entry on Journal ${reset}"
 	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
-  file_exists "${FILENAME_PULL_REQUEST_JOURNAL}"
+  wait
+  file_exists_with_spaces "${FILENAME_PULL_REQUEST_JOURNAL}"
 
 	#pause 'Press [Enter] key to continue...'
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
