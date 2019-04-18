@@ -1,19 +1,81 @@
-#!/bin/bash #dependency
+#!/usr/bin/env bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
 #set -eu
 #set -o pipefail
 #set -x
-
+# DEBUG=0
+# DEBUG=1 # TO DEBUG
 function extract_something_trimmed_between() {
-  local PIPED COLORED COUNTER ONEPIPE
-  local from1 to2 a filename
-  PIPED="";
-  COLORED="";
-  COUNTER=0;
 
-  if [ -t 0 ]; then  # Do stuff with NO PIPE
+  local PIPED OLDIFS COLORED COUNTER ONEPIPE
+  local from1 to2 a filename=""
+  local PIPED="";
+  local COLORED="";
+  local COUNTER=0;
+  if [ ! -z "${3}" ] && [[ "${3}" != "--file" ]] ; then  # file argument
+  {
+    filename="${3}"
+  }
+  fi
+
+  if [ ! -z "${3}" ] || [ ! -z "${4}" ] && [[ "${3}" == "--file" ]] ; then  # file argument
+  {
+    filename="${4}"
+  }
+  fi
+
+  if [ ! -z "${filename}" ] && [ ! -e "${filename}" ] ; then
+  {
+    echo "ERROR extract_something_trimmed_between(${*}) filename:${filename}: is does not exists!"
+    exit 69
+  }
+  fi
+
+if [ ! -z "${filename}" ] || [ -t 0 ]; then # Do stuff with NO PIPE
+{
+    # Terminal input (keyboard) - interactive
+    PIPED=""
+}
+else
+{
+
+    # File or pipe input - non-interactive
+    PIPED="YES"
+    # REF: http://stackoverflow.com/questions/2746553/bash-script-read-values-from-stdin-pipe
+    # read PIPED #TOOD Works on mac osx, pending to test in linux and windows
+    PIPED=''
+    # REF: https://stackoverflow.com/questions/7314044/use-bash-to-read-line-by-line-and-keep-space
+    # REF: http://www.unix.com/shell-programming-and-scripting/58611-resetting-ifs-variable.html
+    OLDIFS=$IFS            # resetting IFS variable
+    IFS=''                 # to read line by line and keep space
+    IFS= read -r ONEPIPE   # to avoid interpretation of backslashes.
+    PIPED="${ONEPIPE}"
+    [ ! -z "$PIPED" ] && COUNTER=$((COUNTER+1))
+    
+    while read ONEPIPE
+    do
+
+         PIPED="${PIPED}
+${ONEPIPE}"
+         COUNTER=$((COUNTER+1))
+    done
+
+        if [ $COUNTER -eq 0 ]; then
+          IFS=$OLDIFS       
+          return 1;   # If there is not contents then exit silently with error code 1
+        fi
+
+    #action="${ONEPIPE/ /⃝}"  # replace value inside string substitution expresion bash
+    # TEST: echo "COUNTER: ${COUNTER}";echo "PIDED: ${PIPED}"; exit 0;
+    IFS=$OLDIFS
+}
+fi
+
+
+
+  if [ -z "$PIPED" ] || [ ! -z "${filename}" ]; then  # Do stuff with NO PIPE  
   {
 
       PIPED=""
@@ -30,7 +92,7 @@ function extract_something_trimmed_between() {
 
       from1="${1}";
       to2="${2}";
-      filename="${3}"
+      
       if [[ ! -f "${filename}" ]] ; then
       {
         echo "ERROR !!! Filename: ${filename} does not exist"
@@ -49,28 +111,6 @@ function extract_something_trimmed_between() {
   else               # Do sutff with WITH YES PIPE the contents piped passed
   {
 
-      PIPED="YES"
-      PIPED=""
-      while read ONEPIPE; do
-      {
-
-          if [ -z "${PIPED}" ]; then     # When pipe if empty, start var
-          {
-            PIPED="${ONEPIPE}"
-          }
-          else                           # When it has something keep adding
-          {
-            PIPED="${PIPED}
-${ONEPIPE}"
-          }
-          fi
-          COUNTER=$((COUNTER+1))
-      }
-      done
-      if [ $COUNTER -eq 0 ]; then   # If there is not contents then exit silently
-        return 1;
-      fi
-
       ##Executiong part - Start
       # Sample use:
       #        cat .description | extract_something_trimmed_between "from" ".BASEBRANCH."
@@ -84,26 +124,54 @@ ${ONEPIPE}"
       from1="${1}";
       to2="${2}";
       a="${PIPED}";
+      
       a="$(echo "${a#*"$from1"}")";
       #echo "$from1${a%%"$to2"*}$to2" # returns the side handles between
       #echo "${a%%"$to2"*}"  # gets spaces
       echo ${a%%"$to2"*}  # trims spaces
+      return 0
+
       ##Executiong part - End
   }
   fi
 
 } # end function  extract_something_trimmed_between
+
+  
+
 test_assert_get_develop_from_pipe() {
   #tests assert to get: develop
   #given the file contain this string "t.m  033[0m from develop.BASEBRAN"
-  echo "t.m  033[0m from develop.BASEBRAN" > /tmp/.demp
-  cat /tmp/.demp | extract_something_trimmed_between "from" ".BASEBRANCH."
-  rm /tmp/.demp
-  exit
-}
+  echo "t.m  033[0m from develop.BASEBRANCH." > /tmp/.test_assert_get_develop_from_pipe
+  local RESULT=$(cat /tmp/.test_assert_get_develop_from_pipe | extract_something_trimmed_between "from" ".BASEBRANCH.") 
+  [ -e /tmp/.test_assert_get_develop_from_pipe ] &&  rm /tmp/.test_assert_get_develop_from_pipe
+  if [[ "${RESULT}" != "develop" ]] ; then 
+  { 
+    echo "ERROR self_test test_assert_get_develop_from_pipe failed! expected «develop» got «${RESULT}»!"
+    exit 69
+  } else {
+    ((DEBUG)) && echo "PIPED TEST PASSED"
+  }
+  fi
+  
+} # end function test_assert_get_develop_from_pipe
+test_assert_get_develop_from_pipe
+
 test_assert_obtain_develop_from_file(){
   #test assert to see : develop
-  echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > /tmp/.demp
-  extract_something_trimmed_between "from" ".BASEBRANCH." /tmp/.demp
-  exit
+  echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > /tmp/.test_assert_obtain_develop_from_file
+  local RESULT=$(extract_something_trimmed_between "from" ".BASEBRANCH." --file /tmp/.test_assert_obtain_develop_from_file)
+  [ -e /tmp/.test_assert_obtain_develop_from_file ] && rm /tmp/.test_assert_obtain_develop_from_file
+  if [[ "${RESULT}" != "develop" ]] ; then 
+  { 
+    echo "ERROR self_test test_assert_obtain_develop_from_file failed! expected «develop» got «${RESULT}»!"
+    exit 69
+  } else {
+     ((DEBUG)) && echo "FILE TEST PASSED"
+  }
+  fi
 }
+
+test_assert_obtain_develop_from_file
+                   
+

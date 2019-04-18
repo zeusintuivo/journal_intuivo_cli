@@ -13,5 +13,4 @@
     # CURBRANCH - end
     #
 
-
 CURRENTDATE=`date +%Y%m%d`

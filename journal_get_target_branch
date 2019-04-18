@@ -2,6 +2,7 @@
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
+
 . $FOUND_DIR_JOURNAL/journal_get_branch_merge_against
 
 #

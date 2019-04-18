@@ -2,6 +2,7 @@
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
+
 . $FOUND_DIR_JOURNAL/journal_get_extract_something_trimmed_between
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
@@ -13,10 +14,12 @@
 
   # Saved on git description from ${TARGETBASEBRANCH} _BASEBRANCH_";
   BRANCH_MERGE_AGAINST=$(git config branch.${CURBRANCH}.description | extract_something_trimmed_between "from" "_BASEBRANCH_");   # try git config description "from" branch_name ".BASEBRANCH."
+
+
   #?empty still  --look into .description
   if [[ -z "${BRANCH_MERGE_AGAINST}" ]]  && [ -f .description ] ; then                                                      # try cat .description "from" branch_name ".BASEBRANCH.")
     # Saved on .description?
-    BRANCH_MERGE_AGAINST=$(extract_something_trimmed_between "from" "_BASEBRANCH_" .description);
+    BRANCH_MERGE_AGAINST=$(extract_something_trimmed_between "from" "_BASEBRANCH_" --file .description);
   fi
 
   #?empty still  --look into .gitignore

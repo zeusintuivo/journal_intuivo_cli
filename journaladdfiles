@@ -9,6 +9,7 @@
 THISSCRIPTNAME=`basename "$0"`
 
 
+
 DESCRIPTION="";
 if [[ -z "$1" ]] ; then  # if argument was not passed
     {
@@ -26,6 +27,7 @@ if [[ -z "$1" ]] ; then  # if argument was not passed
   		echo -e "    - description „${DESCRIPTION}” ";
     }
 fi
+
 if [[ ! -z "$1" ]] ; then  # if argument was  passed
     {
       . $FOUND_DIR_JOURNAL/journal_get_current_branch
@@ -60,6 +62,7 @@ fi
 . $FOUND_DIR_JOURNAL/journal_get_description_not_found_exit
 . $FOUND_DIR_JOURNAL/journal_get_target_branch
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
+
 
 msg_bullet "Getting list of commits."
 COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
@@ -140,8 +143,12 @@ JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 CURRENTDATE=`date +%Y%m%d`
 
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+echo -e "${JOURNAL_DIRECTORY}"
 
-echo $NEWBRANCH
+
+echo ${NEWBRANCH}
+hexd=$(echo "${BRANCH_MERGE_AGAINST}" | hexdump -c 2>&1) && echo -e "${blue23} • ${blue30} Hello:$COUNTER:$PIPED: ${JOURNAL_DIRECTORY} :${BRANCH_MERGE_AGAINST}:$(echo ${hexd})  ${reset}" &&   echo "DIE3" && exit 0
+
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY - START
 #
@@ -182,6 +189,10 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
   }
 fi
 ACTION="pr_${CURRENTDATE}"
+echo -e "${JOURNAL_DIRECTORY}"
+echo "STOP"
+
+exit 0
 JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/${ACTION}"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY  - END
@@ -265,13 +276,14 @@ directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
   echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo "${CURRENTTIME}${CURRENTAMPM} --- This filename  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
+  echo -e "${CURRENTTIME}${CURRENTAMPM} --- This filename  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
   echo "${CURRENTTIME}${CURRENTAMPM} --- This filename  ${JOURNAL_PULL_REQUEST_DIRECTORY}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  echo "${CURRENTTIME}${CURRENTAMPM} --- Journal filename  ${FILENAME_REAL_JOURNAL_NAME}"
+  echo -e "${CURRENTTIME}${CURRENTAMPM} --- Journal filename  ${FILENAME_REAL_JOURNAL_NAME}"
   echo "${CURRENTTIME}${CURRENTAMPM} --- Journal filename  ${FILENAME_REAL_JOURNAL_NAME}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-	echo "${CURRENTTIME}${CURRENTAMPM} --- Saved all the files into folder  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
+	echo -e "${CURRENTTIME}${CURRENTAMPM} --- Saved all the files into folder  ${JOURNAL_PULL_REQUEST_DIRECTORY}"
 	echo "${CURRENTTIME}${CURRENTAMPM} --- Saved all the files into folder  ${JOURNAL_PULL_REQUEST_DIRECTORY}"  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-	echo "${CURRENTTIME}${CURRENTAMPM} --- ${DESCRIPTION} .. ${ACTION}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+	echo " "
+  echo "${CURRENTTIME}${CURRENTAMPM} --- ${DESCRIPTION} .. ${ACTION}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
 	echo " " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
