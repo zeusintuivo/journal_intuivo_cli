@@ -141,7 +141,9 @@ fi
 
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
-JOURNALDIR=$(echo -e "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
+JOURNALDIR_SUBDIR=$(echo -e "${DESCRIPTION}"  | convert_to_underdash | convert_to_lowercase )
+JOURNALDIR=$(echo -e "${TICKETID}"  | convert_to_underdash)
+JOURNALDIR=$(echo -e "${JOURNALDIR}/${JOURNALDIR_SUBDIR}")
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 

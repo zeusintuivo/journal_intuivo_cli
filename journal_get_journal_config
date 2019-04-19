@@ -19,8 +19,31 @@ function msg_bullet() {
 function msg_error() {
 	echo -e "${red} ERROR ! ${@} ${reset}"
 }
+function msg_red() {
+	echo -e "${red} • ${orange209} ${@} ${reset}"
+}
 function msg_warning() {
 	echo -e "${yellow220} WARNING ! ${@} ${reset}"
+}
+function pure_check() {
+  local char string="${*}"
+  local string_length="${#string}"     # bash get string length
+  # echo "asdf"       | sed 's/./&,/2'  # how to a , in position two using sed
+  local new_string=""
+  while read -n 1 char ; do
+      new_string="${char}."
+  done <<< "${string}"
+  if [[ "${string}" != "${new_string}" ]] ; then 
+  {
+    msg_error "Is not pure „${new_string}” ";
+  }
+  fi
+  msg_bullet "„${string}” ";
+}
+function msg_quote() {
+  local first_argument to_quote
+  IFS='|' read -r first_argument to_quote <<< "${*}"
+  msg_bullet "    - ${first_argument} „${to_quote}” ";
 }
 
 JOURNAL_DEBUG_PROCESS=0

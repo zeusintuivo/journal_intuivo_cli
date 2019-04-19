@@ -8,7 +8,7 @@
 #
 # TARGETBASEBRANCH   - Get branch Branch from where it spawns  start
 #
-    echo -e "${blue23} • ${blue30} Get branch Branch from where it spawns  ${reset}"
+    msg_bullet "Get branch Branch from where it spawns  ${reset}"
     TARGETBASEBRANCH="$BRANCH_MERGE_AGAINST";
     SAMEBRANCH="NO";
 
@@ -24,14 +24,14 @@
               SAMEBRANCH="YES";
             fi
           else
-            echo -e "${red} You must provide a branch name ${reset}"
+            msg_red "You must provide a branch name ${reset}"
             exit 1;
           fi
         fi
       }
     else
       {
-        echo -e "${red} You must provide a branch name ${reset}"
+        msg_red "You must provide a branch name ${reset}"
         #exit 1;
       }
     fi
@@ -48,14 +48,14 @@
               SAMEBRANCH="YES";
             fi
           else
-            echo -e "${red} You must provide a branch name ${reset}"
+            msg_red "You must provide a branch name ${reset}"
             exit 1;
           fi
         fi
       }
     else
       {
-        echo -e "${red} You must provide a branch name ${reset}"
+        msg_red "You must provide a branch name ${reset}"
         #exit 1;
       }
     fi
@@ -72,14 +72,14 @@
               SAMEBRANCH="YES";
             fi
           else
-            echo -e "${red} You must provide a branch name ${reset}"
+            msg_red "You must provide a branch name ${reset}"
             exit 1;
           fi
         fi
       }
     else
       {
-        echo -e "${red} You must provide a branch name ${reset}"
+        msg_red "You must provide a branch name ${reset}"
         #exit 1;
       }
     fi
@@ -96,19 +96,20 @@
               SAMEBRANCH="YES";
             fi
           else
-            echo -e "${red} You must provide a branch name ${reset}"
+            msg_red "You must provide a branch name ${reset}"
             exit 1;
           fi
         fi
       }
     else
       {
-        echo -e "${red} You must provide a branch name ${reset}"
+        msg_red "You must provide a branch name ${reset}"
         #exit 1;
       }
     fi
 
-  echo -e " - target branch against:${TARGETBASEBRANCH}"
+  msg_bullet "    - target branch against „${TARGETBASEBRANCH}” ";
+
 #
 # TARGETBASEBRANCH   - end
 #

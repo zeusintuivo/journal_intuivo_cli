@@ -54,8 +54,8 @@ if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then       # or get the de
  
   }
 fi
-
-msg_bullet "    - description „${DESCRIPTION}” ";
+pure_check "${DESCRIPTION}"
+msg_quote "description|${DESCRIPTION}";
 
 (( $JOURNAL_DEBUG_PROCESS )) && {
   echo -e "0:$(<.description_not_set)"

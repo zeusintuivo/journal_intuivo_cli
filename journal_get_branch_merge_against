@@ -32,13 +32,12 @@
   if [[ -z "${BRANCH_MERGE_AGAINST}" ]] ; then                                                                              # default to BRANCH-MERGE-AGAINST
     {
       BRANCH_MERGE_AGAINST="develop"
-      echo -e " - branch against defaulting to:${BRANCH_MERGE_AGAINST}"
+      msg_warning "    -  branch against defaulting to:${BRANCH_MERGE_AGAINST}"
     }
   fi
-  echo -e " - branch against:${BRANCH_MERGE_AGAINST}"
+  msg_bullet "    -  branch against:${BRANCH_MERGE_AGAINST}"
 
   # TODO Saved on a file in .journal file inside the journal/project folder? TODO
-
 
 #
 # BRANCH_MERGE_AGAINST - Get branch MERGE AGAINST ..end
