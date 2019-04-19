@@ -7,7 +7,8 @@
   # Get the current branch name into a variable
   #CURBRANCH=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')    # expected  output   TO-229
   #CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
-
+DESCRIPTION="";
+      msg_bullet "Getting Branch description."                         # Get the description for the git config
 
   # if description is empty
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
@@ -22,9 +23,45 @@
 #branches | grep '*.*feature/DGT-78' #| extract_something_trimmed_between  "\033[0;32m"  "${blue33}"
 #branches | grep '*.*feature/DGT-78' | extract_something_trimmed_between  "033[0;36m"  "033[38;5;33m"
 from1=$(echo -e "\\033[0;36m");
-to2=$(echo -e "\\033[38;5;33m");
+to2=$(echo -e "\\\\033[38;5;33m");
+error_bug1=$(echo -e "\\033[0m\\n");
 #a="$(branches | grep '*.*feature/DGT-78')";
 #a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
-DESCRIPTION=$(branches -l | grep "*.*${CURBRANCH}" | extract_something_trimmed_between  "$from1"  "$to2")
+
+
+
+
+DESCRIPTION=$(branches -l | grep "*.*${CURBRANCH}")
+DESCRIPTION=$(echo "${DESCRIPTION}" | extract_something_trimmed_between  "$from1"  "$to2")
+if [ -z "${DESCRIPTION+x}" ] ||  [[ "${DESCRIPTION}" == "${error_bug1}" ]] ; then 
+{
+  msg_bullet "description is empty"
+  DESCRIPTION=""
+}
+fi
+
+
+
 #git config branch.${CURBRANCH}.description | extract_something_trimmed_between  "$from1"  "$to2"
 #debug: echo $DESCRIPTION
+
+#DESCRIPTION=$(describe | tail -1)
+if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then       # or get the decsription from the file
+  {
+      DESCRIPTION=$(<.description)
+      # DESCRIPTION="Add Vagrant folder to Misc  \\033[38;5;33m"
+      DESCRIPTION=$(echo "${from1}${DESCRIPTION}" | extract_something_trimmed_between  "$from1"  "$to2")
+ 
+  }
+fi
+
+msg_bullet "    - description „${DESCRIPTION}” ";
+
+(( $JOURNAL_DEBUG_PROCESS )) && {
+  echo -e "0:$(<.description_not_set)"
+  cat .description_not_set
+  echo -e "1:${DESCRIPTION}:" | hexdump -c  
+  echo -e "2:${DESCRIPTION}:" 
+  echo -e "3:${JOURNALDIR}:"
+  hexd=$(echo "${BRANCH_MERGE_AGAINST}" | hexdump -c 2>&1) && echo -e "${blue23} • ${blue30} Hello:$COUNTER:$PIPED: ${JOURNAL_DIRECTORY} :${BRANCH_MERGE_AGAINST}:$(echo ${hexd})  ${reset}" &&   echo "DIE3" && exit 0
+}

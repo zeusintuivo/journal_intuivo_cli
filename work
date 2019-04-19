@@ -32,7 +32,7 @@ DESCRIPTION=""
 if [[ -z "${1}"  ]] ; then
   {
     . $FOUND_DIR_JOURNAL/journal_get_current_branch
-    . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION            # vs
+    . $FOUND_DIR_JOURNAL/journal_get_description_current_text_only  # GETS $DESCRIPTION            # vs
   }
 fi
                                                                                                    # assign

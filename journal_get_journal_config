@@ -7,7 +7,7 @@
 JOURNAL_HOME="/Users/Sites" # <-- I used for mac
 JOURNAL_HOME="${HOME}/Sites" # <-- I used for mac
 JOURNAL_HOME="/_" # <-- I used for mac
-
+JOURNAL_VERSION="1.0.0"
 CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
 
@@ -24,6 +24,8 @@ function msg_warning() {
 }
 
 JOURNAL_DEBUG_PROCESS=0
+[[ "${@}" == *"--version"* ]] && echo "${JOURNAL_VERSION}" && exit 0
+[[ "${@}" == *"--help"* ]] &&  echo "usage: all journal commands [--help][--version][--debug]"
 [[ "${@}" == *"--debug"* ]] && JOURNAL_DEBUG_PROCESS=1
 (( $JOURNAL_DEBUG_PROCESS )) &&
 (( $JOURNAL_DEBUG_PROCESS )) && echo -e "${voilet}JOURNAL_DEBUG_PROCESS${yellow220}:${green} ON ${yellow220}== ${blue32}${JOURNAL_DEBUG_PROCESS} ${yellow220}:"

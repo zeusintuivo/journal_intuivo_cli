@@ -9,6 +9,7 @@
       #CURBRANCH=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')   # wrong output   TO-229
       #echo -e "${blue23} • ${blue30} Get current branch name  "
       CURBRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')          # correct output feature/TO-229
+      
     #
     # CURBRANCH - end
     #

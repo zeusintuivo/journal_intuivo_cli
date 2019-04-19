@@ -10,33 +10,40 @@ THISSCRIPTNAME=`basename "$0"`
 
 
 
-DESCRIPTION="";
+DESCRIPTION=""
 if [[ -z "$1" ]] ; then  # if argument was not passed
-    {
-      . $FOUND_DIR_JOURNAL/journal_get_current_branch
-
-      msg_bullet "Getting Branch description."                         # Get the description for the git config
-       . $FOUND_DIR_JOURNAL/journal_get_current_description_text_only  # GETS $DESCRIPTION
-  		#DESCRIPTION=$(describe | tail -1)
-      if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then       # or get the decsription from the file
-        {
-            DESCRIPTION=$(<.description)
-        }
-      fi
-
-  		echo -e "    - description „${DESCRIPTION}” ";
-    }
+{
+    . $FOUND_DIR_JOURNAL/journal_get_description_current_text_only  # GETS $DESCRIPTION
+}
 fi
 
 if [[ ! -z "$1" ]] ; then  # if argument was  passed
-    {
-      . $FOUND_DIR_JOURNAL/journal_get_current_branch
-      YEAR=$(date +%Y);
-      msg_bullet "Getting Branch description."
-      DESCRIPTION="${1}"
-      echo -e "    - description „${DESCRIPTION}” ";
-    }
+{
+  if [[ "${1}" == "--help" ]] ; then 
+  {
+    cat << EOF
+
+usage: ${THISSCRIPTNAME} [--help]                          -- prints this help
+       ${THISSCRIPTNAME} "some description goes here"      -- sets the description only for this execution journal-add-saving process
+
+EOF
+    exit 0  
+  } 
+  else
+  {
+    . $FOUND_DIR_JOURNAL/journal_get_current_branch
+    YEAR=$(date +%Y);
+    msg_bullet "Setting Branch description to passed argument \$1=„${1}”"
+    DESCRIPTION="${1}"
+    msg_bullet "    - description „${DESCRIPTION}” ";
+
+  } 
+  fi 
+}
 fi
+
+
+
 if command -v figlet >/dev/null 2>&1; then
   {
     FIGLET_INSTALLED=1
@@ -134,20 +141,17 @@ fi
 
 
 . $FOUND_DIR_JOURNAL/journal_get_sed_functions
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
-
-
+JOURNALDIR=$(echo -e "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 CURRENTDATE=`date +%Y%m%d`
 
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
-echo -e "${JOURNAL_DIRECTORY}"
+
 
 
 echo ${NEWBRANCH}
-hexd=$(echo "${BRANCH_MERGE_AGAINST}" | hexdump -c 2>&1) && echo -e "${blue23} • ${blue30} Hello:$COUNTER:$PIPED: ${JOURNAL_DIRECTORY} :${BRANCH_MERGE_AGAINST}:$(echo ${hexd})  ${reset}" &&   echo "DIE3" && exit 0
 
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY - START
@@ -319,7 +323,7 @@ if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
     . $FOUND_DIR_JOURNAL/journal_get_description_work_link__url
 
     FILENAME_FOR_DESCRIPTION_ASSEMBLY="${FILENAME_PULL_REQUEST_JOURNAL}"
-    . $FOUND_DIR_JOURNAL/journal_get_description_assembly
+    . $FOUND_DIR_JOURNAL/journal_get_description_construct_the_description_assembly
 
 
   }

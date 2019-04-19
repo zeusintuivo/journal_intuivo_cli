@@ -5,8 +5,8 @@
 #set -eu
 #set -o pipefail
 #set -x
-# DEBUG=0
-# DEBUG=1 # TO DEBUG
+# JOURNAL_DEBUG_PROCESS=0
+# JOURNAL_DEBUG_PROCESS=1 # TO JOURNAL_DEBUG_PROCESS can be set from command line from journal_config and with --debug 
 function extract_something_trimmed_between() {
 
   local PIPED OLDIFS COLORED COUNTER ONEPIPE
@@ -150,7 +150,7 @@ test_assert_get_develop_from_pipe() {
     echo "ERROR self_test test_assert_get_develop_from_pipe failed! expected «develop» got «${RESULT}»!"
     exit 69
   } else {
-    ((DEBUG)) && echo "PIPED TEST PASSED"
+    ((JOURNAL_DEBUG_PROCESS)) && echo "PIPED TEST PASSED"
   }
   fi
   
@@ -167,7 +167,7 @@ test_assert_obtain_develop_from_file(){
     echo "ERROR self_test test_assert_obtain_develop_from_file failed! expected «develop» got «${RESULT}»!"
     exit 69
   } else {
-     ((DEBUG)) && echo "FILE TEST PASSED"
+     ((JOURNAL_DEBUG_PROCESS)) && echo "FILE TEST PASSED"
   }
   fi
 }
