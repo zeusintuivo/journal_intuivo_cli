@@ -59,10 +59,11 @@ fi
 msg_quote "description|${DESCRIPTION}";
 
 (( $JOURNAL_DEBUG_PROCESS )) && {
-  echo -e "0:$(<.description_not_set)"
-  cat .description_not_set
+  echo -e "* \033[0m\033[38;5;220mhealth-wizard\033[0m\033[0;36m\033[0m\n"
+  # echo -e "0:$(<.description_not_set)"
+  # cat .description_not_set
   echo -e "1:${DESCRIPTION}:" | hexdump -c  
   echo -e "2:${DESCRIPTION}:" 
   echo -e "3:${JOURNALDIR}:"
-  hexd=$(echo "${BRANCH_MERGE_AGAINST}" | hexdump -c 2>&1) && echo -e "${blue23} • ${blue30} Hello:$COUNTER:$PIPED: ${JOURNAL_DIRECTORY} :${BRANCH_MERGE_AGAINST}:$(echo ${hexd})  ${reset}" &&   echo "DIE3" && exit 0
+  hexd=$(echo "${BRANCH_MERGE_AGAINST}" | hexdump -c 2>&1) && echo -e "${blue23} • ${blue30} Hello:$COUNTER:$PIPED: ${JOURNAL_DIRECTORY} :${BRANCH_MERGE_AGAINST}:$(echo ${hexd})  ${reset}" #  && echo "DIE3" && exit 0
 }

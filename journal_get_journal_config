@@ -10,15 +10,14 @@ JOURNAL_HOME="/_" # <-- I used for mac
 JOURNAL_VERSION="1.0.0"
 CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
-DISK_CASE_SENSITIVE=1
-CASE_SENSITIVE_CONFIRMATION=""
-LICENSE_LOWER_CASE_FOUND=$(ls )
 JOURNAL_PROJECT_WORKING_ON=${PWD}
 
+
+CASE_SENSITIVE_CONFIRMATION=""
+DISK_CASE_SENSITIVE=1
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 { # try
-  . $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive
-  #save your output
+  [ -e $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive  ] && . $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive 
 } || { # catch
   DISK_CASE_SENSITIVE=1
 }
@@ -48,7 +47,7 @@ function pure_check() {
   local string_length="${#string}"     # bash get string length
   # echo "asdf"       | sed 's/./&,/2'  # how to a , in position two using sed
   local new_string=""
-  msg_bullet "    - pure_checking „${string}” ";
+  # msg_bullet "    - pure_checking „${string}” ";rs
   if [ -z "${string}" ] ; then 
   {
     return 0;
