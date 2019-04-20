@@ -57,9 +57,13 @@ function pure_check() {
   while read -n 1 char ; do
       new_string="${new_string}.${char}"
   done <<< "${string}"
-  if [[ "${string}" != "${new_string}" ]] ; then 
+  local new_string_length="${#new_string}"     # bash get string length
+  local EXPEDTED_LENGTH=$((string_length)) 
+  EXPEDTED_LENGTH=$((EXPEDTED_LENGTH*2))
+  EXPEDTED_LENGTH=$((EXPEDTED_LENGTH-3))
+  if ((EXPEDTED_LENGTH != new_string_length)) ; then 
   {
-    msg_error "String „${string}” Is not pure „${new_string}” ";
+    msg_error "String ${string_length}:‘${string}’ Is not pure ${EXPEDTED_LENGTH}!=${new_string_length}„${new_string}” ";
     return 1
   }
   fi
@@ -75,12 +79,17 @@ function msg_quote() {
 function msg_choice() {
   local name_of_variable="${1}"
   local value=$(eval "echo \$${name_of_variable}")
-  (( $value )) && echo -e "${voilet}${name_of_variable}${yellow220}:${green} ON ${yellow220}== ${blue32}${value} ${yellow220}:${reset}"
-  (( ! $value )) && echo -e "${voilet}${name_of_variable}${yellow220}:${red} OFF ${yellow220}== ${orange208}${value} ${yellow220}:${reset}"
+  (( $value )) && {
+    echo -e "${voilet}${name_of_variable}${yellow220}:${green} ON ${yellow220}== ${blue32}${value} ${yellow220}:${reset}"
+  }
+  (( ! $value )) && {
+    echo -e "${voilet}${name_of_variable}${yellow220}:${red} OFF ${yellow220}== ${orange208}${value} ${yellow220}:${reset}"
+  }
 } # msg_choice
 
-[ -z $CASE_SENSITIVE_CONFIRMATION ] && CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)
-msg_quote "Case Sensitive Disk?|$CASE_SENSITIVE_CONFIRMATION"
+[ -z $CASE_SENSITIVE_CONFIRMATION ] && {
+  CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)
+}
 [ ! -z $CASE_SENSITIVE_CONFIRMATION ] && {
   [[ $CASE_SENSITIVE_CONFIRMATION == "Yes" ]] && DISK_CASE_SENSITIVE=1
   [[ $CASE_SENSITIVE_CONFIRMATION == "Ja" ]] && DISK_CASE_SENSITIVE=1
