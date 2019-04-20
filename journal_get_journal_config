@@ -10,49 +10,18 @@ JOURNAL_HOME="/_" # <-- I used for mac
 JOURNAL_VERSION="1.0.0"
 CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
-
+DISK_CASE_SENSITIVE=1
+CASE_SENSITIVE_CONFIRMATION=""
+LICENSE_LOWER_CASE_FOUND=$(ls )
 JOURNAL_PROJECT_WORKING_ON=${PWD}
 
-function msg_bullet() {
-	echo -e "${blue23} • ${blue30} ${@} ${reset}"
+[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
+{ # try
+  . $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive
+  #save your output
+} || { # catch
+  DISK_CASE_SENSITIVE=1
 }
-function msg_error() {
-	echo -e "${red} ERROR ! ${@} ${reset}"
-}
-function msg_red() {
-	echo -e "${red} • ${orange209} ${@} ${reset}"
-}
-function msg_warning() {
-	echo -e "${yellow220} WARNING ! ${@} ${reset}"
-}
-function pure_check() {
-  local char string="${*}"
-  local string_length="${#string}"     # bash get string length
-  # echo "asdf"       | sed 's/./&,/2'  # how to a , in position two using sed
-  local new_string=""
-  while read -n 1 char ; do
-      new_string="${char}."
-  done <<< "${string}"
-  if [[ "${string}" != "${new_string}" ]] ; then 
-  {
-    msg_error "Is not pure „${new_string}” ";
-  }
-  fi
-  msg_bullet "„${string}” ";
-}
-function msg_quote() {
-  local first_argument to_quote
-  IFS='|' read -r first_argument to_quote <<< "${*}"
-  msg_bullet "    - ${first_argument} „${to_quote}” ";
-}
-
-JOURNAL_DEBUG_PROCESS=0
-[[ "${@}" == *"--version"* ]] && echo "${JOURNAL_VERSION}" && exit 0
-[[ "${@}" == *"--help"* ]] &&  echo "usage: all journal commands [--help][--version][--debug]"
-[[ "${@}" == *"--debug"* ]] && JOURNAL_DEBUG_PROCESS=1
-(( $JOURNAL_DEBUG_PROCESS )) &&
-(( $JOURNAL_DEBUG_PROCESS )) && echo -e "${voilet}JOURNAL_DEBUG_PROCESS${yellow220}:${green} ON ${yellow220}== ${blue32}${JOURNAL_DEBUG_PROCESS} ${yellow220}:"
-
 load_struct_testing_wget(){
     local provider="/_/clis/execute_command_intuivo_cli/struct_testing"
     [   -e "${provider}"  ] && source "${provider}"
@@ -61,5 +30,67 @@ load_struct_testing_wget(){
     ( ( ! command -v type passed >/dev/null 2>&1; ) && echo -e "\n \n  ERROR! Loading struct_testing \n \n " && exit 69; )
 } # end load_struct_testing_wget
 load_struct_testing_wget
+
+function msg_bullet() {
+	echo -e "${blue23} • ${blue30} ${@} ${reset}"
+} # msg_bullet
+function msg_error() {
+	echo -e "${red} ERROR ! ${@} ${reset}"
+} # msg_error
+function msg_red() {
+	echo -e "${red} • ${orange209} ${@} ${reset}"
+} # msg_red
+function msg_warning() {
+	echo -e "${yellow220} WARNING ! ${@} ${reset}"
+} # msg_warning
+function pure_check() {
+  local char string="${*}"
+  local string_length="${#string}"     # bash get string length
+  # echo "asdf"       | sed 's/./&,/2'  # how to a , in position two using sed
+  local new_string=""
+  msg_bullet "    - pure_checking „${string}” ";
+  if [ -z "${string}" ] ; then 
+  {
+    return 0;
+  }
+  fi
+  while read -n 1 char ; do
+      new_string="${new_string}.${char}"
+  done <<< "${string}"
+  if [[ "${string}" != "${new_string}" ]] ; then 
+  {
+    msg_error "String „${string}” Is not pure „${new_string}” ";
+    return 1
+  }
+  fi
+  # msg_bullet "„${string}” ";
+  return 0
+} # pure_check
+function msg_quote() {
+  local first_argument to_quote
+  IFS='|' read -r first_argument to_quote <<< "${*}"
+  pure_check "${DESCRIPTION}"
+  msg_bullet "    - ${first_argument} „${to_quote}” ";
+} # msg_quote
+function msg_choice() {
+  local name_of_variable="${1}"
+  local value=$(eval "echo \$${name_of_variable}")
+  (( $value )) && echo -e "${voilet}${name_of_variable}${yellow220}:${green} ON ${yellow220}== ${blue32}${value} ${yellow220}:${reset}"
+  (( ! $value )) && echo -e "${voilet}${name_of_variable}${yellow220}:${red} OFF ${yellow220}== ${orange208}${value} ${yellow220}:${reset}"
+} # msg_choice
+
+[ -z $CASE_SENSITIVE_CONFIRMATION ] && CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)
+msg_quote "Case Sensitive Disk?|$CASE_SENSITIVE_CONFIRMATION"
+[ ! -z $CASE_SENSITIVE_CONFIRMATION ] && {
+  [[ $CASE_SENSITIVE_CONFIRMATION == "Yes" ]] && DISK_CASE_SENSITIVE=1
+  [[ $CASE_SENSITIVE_CONFIRMATION == "Ja" ]] && DISK_CASE_SENSITIVE=1
+}
+
+JOURNAL_DEBUG_PROCESS=0
+[[ "${@}" == *"--version"* ]] && echo "${JOURNAL_VERSION}" && exit 0
+[[ "${@}" == *"--help"* ]] &&  echo "usage: all journal commands [--help][--version][--debug]"
+[[ "${@}" == *"--debug"* ]] && JOURNAL_DEBUG_PROCESS=1
+(( $JOURNAL_DEBUG_PROCESS )) && msg_choice JOURNAL_DEBUG_PROCESS
+(( $DISK_CASE_SENSITIVE )) && msg_choice DISK_CASE_SENSITIVE
 
 

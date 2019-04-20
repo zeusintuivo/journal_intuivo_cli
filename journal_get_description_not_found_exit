@@ -11,7 +11,7 @@
       # show all branches
       echo " "
         msg_error "No description. Need description ${reset}"
-        echo "  USE:     describe \"Fix url issue\"     for example to fix "
+        echo "  USE:     ${THISSCRIPTNAME} \"Fix url issue\"         --- for example to fix "
         echo " "
       exit 1;
     fi

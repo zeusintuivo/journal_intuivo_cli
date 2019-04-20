@@ -6,44 +6,6 @@
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config
 
-THISSCRIPTNAME=`basename "$0"`
-
-
-
-DESCRIPTION=""
-if [[ -z "$1" ]] ; then  # if argument was not passed
-{
-    . $FOUND_DIR_JOURNAL/journal_get_description_current_text_only  # GETS $DESCRIPTION
-}
-fi
-
-if [[ ! -z "$1" ]] ; then  # if argument was  passed
-{
-  if [[ "${1}" == "--help" ]] ; then 
-  {
-    cat << EOF
-
-usage: ${THISSCRIPTNAME} [--help]                          -- prints this help
-       ${THISSCRIPTNAME} "some description goes here"      -- sets the description only for this execution journal-add-saving process
-
-EOF
-    exit 0  
-  } 
-  else
-  {
-    . $FOUND_DIR_JOURNAL/journal_get_current_branch
-    YEAR=$(date +%Y);
-    msg_bullet "Setting Branch description to passed argument \$1=„${1}”"
-    DESCRIPTION="${1}"
-    msg_bullet "    - description „${DESCRIPTION}” ";
-
-  } 
-  fi 
-}
-fi
-
-
-
 if command -v figlet >/dev/null 2>&1; then
   {
     FIGLET_INSTALLED=1
@@ -64,6 +26,46 @@ else
     brew install tree
   }
 fi
+
+THISSCRIPTNAME=`basename "$0"`
+DESCRIPTION=""
+
+if [[ ! -z "$1" ]] ; then  # if argument was  passed
+{
+  if [[ "${1}" == "--help" ]] ; then 
+  {
+    cat << EOF
+
+usage: ${THISSCRIPTNAME} [--help]                          -- prints this help
+       ${THISSCRIPTNAME} "some description goes here"      -- sets the description only for this execution journal-add-saving process
+
+EOF
+    exit 0  
+  } else {
+    if [[ "${1}" != "--debug" ]] ; then 
+    {
+      YEAR=$(date +%Y);
+      msg_bullet "Setting Branch description to passed argument \$1=„${1}”"
+      DESCRIPTION="${1}"
+      msg_quote "description|${DESCRIPTION}";
+    } else {
+      msg_bullet debug mode
+      . $FOUND_DIR_JOURNAL/journal_get_description_current_text_only  # GETS $DESCRIPTION
+
+    }
+    fi
+  } 
+  fi 
+} 
+else 
+{ 
+    . $FOUND_DIR_JOURNAL/journal_get_description_current_text_only  # GETS $DESCRIPTION
+}
+fi
+
+    
+
+
 
 
 . $FOUND_DIR_JOURNAL/journal_get_description_not_found_exit

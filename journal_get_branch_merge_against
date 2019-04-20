@@ -35,7 +35,7 @@
       msg_warning "    -  branch against defaulting to:${BRANCH_MERGE_AGAINST}"
     }
   fi
-  msg_bullet "    -  branch against:${BRANCH_MERGE_AGAINST}"
+  msg_quote "branch against|${BRANCH_MERGE_AGAINST}"
 
   # TODO Saved on a file in .journal file inside the journal/project folder? TODO
 

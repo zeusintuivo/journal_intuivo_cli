@@ -23,7 +23,8 @@ DESCRIPTION="";
 #branches | grep '*.*feature/DGT-78' #| extract_something_trimmed_between  "\033[0;32m"  "${blue33}"
 #branches | grep '*.*feature/DGT-78' | extract_something_trimmed_between  "033[0;36m"  "033[38;5;33m"
 from1=$(echo -e "\\033[0;36m");
-to2=$(echo -e "\\\\033[38;5;33m");
+(( $DISK_CASE_SENSITIVE )) && to2=$(echo -e "\\\\033[38;5;33m");
+(( ! $DISK_CASE_SENSITIVE )) && to2=$(echo -e "\\033[38;5;33m");
 error_bug1=$(echo -e "\\033[0m\\n");
 #a="$(branches | grep '*.*feature/DGT-78')";
 #a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
@@ -54,7 +55,7 @@ if [[ -z "${DESCRIPTION}" ]] && [ -f .description ];  then       # or get the de
  
   }
 fi
-pure_check "${DESCRIPTION}"
+
 msg_quote "description|${DESCRIPTION}";
 
 (( $JOURNAL_DEBUG_PROCESS )) && {
