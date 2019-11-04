@@ -32,7 +32,7 @@ fi
 
 # 4. Get the directory
 FOUND_DIR_JOURNAL=`dirname "${FOUND_DIR_JOURNAL_SCRIPT}"`
-
+FOUND_DIR_JOURNAL=$(echo "${FOUND_DIR_JOURNAL}" | sed 's/ /\\ /g') # escape spaces
 #test:   asserts that the result should equal at the location of the journal_intuivo_cli folder
 #echo $FOUND_DIR_JOURNAL;
 
