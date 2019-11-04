@@ -8,7 +8,7 @@
 # JOURNAL_DEBUG_PROCESS=0
 # JOURNAL_DEBUG_PROCESS=1 # TO JOURNAL_DEBUG_PROCESS can be set from command line from journal_config and with --debug
 function extract_something_trimmed_between() {
-    
+
     local PIPED OLDIFS COLORED COUNTER ONEPIPE
     local from1 to2 a filename=""
     local PIPED="";
@@ -19,20 +19,20 @@ function extract_something_trimmed_between() {
             filename="${3}"
         }
     fi
-    
+
     if [ ! -z "${3}" ] || [ ! -z "${4}" ] && [[ "${3}" == "--file" ]] ; then  # file argument
         {
             filename="${4}"
         }
     fi
-    
+
     if [ ! -z "${filename}" ] && [ ! -e "${filename}" ] ; then
         {
             echo "ERROR extract_something_trimmed_between(${*}) filename:${filename}: is does not exists!"
             exit 69
         }
     fi
-    
+
     if [ ! -z "${filename}" ] || [ -t 0 ]; then # Do stuff with NO PIPE
         {
             # Terminal input (keyboard) - interactive
@@ -40,7 +40,7 @@ function extract_something_trimmed_between() {
         }
     else
         {
-            
+
             # File or pipe input - non-interactive
             PIPED="YES"
             # REF: http://stackoverflow.com/questions/2746553/bash-script-read-values-from-stdin-pipe
@@ -53,46 +53,46 @@ function extract_something_trimmed_between() {
             IFS= read -r ONEPIPE   # to avoid interpretation of backslashes.
             PIPED="${ONEPIPE}"
             [ ! -z "$PIPED" ] && COUNTER=$((COUNTER+1))
-            
+
             while read ONEPIPE
             do
-                
+
                 PIPED="${PIPED}
                 ${ONEPIPE}"
                 COUNTER=$((COUNTER+1))
             done
-            
+
             if [ $COUNTER -eq 0 ]; then
                 IFS=$OLDIFS
                 return 1;   # If there is not contents then exit silently with error code 1
             fi
-            
+
             #action="${ONEPIPE/ /⃝}"  # replace value inside string substitution expresion bash
             # TEST: echo "COUNTER: ${COUNTER}";echo "PIDED: ${PIPED}"; exit 0;
             IFS=$OLDIFS
         }
     fi
-    
-    
-    
+
+
+
     if [ -z "$PIPED" ] || [ ! -z "${filename}" ]; then  # Do stuff with NO PIPE
         {
-            
+
             PIPED=""
-            
+
             # Execution part - Start
             # Sample use:
             #             echo "'continue_confirm_start.m  033[0m from develop.BASEBRANCH.' " > .description
             #             extract_something_trimmed_between "from" ".BASEBRANCH." .description
-            
+
             # Technique from:
             # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
             #test: Working sample
             #from1="If you come"; to2="Example aliases"; a="$(cat ~/.zshrc)"; a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
-            
+
             from1="${1}";
             to2="${2}";
-            
+
             if [[ ! -f "${filename}" ]] ; then
                 {
                     echo "ERROR !!! Filename: ${filename} does not exist"
@@ -106,35 +106,35 @@ function extract_something_trimmed_between() {
             #echo "${a%%"$to2"*}"  # gets spaces
             echo ${a%%"$to2"*}  # trims spaces
             # Execution part - End
-            
+
         }
     else               # Do sutff with WITH YES PIPE the contents piped passed
         {
-            
+
             ##Executiong part - Start
             # Sample use:
             #        cat .description | extract_something_trimmed_between "from" ".BASEBRANCH."
             #        echo "ew_field_autoconfirm_start.m  033[0m from develop.BASEBRANCH.'" | extract_something_trimmed_between "from" ".BASEBRANCH."
-            
+
             # Technique from:
             # REF: https://unix.stackexchange.com/questions/243207/how-can-i-delete-everything-until-a-pattern-and-everything-after-another-pattern
             #test: Working sample
             #from1="If you come"; to2="Example aliases"; a="$(cat ~/.zshrc)"; a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}$to2"
-            
+
             from1="${1}";
             to2="${2}";
             a="${PIPED}";
-            
+
             a="$(echo "${a#*"$from1"}")";
             #echo "$from1${a%%"$to2"*}$to2" # returns the side handles between
             #echo "${a%%"$to2"*}"  # gets spaces
             echo ${a%%"$to2"*}  # trims spaces
             return 0
-            
+
             ##Executiong part - End
         }
     fi
-    
+
 } # end function  extract_something_trimmed_between
 
 
@@ -153,7 +153,7 @@ test_assert_get_develop_from_pipe() {
             ((JOURNAL_DEBUG_PROCESS)) && echo -e " ◊ ${gray238}${BASH_SOURCE[0]} ->\n  .. ${FUNCNAME[0]}() == ${green}PIPED TEST PASSED${reset}"
         }
     fi
-    
+
 } # end function test_assert_get_develop_from_pipe
 test_assert_get_develop_from_pipe
 

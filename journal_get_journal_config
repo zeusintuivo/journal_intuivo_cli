@@ -17,12 +17,12 @@ CASE_SENSITIVE_CONFIRMATION=""
 DISK_CASE_SENSITIVE=1
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 { # try
-  [ -e $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive  ] && . $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive 
+  [ -e $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive  ] && . $FOUND_DIR_JOURNAL/journal_get_case_in_sensitive
 } || { # catch
   DISK_CASE_SENSITIVE=1
 }
 load_struct_testing_wget(){
-    local provider="/Users/benutzer$HOME/_/clis/execute_command_intuivo_cli/struct_testing"
+    local provider="$HOME/_/clis/execute_command_intuivo_cli/struct_testing"
     [   -e "${provider}"  ] && source "${provider}"
 		( ( ! command -v type wget >/dev/null 2>&1; ) && echo -e "\n \n  ERROR! Loading struct_testing. You need wget installed \n \n " && exit 69; )
     [ ! -e "${provider}"  ] && eval """$(wget --quiet --no-check-certificate  https://raw.githubusercontent.com/zeusintuivo/execute_command_intuivo_cli/master/struct_testing -O -  2>/dev/null )"""   # suppress only wget download messages, but keep wget output for variable
@@ -48,7 +48,7 @@ function pure_check() {
   # echo "asdf"       | sed 's/./&,/2'  # how to a , in position two using sed
   local new_string=""
   # msg_bullet "    - pure_checking „${string}” ";rs
-  if [ -z "${string}" ] ; then 
+  if [ -z "${string}" ] ; then
   {
     return 0;
   }
@@ -57,10 +57,10 @@ function pure_check() {
       new_string="${new_string}.${char}"
   done <<< "${string}"
   local new_string_length="${#new_string}"     # bash get string length
-  local EXPEDTED_LENGTH=$((string_length)) 
+  local EXPEDTED_LENGTH=$((string_length))
   EXPEDTED_LENGTH=$((EXPEDTED_LENGTH*2))
   EXPEDTED_LENGTH=$((EXPEDTED_LENGTH-3))
-  if ((EXPEDTED_LENGTH != new_string_length)) ; then 
+  if ((EXPEDTED_LENGTH != new_string_length)) ; then
   {
     msg_error "String ${string_length}:‘${string}’ Is not pure ${EXPEDTED_LENGTH}!=${new_string_length}„${new_string}” ";
     return 1
