@@ -127,7 +127,7 @@ function underscore_to_space {
     sed "s/\_/ /g"
 }
 function convert_to_lowercase {
-    sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' 
+    sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'
 }
 function convert_to_dash {
     convert_to_underdash \
