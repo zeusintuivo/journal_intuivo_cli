@@ -6,11 +6,25 @@
 # TODO . TO have this in an options box
 JOURNAL_HOME="/Users/Sites" # <-- I used for mac
 JOURNAL_HOME="${HOME}/Sites" # <-- I used for mac
-JOURNAL_HOME="/_" # <-- I used for mac
+JOURNAL_HOME="${HOME}/_" # <-- I used for mac. it will create ${HOME}/_/journal directory
 JOURNAL_VERSION="1.0.0"
 CURRENTDATE=`date +%Y%m%d`
 CURRENT_LONG_DATE=`date`
-JOURNAL_PROJECT_WORKING_ON=${PWD}
+JOURNAL_PROJECT_WORKING_ON="${PWD}"
+
+#KEY?
+#KEYS Override?
+      [[ -z "${GIT_USER_NAME}" ]] && GIT_USER_NAME=$(command git config user.name 2> /dev/null)
+
+      if [ -f .temp_keys ] ; then
+        LOAD_TEMP_KEYS=$(<.temp_keys)
+        eval "${LOAD_TEMP_KEYS}"
+        if [[ ! -z "${SSH_KEY}" ]] && [[ "${GITUSER}" != "${GIT_USER_NAME}" ]] ; then
+          sshswitchkey "${SSH_KEY}"
+          GIT_USER_NAME=$(command git config user.name 2> /dev/null)
+        fi
+      fi
+
 
 
 CASE_SENSITIVE_CONFIRMATION=""
@@ -87,7 +101,7 @@ function msg_choice() {
 } # msg_choice
 
 [ -z $CASE_SENSITIVE_CONFIRMATION ] && {
-  CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)
+  CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)   # mac specicifc diskutil function
 }
 [ ! -z $CASE_SENSITIVE_CONFIRMATION ] && {
   [[ $CASE_SENSITIVE_CONFIRMATION == "Yes" ]] && DISK_CASE_SENSITIVE=1
