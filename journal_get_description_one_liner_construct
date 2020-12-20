@@ -35,7 +35,7 @@ echo -e "${blue23} • ${blue30} Adding Description ${reset}"
 # Read from .journal config file - end
 
 FILENAME_FOR_DESCRIPTION_ASSEMBLY="${JOURNALENTRY}"
-. $FOUND_DIR_JOURNAL/journal_get_description_construct_the_description_assembly
+. $FOUND_DIR_JOURNAL/journal_get_description_construct_the_description_assembly   # get loads  ONELINEDESCRIPTION
 
   if [[ ! -z "${DESCRIPTION}"  ]] ; then
     # show all branches
