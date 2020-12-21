@@ -5,7 +5,7 @@
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 [[ -z "${BRANCH_MERGE_AGAINST}" ]] && . $FOUND_DIR_JOURNAL/journal_get_branch_merge_against
 [[ -z "${CURBRANCH}" ]] && . $FOUND_DIR_JOURNAL/journal_get_current_branch
-
+SAVEDBRANCH="${CURBRANCH}"
   CHANGED_BY_ME=""
   ME_NAME=$(git config user.name)
   ME_EMAIL=$(git config user.email)
@@ -32,10 +32,19 @@ function file_last_commit(){
   git log -n 1 -- """${1}""" | egrep --color=no -v "Author: "|  egrep --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
 }
 
-FILENAME_LENGTH=0
-BIGGEST_FILENAME_LENGTH=0
-AUTHOR_LENGTH=0
-BIGGEST_AUTHOR_LENGTH=0
+
+function file_save_files(){
+  #
+  #
+  # "${CURBRANCH}" 
+  # "${TARGETBASEBRANCH}"  BRANCH_MERGE_AGAINST
+  #
+  #
+  local -i FILENAME_LENGTH=0
+  local -i BIGGEST_FILENAME_LENGTH=0
+  local -i AUTHOR_LENGTH=0
+  local -i BIGGEST_AUTHOR_LENGTH=0
+  local local_JOURNAL_PULL_REQUEST_DIRECTORY="${1}"
 	while read -r CHANGED_FILE; do
       # if not empty line
       if [ ! -z "${CHANGED_FILE}" ] ; then
@@ -72,26 +81,27 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
     			(
     			  if [[ "$(uname)" == "Darwin" ]] ; then
     			    # Do something under Mac OS X platform
-    				  rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+    				  rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
               if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
                 {
-                   rsync -R "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                   rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
                 }
               fi
     			  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
     			    # Do something under GNU/Linux platform
-    			    cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+    			    cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+              # echo "cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}""
               if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
                 {
-                   cp -a --parents "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                   cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
                 }
               fi
     			  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
     			    # Do something under Windows NT platform
-    			    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+    			    xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
               if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
                 {
-                    xcopy /s   "${CHANGED_FILE}" "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+                    xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
                 }
               fi
     			    # nothing here
@@ -108,7 +118,21 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
       fi
 
 	done <<< "${CHANGED_FILES}"
+} # end file_save_files
 
+file_save_files "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+
+git checkout "${BRANCH_MERGE_AGAINST}"
+
+MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY=$(echo "${JOURNAL_PULL_REQUEST_DIRECTORY}" | sed 's/\/pr_/'"\/von_"'/')
+echo -e "\n Merged Against Files NOW ${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+mkdir -p "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
+file_save_files "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+
+
+git checkout "${SAVEDBRANCH}"
+. $FOUND_DIR_JOURNAL/journal_get_current_branch
 
 
 	#echo "${CHANGED_FILES}"
