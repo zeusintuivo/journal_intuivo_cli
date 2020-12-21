@@ -70,9 +70,11 @@ function cut_only_35 {
 function spaces_to_newlines() {
     sed 's/ /\n/g'
 }
+export underdash_to_newlines
 function underdash_to_newlines() {
     sed 's/\_/\n/g'
 }
+export limit_words
 function limit_words {
     local LIMIT=$1
     local COUNTER=0
@@ -88,9 +90,11 @@ function limit_words {
     }
     done <<< "$(underdash_to_newlines)"
 }
+export use_5_words
 function use_5_words {
     limit_words 5 """${@}"""
 }
+export use_7_words 
 function use_7_words {
     limit_words 7 """${@}"""
 }

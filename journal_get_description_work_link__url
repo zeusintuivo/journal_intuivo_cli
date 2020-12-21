@@ -104,5 +104,19 @@ PHABRICATOR_TICKET_LINK="https://projects.${PART_COMPANY_NAME}.de/${TICKETID}"
 ISSUETRACKERLOCATION="${PHABRICATOR_TICKET_LINK}"
 # Phabricator sample - end
 
+# Trello sample - start
+#                                c    #      TICKETID=401 plus after first dash  is all descrition -description
+# Sample link https://trello.com/c/b320RCOd/401-define-alt-property-for-images-in-the-brand-template
+# Sample link https://trello.com/c/b320RCOd/401                                                        <--- is the same
+TRELLO_TICKET_LINK="https://trello.com/${TRELLO_BOARD}/${TICKETID}"
+ISSUETRACKERLOCATION="${TRELLO_TICKET_LINK}"
+# Trello sample - end
+
+# Overwrite ISSUETRACKERLOCATION  .temp_keys  - START
+#
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+
+
+
 }
 get_ticket_link_url
