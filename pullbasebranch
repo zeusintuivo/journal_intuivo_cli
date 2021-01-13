@@ -1,0 +1,2 @@
+git fetch -f origin master:master 
+echo  # TODO get base branch

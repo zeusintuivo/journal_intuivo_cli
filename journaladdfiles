@@ -27,10 +27,10 @@ else
   }
 fi
 
-THISSCRIPTNAME=`basename "$0"`
+THISSCRIPTNAME=$(basename "$0")
 DESCRIPTION=""
 
-if [[ ! -z "$1" ]] ; then  # if argument was  passed
+if [[ -n "$1" ]] ; then  # if argument was  passed
 {
   if [[ "${1}" == "--help" ]] ; then 
   {
@@ -149,7 +149,7 @@ JOURNALDIR=$(echo -e "${JOURNALDIR}/${JOURNALDIR_SUBDIR}")
 . $FOUND_DIR_JOURNAL/journal_get_project_name
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 
-CURRENTDATE=`date +%Y%m%d`
+CURRENTDATE=$(date +%Y%m%d)
 
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
 
