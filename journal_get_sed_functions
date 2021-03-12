@@ -58,6 +58,12 @@ function squared_braket_open_to_underdash {
 function squared_braket_close_to_underdash {
     sed "s/\]/\_/g"
 }
+function parenthesis_open_to_underdash {
+    sed "s/[(]/\_/g"
+}
+function parenthesis_close_to_underdash {
+    sed "s/[)]/\_/g"
+}
 function remove_starting_underdash {
     sed 's/^\(\_\)*//'
 }
@@ -98,6 +104,10 @@ export use_5_words
 function use_5_words {
     limit_words 5 """${@}"""
 }
+export use_3_words
+function use_3_words {
+    limit_words 3 """${@}"""
+}
 export use_7_words
 function use_7_words {
     limit_words 7 """${@}"""
@@ -122,6 +132,8 @@ function convert_to_underdash {
  | double_quotes_to_underdash \
  | slash_to_underdash \
  | commas_to_underdash \
+ | parenthesis_open_to_underdash \
+ | parenthesis_close_to_underdash \
  | squared_braket_open_to_underdash \
  | squared_braket_close_to_underdash \
  | remove_double_underdash \
@@ -150,6 +162,14 @@ function convert_to_35_dashed {
 function only_2_dashed_words {
     convert_to_underdash \
   | use_2_words \
+  | spaces_to_underdash \
+  | remove_starting_underdash \
+  | remove_last_underdash \
+  | underscore_to_dash
+}
+function only_3_dashed_words {
+    convert_to_underdash \
+  | use_3_words \
   | spaces_to_underdash \
   | remove_starting_underdash \
   | remove_last_underdash \
