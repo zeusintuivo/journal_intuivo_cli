@@ -115,8 +115,74 @@ function use_7_words {
 function dash_to_underdash {
     sed 's/\-/\_/g'
 }
+function dot_to_underdash {
+    sed 's/\./\_/g'
+}
+function backquote_to_underdash {
+    sed 's/\`/\_/g'
+}
+function forwardquote_to_underdash {
+    sed 's/\´/\_/g'
+}
+function pipe_to_underdash() {
+  sed 's/[|]/_/g'
+}
+function bangs_to_underdash() {
+    sed 's/\!/_/g'
+}
+function opening_bangs_to_underdash() {
+    sed 's/\¡/_/g'
+}
+function tab_to_underdash() {
+  sed 's/\t/_/g'
+}
+function ampersand_to_underdash() {
+    sed "s/\&/_/g"
+}
+function arroba_to_underdash() {
+    sed "s/\@/_/g"
+}
+function more_than_to_underdash() {
+    sed 's/[>]/_/g'
+}
+
+function question_to_underdash() {
+    sed 's/\?/_/g'
+}
+function less_than_to_underdash() {
+   sed 's/\</L3S5TH4N/g'   # GNU sed
+}
+LESS_THAN_TEST_GNU="$(echo """<?php""" | sed 's/[<]/L3S5TH4N/g' )"
+LESS_THAN_TEST_BSD="$(echo """<?php""" | sed 's/"""<"""/L3S5TH4N/g'  )"
+if [ ! -z "${LESS_THAN_TEST_GNU}" ] && [[ "${LESS_THAN_TEST_GNU}" == *"L3S5TH4N"* ]] ; then
+{
+    function less_than_to_underdash() {
+      sed 's/[<]/L3S5TH4N/g'   # GNU sed
+    }
+}
+fi
+if [ ! -z "${LESS_THAN_TEST_BSD}" ] && [[ "${LESS_THAN_TEST_BSD}" == *"L3S5TH4N"* ]] ; then
+{
+
+    function less_than_to_underdash() {
+      sed 's/"""<"""/L3S5TH4N/g' #  BSD sed
+    }
+}
+fi
 function convert_to_underdash {
    ae_to_underdash \
+ | less_than_to_underdash \
+ | more_than_to_underdash \
+ | question_to_underdash \
+ | forwardquote_to_underdash \
+ | arroba_to_underdash \
+ | ampersand_to_underdash \
+ | tab_to_underdash \
+ | opening_bangs_to_underdash \
+ | bangs_to_underdash \
+ | pipe_to_underdash \
+ | backquote_to_underdash \
+ | dot_to_underdash \
  | dash_to_underdash \
  | oe_to_underdash \
  | ue_to_underdash \
