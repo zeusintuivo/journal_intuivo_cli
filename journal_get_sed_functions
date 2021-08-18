@@ -121,8 +121,14 @@ function dot_to_underdash {
 function backquote_to_underdash {
     sed 's/\`/\_/g'
 }
+function backquote2_to_underdash {
+    sed 's/[`]/\_/g'
+}
 function forwardquote_to_underdash {
     sed 's/\´/\_/g'
+}
+function forwardquote2_to_underdash {
+    sed 's/[´]/\_/g'
 }
 function pipe_to_underdash() {
   sed 's/[|]/_/g'
@@ -145,7 +151,6 @@ function arroba_to_underdash() {
 function more_than_to_underdash() {
     sed 's/[>]/_/g'
 }
-
 function question_to_underdash() {
     sed 's/\?/_/g'
 }
@@ -171,6 +176,8 @@ if [ ! -z "${LESS_THAN_TEST_BSD}" ] && [[ "${LESS_THAN_TEST_BSD}" == *"L3S5TH4N"
 fi
 function convert_to_underdash {
    ae_to_underdash \
+ | forwardquote2_to_underdash \
+ | backquote2_to_underdash \
  | less_than_to_underdash \
  | more_than_to_underdash \
  | question_to_underdash \
