@@ -198,7 +198,7 @@ if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; 
 fi
 ACTION="pr_${CURRENTDATE}"
 
-JOURNAL_PULL_REQUEST_DIRECTORY="${JOURNAL_DIRECTORY}/${ACTION}"
+JOURNAL_PULL_REQUEST_DIRECTORY="$(realpath "${JOURNAL_DIRECTORY}/${ACTION}")"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY  - END
 #
@@ -413,7 +413,7 @@ function _column_print_to_file_worker(){
               commit_message=$(cut -d"|" -f3 <<< "$( trim <<< "${one_line}")")
 
               filename_chars=$(wc -c <<< "${filename}")
-              if [ "$filename_chars" -gt "$first_colum" ] ; then
+              if (( filename_chars >  first_colum )) ; then
                 {
                   first_colum_chars="$filename_chars"
                 }
@@ -444,11 +444,11 @@ function _column_print_to_file_worker(){
 
               if [[ "${show_author}" == "show author" ]] ; then
                 {
-                  printf "%s %s %s %s ${expression}" "${filename}" "${author}" "${commit_message}" >> "${journal_file_path_name}" # show author
+                  printf "${expression}" "${filename}" "${author}" "${commit_message}" >> "${journal_file_path_name}" # show author
                 }
               elif [[ "${show_author}" == "no author" ]]; then
                 {
-                  printf "%s %s %s ${expression}" "${filename}" "${commit_message}" >> "${journal_file_path_name}"             # no author
+                  printf "${expression}" "${filename}" "${commit_message}" >> "${journal_file_path_name}"             # no author
                 }
               fi
             }
@@ -655,18 +655,18 @@ function _match_tree_filenames_with_commits_worker(){
                 {
                   if [[ "${show_author}" == "show author" ]] ; then
                     {
-                      printf "%s %s %s %s ${tree_expression}" "${one_tree_line}" "${author}" "${commit_message}" >> "${journal_file_path_name}"    # show author
+                      printf "${tree_expression}" "${one_tree_line}" "${author}" "${commit_message}" >> "${journal_file_path_name}"    # show author
                       #printf "12345678 1 2345678 2 2345678 3 2345678 4 2345678 5 2345678 6 2345678 7 2345678 8 2345678 9 234567890" >> "${journal_file_path_name}"    # show author
                     }
                   elif [[ "${show_author}" == "no author" ]]; then
                     {
-                      printf "%s %s %s ${tree_expression}" "${one_tree_line}" "${commit_message}" >> "${journal_file_path_name}"                # no author
+                      printf "${tree_expression}" "${one_tree_line}" "${commit_message}" >> "${journal_file_path_name}"                # no author
                     }
                   fi
                 }
               else
                 {
-                  printf "%s %s ${tree_expression_empty}" "${one_tree_line}" >> "${journal_file_path_name}"
+                  printf "${tree_expression_empty}" "${one_tree_line}" >> "${journal_file_path_name}"
                   #echo  "${one_tree_line}" >> "${journal_file_path_name}"
                 }
               fi
