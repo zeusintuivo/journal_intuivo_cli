@@ -36,7 +36,7 @@ function file_last_commit(){
 function file_save_files(){
   #
   #
-  # "${CURBRANCH}" 
+  # "${CURBRANCH}"
   # "${TARGETBASEBRANCH}"  BRANCH_MERGE_AGAINST
   #
   #
@@ -45,94 +45,115 @@ function file_save_files(){
   local -i AUTHOR_LENGTH=0
   local -i BIGGEST_AUTHOR_LENGTH=0
   local local_JOURNAL_PULL_REQUEST_DIRECTORY="${1}"
+  enforce_variable_with_value local_JOURNAL_PULL_REQUEST_DIRECTORY "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+  enforce_variable_with_value CHANGED_FILES "${CHANGED_FILES}"
+
 	while read -r CHANGED_FILE; do
-      # if not empty line
-      if [ ! -z "${CHANGED_FILE}" ] ; then
-      	# if file exists ...like deleted...it will still show in the git diff per se
-      	if [ -f "${CHANGED_FILE}" ] ; then
-      		echo -e "${yellow220} ${CHANGED_FILE} ${reset}"
-          echo "CHANGED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-          FILE_LAST_AUTHOR=$(file_author_last_commit """${CHANGED_FILE}""")
-          FILE_LAST_COMMIT=$(file_last_commit """${CHANGED_FILE}""")
-          FILENAME_LENGTH=${#CHANGED_FILE}        # get strlen string length
-          if [ ${FILENAME_LENGTH} -gt ${BIGGEST_FILENAME_LENGTH} ] ;  then
-            {
-              BIGGEST_FILENAME_LENGTH=${FILENAME_LENGTH}
-            }
-          fi
-          AUTHOR_LENGTH=${#FILE_LAST_AUTHOR}       # get strlen string length
-          if [ ${AUTHOR_LENGTH} -gt ${BIGGEST_AUTHOR_LENGTH} ] ;  then
-            {
-              BIGGEST_AUTHOR_LENGTH=${AUTHOR_LENGTH}
-            }
-          fi
-	      	# Copy files recursively keep directories REF: http://stackoverflow.com/questions/1650164/bash-copy-named-files-recursively-preserving-folder-structure
-    			# check operation systems
-          FILES_EXPANDED="${FILES_EXPANDED}
+  {
+    # if not empty line
+    [[ -z "${CHANGED_FILE}" ]] && continue
+    # if file exists ...like deleted...it will still show in the git diff per se
+  	if [ -f "${CHANGED_FILE}" ] ; then
+    {
+    	  echo -e "${yellow220} ${CHANGED_FILE} ${reset}"
+        echo "CHANGED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+        FILE_LAST_AUTHOR=$(file_author_last_commit """${CHANGED_FILE}""")
+        FILE_LAST_COMMIT=$(file_last_commit """${CHANGED_FILE}""")
+        FILENAME_LENGTH=${#CHANGED_FILE}        # get strlen string length
+        if [ ${FILENAME_LENGTH} -gt ${BIGGEST_FILENAME_LENGTH} ] ;  then
+        {
+          BIGGEST_FILENAME_LENGTH=${FILENAME_LENGTH}
+        }
+        fi
+        AUTHOR_LENGTH=${#FILE_LAST_AUTHOR}       # get strlen string length
+        if [ ${AUTHOR_LENGTH} -gt ${BIGGEST_AUTHOR_LENGTH} ] ;  then
+        {
+          BIGGEST_AUTHOR_LENGTH=${AUTHOR_LENGTH}
+        }
+        fi
+      	# Copy files recursively keep directories REF: http://stackoverflow.com/questions/1650164/bash-copy-named-files-recursively-preserving-folder-structure
+  			# check operation systems
+        FILES_EXPANDED="${FILES_EXPANDED}
 ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
-          if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-            {
-              CHANGED_BY_ME="${CHANGED_BY_ME}
+        if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+        {
+          CHANGED_BY_ME="${CHANGED_BY_ME}
 ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
+        }
+        fi
+
+        # check operation systems- copy start
+  			(
+  			  if [[ "$(uname)" == "Darwin" ]] ; then
+          {
+  			    # Do something under Mac OS X platform
+            anounce rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+  				  rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+            {
+              anounce rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
             }
-          fi
-
-          # check operation systems- copy start
-    			(
-    			  if [[ "$(uname)" == "Darwin" ]] ; then
-    			    # Do something under Mac OS X platform
-    				  rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                   rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
-    			    # Do something under GNU/Linux platform
-    			    cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
-              # echo "cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}""
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                   cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
-    			    # Do something under Windows NT platform
-    			    xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
-              if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
-                {
-                    xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-                }
-              fi
-    			    # nothing here
-    			  fi
-    			)
-          # check operation systems - copy end
-
-    		else
-    			echo -e "${red} ${CHANGED_FILE} -deleted or renamed- ${reset}"
-          echo "DELETED OR " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-          echo "RENAMED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-    		fi
-
-      fi
-
-	done <<< "${CHANGED_FILES}"
+            fi
+  			  }
+          elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+          {
+  			    # Do something under GNU/Linux platform
+  			    anounce cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            # echo "cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}""
+            if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+            {
+              anounce cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+            }
+            fi
+  			  }
+          elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+          {
+  			    # Do something under Windows NT platform
+  			    anounce xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
+            {
+              anounce xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+            }
+            fi
+  			    # nothing here
+          }
+  			  fi
+  			)
+        # check operation systems - copy end
+      }
+  		else
+      {
+  			echo -e "${red} ${CHANGED_FILE} -deleted or renamed- ${reset}"
+        echo "DELETED OR " >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+        echo "RENAMED: ${CHANGED_FILE}" >> "${FILENAME_PULL_REQUEST_JOURNAL}"
+      }
+  		fi
+	}
+  done <<< "${CHANGED_FILES}"
 } # end file_save_files
-
+enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 file_save_files "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
 git checkout "${BRANCH_MERGE_AGAINST}"
 
+
 MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY=$(echo "${JOURNAL_PULL_REQUEST_DIRECTORY}" | sed 's/\/pr_/'"\/von_"'/')
+enforce_variable_with_value MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 echo -e "\n Merged Against Files NOW ${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 mkdir -p "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
+enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 file_save_files "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 
-
+enforce_variable_with_value SAVEDBRANCH "${SAVEDBRANCH}"
 git checkout "${SAVEDBRANCH}"
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
+enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
 
 	#echo "${CHANGED_FILES}"
