@@ -3,7 +3,7 @@
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
 # TODO . TO have this in an options box
-JOURNAL_HOME="/Users/Sites" # <-- I used for mac
+export JOURNAL_HOME="/Users/Sites" # <-- I used for mac
 JOURNAL_HOME="${HOME}/Sites" # <-- I used for mac
 JOURNAL_HOME="${HOME}/_" # <-- I used for mac. it will create ${HOME}/_/journal directory
 JOURNAL_VERSION="1.0.1"
@@ -42,6 +42,35 @@ load_struct_testing_wget(){
     ( ( ! command -v passed >/dev/null 2>&1; ) && echo -e "\n \n  ERROR! Loading struct_testing \n \n " && exit 69; )
 } # end load_struct_testing_wget
 load_struct_testing_wget
+
+# #
+# # Case Sensitve process - start
+# #
+#         # Repeated in fat_letters, bigger_letters, struct_testing, journal_get_changed_files_list_by_me, bigger_letters, show_files_by_size_recursively, gefund
+#         function trim_start_space() {
+#             sed -e 's/^[[:space:]]*//' | sed 's/^\ //g' | sed 's/^\t//g'
+#         }
+#         function trim_end_space() {
+#             sed -e 's/[[:space:]]*$//' | sed 's/\ $//g' | sed 's/\t$//g'
+#         }
+#         function trim() {
+#             trim_start_space | trim_end_space
+#         }
+
+# [[ -z "${CASE_SENSITIVE_CONFIRMATION}" ]] && {
+#   CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)   # mac specicifc diskutil function
+# }
+
+# [[ -n "${CASE_SENSITIVE_CONFIRMATION}" ]] && {
+#   [[ "${CASE_SENSITIVE_CONFIRMATION}" == "Yes" ]] && DISK_CASE_SENSITIVE=1
+#   [[ "${CASE_SENSITIVE_CONFIRMATION}" == "Ja" ]] && DISK_CASE_SENSITIVE=1
+# }
+
+# # confirm that is
+
+# #
+# # Case Sensitve process - end
+#
 
 function msg_bullet() {
 	echo -e "${blue23} • ${blue30} ${@} ${reset}"
@@ -99,13 +128,8 @@ function msg_choice() {
   }
 } # msg_choice
 
-[[ -z "${CASE_SENSITIVE_CONFIRMATION}" ]] && {
-  CASE_SENSITIVE_CONFIRMATION=$(diskutil info disk0s2 | grep AES | cut -d: -f2 | trim)   # mac specicifc diskutil function
-}
-[[ -n "${CASE_SENSITIVE_CONFIRMATION}" ]] && {
-  [[ "${CASE_SENSITIVE_CONFIRMATION}" == "Yes" ]] && DISK_CASE_SENSITIVE=1
-  [[ "${CASE_SENSITIVE_CONFIRMATION}" == "Ja" ]] && DISK_CASE_SENSITIVE=1
-}
+
+
 
 JOURNAL_DEBUG_PROCESS=0
 [[ "${@}" == *"--version"* ]] && echo "${JOURNAL_VERSION}" && exit 0

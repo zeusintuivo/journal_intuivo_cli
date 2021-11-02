@@ -15,12 +15,13 @@
 #   4. Get the directory
 #
 # 1.
-TEST_FILE_LOCATION="${BASH_SOURCE[0]}"
+export TEST_FILE_LOCATION="${BASH_SOURCE[0]}"
 
 # 2. /usr/local/bin/newfeature
-IS_SOFTLINK="NO"
+export IS_SOFTLINK="NO"
 [[ -s "${TEST_FILE_LOCATION}" ]] && IS_SOFTLINK="YES"
 
+export FOUND_DIR_JOURNAL
 # 3. Find Target for softlink
 if [[ "${IS_SOFTLINK}" == "YES" ]] ; then
 {

@@ -4,7 +4,13 @@
 #
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
+# "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
 . "${FOUND_DIR_JOURNAL}/journal_get_journal_config"
+# "${FOUND_DIR_JOURNAL}/journal_get_journal_config"
+echo JOURNAL_HOME:"${JOURNAL_HOME}"
+enforce_variable_with_value HOME "${HOME}"
+enforce_variable_with_value FOUND_DIR_JOURNAL "${FOUND_DIR_JOURNAL}"
+enforce_variable_with_value JOURNAL_HOME "${JOURNAL_HOME}"  # journal_config or Expecting from .temp_keys
 
 if command -v figlet >/dev/null 2>&1; then
   {
@@ -27,9 +33,9 @@ else
   }
 fi
 
-THISSCRIPTNAME="$(basename "$0")"
-DESCRIPTION=""
-
+export THISSCRIPTNAME="$(basename "$0")"
+export DESCRIPTION=""
+enforce_variable_with_value THISSCRIPTNAME "${THISSCRIPTNAME}"
 if [[ -n "$1" ]] ; then  # if argument was  passed
 {
   if [[ "${1}" == "--help" ]] ; then
@@ -70,12 +76,14 @@ fi
 
 . "${FOUND_DIR_JOURNAL}/journal_get_description_not_found_exit"
 . "${FOUND_DIR_JOURNAL}/journal_get_target_branch"
+enforce_variable_with_value BRANCH_MERGE_AGAINST "${BRANCH_MERGE_AGAINST}"
 . "${FOUND_DIR_JOURNAL}/journal_get_current_branch"
+enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
 
 msg_bullet "Getting list of commits."
 COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
-
+enforce_variable_with_value COMMITS "${COMMITS}"
 msg_bullet "Checking commit count."
 # is empty
 if [[ -z "${COMMITS}" ]] ; then
@@ -144,6 +152,7 @@ fi
 
 . "${FOUND_DIR_JOURNAL}/journal_get_sed_functions"
 JOURNALDIR_SUBDIR=$(echo -e "${DESCRIPTION}"  | convert_to_underdash | convert_to_lowercase )
+enforce_variable_with_value JOURNALDIR_SUBDIR "${JOURNALDIR_SUBDIR}"
 JOURNALDIR=$(echo -e "${TICKETID}"  | convert_to_underdash)
 JOURNALDIR=$(echo -e "${JOURNALDIR}/${JOURNALDIR_SUBDIR}")
 . "${FOUND_DIR_JOURNAL}/journal_get_project_name"
@@ -151,6 +160,10 @@ JOURNALDIR=$(echo -e "${JOURNALDIR}/${JOURNALDIR_SUBDIR}")
 
 CURRENTDATE=$(date +%Y%m%d)
 
+enforce_variable_with_value JOURNAL_HOME "${JOURNAL_HOME}"
+enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
+enforce_variable_with_value PROJECTNAME "${PROJECTNAME}"
+enforce_variable_with_value JOURNALDIR "${JOURNALDIR}"
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
 
 
