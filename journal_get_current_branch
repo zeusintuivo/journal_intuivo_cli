@@ -14,4 +14,4 @@
     # CURBRANCH - end
     #
 
-CURRENTDATE=`date +%Y%m%d`
+CURRENTDATE=$(date +%Y%m%d)

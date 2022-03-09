@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #!/bin/bash
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
@@ -5,34 +6,39 @@
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
 # "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
-. "${FOUND_DIR_JOURNAL}/journal_get_journal_config"
+. "${FOUND_DIR_JOURNAL}/journal_get_journal_config"   # loads .temp_keys and struct_testing
 # "${FOUND_DIR_JOURNAL}/journal_get_journal_config"
 echo JOURNAL_HOME:"${JOURNAL_HOME}"
+enforce_variable_with_value JOURNAL_PROJECT_WORKING_ON "${JOURNAL_PROJECT_WORKING_ON}"  # coming from journal_get_journal_config
 enforce_variable_with_value HOME "${HOME}"
 enforce_variable_with_value FOUND_DIR_JOURNAL "${FOUND_DIR_JOURNAL}"
+enforce_variable_with_value JOURNAL_PUT_COMMIT_METHOD "${JOURNAL_PUT_COMMIT_METHOD}"  # journal_config or Expecting from .temp_keys
 enforce_variable_with_value JOURNAL_HOME "${JOURNAL_HOME}"  # journal_config or Expecting from .temp_keys
 
 if command -v figlet >/dev/null 2>&1; then
-  {
-    FIGLET_INSTALLED=1
-  }
+{
+  # shellcheck disable=SC2034
+  FIGLET_INSTALLED=1
+}
 else
-  {
-    msg_error "figlet dependency missing ! Attempting to install."
-    brew install figlet
-  }
+{
+  msg_error "figlet dependency missing ! Attempting to install."
+  brew install figlet
+}
 fi
 if command -v tree >/dev/null 2>&1; then
-  {
-    TREE_INSTALLED=1
-  }
+{
+  # shellcheck disable=SC2034
+  TREE_INSTALLED=1
+}
 else
-  {
-    msg_error "tree dependency missing ! Attempting to install."
-    brew install tree
-  }
+{
+  msg_error "tree dependency missing ! Attempting to install."
+  brew install tree
+}
 fi
 
+# shellcheck disable=SC2155
 export THISSCRIPTNAME="$(basename "$0")"
 export DESCRIPTION=""
 enforce_variable_with_value THISSCRIPTNAME "${THISSCRIPTNAME}"
@@ -47,14 +53,18 @@ usage: ${THISSCRIPTNAME} [--help]                          -- prints this help
 
 EOF
     exit 0
-  } else {
+  }
+  else
+  {
     if [[ "${1}" != "--debug" ]] ; then
     {
       YEAR=$(date +%Y);
       msg_bullet "Setting Branch description to passed argument \$1=„${1}”"
       DESCRIPTION="${1}"
       msg_quote "description|${DESCRIPTION}";
-    } else {
+    }
+    else
+    {
       msg_bullet debug mode
       . "${FOUND_DIR_JOURNAL}/journal_get_description_current_text_only"  # GETS $DESCRIPTION
 
@@ -82,13 +92,14 @@ enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
 
 msg_bullet "Getting list of commits."
-COMMITS=$(git log --left-right --graph --cherry-pick --oneline ${BRANCH_MERGE_AGAINST}...${CURBRANCH} | cut -c2-)
+COMMITS=$(git log --left-right --graph --cherry-pick --oneline "${BRANCH_MERGE_AGAINST}"..."${CURBRANCH}" | cut -c2-)
 enforce_variable_with_value COMMITS "${COMMITS}"
 msg_bullet "Checking commit count."
 # is empty
 if [[ -z "${COMMITS}" ]] ; then
     {
       echo ""
+      # shellcheck disable=SC2154
       msg_error "There are not commits to compare to. ${yellow220} Make some commits first then try again."
       echo ""
       exit 1;
@@ -154,18 +165,24 @@ fi
 JOURNALDIR_SUBDIR=$(echo -e "${DESCRIPTION}"  | convert_to_underdash | convert_to_lowercase )
 enforce_variable_with_value JOURNALDIR_SUBDIR "${JOURNALDIR_SUBDIR}"
 JOURNALDIR=$(echo -e "${TICKETID}"  | convert_to_underdash)
+enforce_variable_with_value JOURNALDIR "${JOURNALDIR}"
 JOURNALDIR=$(echo -e "${JOURNALDIR}/${JOURNALDIR_SUBDIR}")
+enforce_variable_with_value JOURNALDIR "${JOURNALDIR}"
 . "${FOUND_DIR_JOURNAL}/journal_get_project_name"
+enforce_variable_with_value PROJECTNAME "${PROJECTNAME}"
 . "${FOUND_DIR_JOURNAL}/journal_get_current_branch"
+enforce_variable_with_value CURBRANCH "${CURBRANCH}"
+enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
 
 CURRENTDATE=$(date +%Y%m%d)
+enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
 
 enforce_variable_with_value JOURNAL_HOME "${JOURNAL_HOME}"
 enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
 enforce_variable_with_value PROJECTNAME "${PROJECTNAME}"
 enforce_variable_with_value JOURNALDIR "${JOURNALDIR}"
 JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
-
+enforce_variable_with_value JOURNAL_DIRECTORY "${JOURNAL_DIRECTORY}"
 
 
 # echo ${NEWBRANCH}
@@ -173,45 +190,68 @@ JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY - START
 #
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . "${JOURNAL_PROJECT_WORKING_ON}/.temp_keys"
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . "${JOURNAL_PROJECT_WORKING_ON}/.temp_keys"  # Overwrite opportunity to any variables .temp_keys was read first in journal_get_journal_config
+enforce_variable_with_value ISSUETRACKERLOCATION "${ISSUETRACKERLOCATION}"  # Expecting from .temp_keys
+enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_FEATURE "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  # Expecting from .temp_keys
+enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_FEATURE "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  # Expecting from .temp_keys
+enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_ISSUE "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  # Expecting from .temp_keys
+enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_ISSUE "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  # Expecting from .temp_keys
 
 if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+{
+  if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
   {
-    if [[ "${CURBRANCH}" == *"feature/"* ]] ; then
-      {
-        [[ -n "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}_${DESCRIPTION}" | convert_to_underdash )
+    [[ -n "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}_${DESCRIPTION}" | convert_to_underdash )
 
-        if [[ -n "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
-          if [[ "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}" != "empty"  ]] ; then
-            JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  | convert_to_underdash )
-            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
-          else
-            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
-            JOURNALDIR=""
-          fi
-        fi
-      }
-    fi
-    if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+    if [[ -n "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  ]] ; then
+    {
+      if [[ "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}" != "empty"  ]] ; then
       {
-        [[ -n "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}_${DESCRIPTION}" | convert_to_underdash )
-
-        if [[ -n "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
-          if [[ "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}" != "empty"  ]] ; then
-            JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  | convert_to_underdash )
-            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
-          else
-            JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
-            JOURNALDIR=""
-          fi
-        fi
+        JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  | convert_to_underdash )
+        JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
       }
+      else
+      {
+        JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
+        JOURNALDIR=""
+      }
+      fi
+    }
     fi
   }
+  fi
+  if [[ "${CURBRANCH}" == *"issue-"* ]] ; then
+  {
+    [[ -n "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  ]] && NEWBRANCH=$(echo "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}_${DESCRIPTION}" | convert_to_underdash )
+
+    if [[ -n "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  ]] ; then
+    {
+      if [[ "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}" != "empty"  ]] ; then
+      {
+        JOURNALDIR=$(echo "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  | convert_to_underdash )
+        JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${JOURNALDIR}"
+      }
+      else
+      {
+        JOURNAL_DIRECTORY="${JOURNAL_HOME}/journals/${PROJECTNAME}/${NEWBRANCH}"
+        JOURNALDIR=""
+      }
+      fi
+    }
+    fi
+  }
+  fi
+}
 fi
+enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
 ACTION="pr_${CURRENTDATE}"
 
-JOURNAL_PULL_REQUEST_DIRECTORY="$(realpath "${JOURNAL_DIRECTORY}/${ACTION}")"
+enforce_variable_with_value JOURNAL_DIRECTORY "${JOURNAL_DIRECTORY}"
+enforce_variable_with_value ACTION "${ACTION}"
+msg_bullet "trying: realpath ${JOURNAL_DIRECTORY}/${ACTION}"
+JOURNAL_PULL_REQUEST_DIRECTORY="$(realpath "${JOURNAL_DIRECTORY}/${ACTION}")"   # First time this JOURNAL_PULL_REQUEST_DIRECTORY pops as declaration
+msg_bullet "   got: JOURNAL_PULL_REQUEST_DIRECTORY=${JOURNAL_PULL_REQUEST_DIRECTORY}"
+enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY  - END
 #
@@ -222,34 +262,35 @@ JOURNAL_PULL_REQUEST_DIRECTORY="$(realpath "${JOURNAL_DIRECTORY}/${ACTION}")"
 # exit 1
 
 	msg_bullet "Generating Added Files entry on Journal."
-  FILENAME_REAL_JOURNAL_NAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
+  FILENAME_REAL_JOURNAL_NAME="${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"    # First time this FILENAME_REAL_JOURNAL_NAME pops as declaration
+  enforce_variable_with_value FILENAME_REAL_JOURNAL_NAME "${FILENAME_REAL_JOURNAL_NAME}"
 	# if dir does not exist create it   ---  Update PATH bashrc var if it exists
 	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}" ]] ;	then
-		{
-      mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-      directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-      ACTION="pr_${CURRENTDATE}"
-      FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
-		}
+  {
+    mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+    directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+    ACTION="pr_${CURRENTDATE}"
+    FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
+  }
 	else
-		{
-			ACTION="pr_${CURRENTDATE}"
-		}
+  {
+    ACTION="pr_${CURRENTDATE}"
+  }
 	fi
 	mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}"
   directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
 	if [[ !  -d "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me" ]] ; then
-    {
-      mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-      directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
-      ACTION="pr_${CURRENTDATE}"
-      FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
-    }
+  {
+    mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+    directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+    ACTION="pr_${CURRENTDATE}"
+    FILENAME="${ACTION} ${CURRENTDATE} ${TICKETID} ${DESCRIPTION}.m"
+  }
   else
-    {
-      ACTION="pr_${CURRENTDATE}"
-    }
+  {
+    ACTION="pr_${CURRENTDATE}"
+  }
   fi
   mkdir -p "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
@@ -257,26 +298,36 @@ directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 
 
 
-  msg_bullet "Getting todays date ${reset}"
+  msg_bullet "Getting today's date ${reset}"
 	# Bash Dates REF: http://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script
 	# Bash times REF: http://www.cyberciti.biz/faq/unix-linux-bash-get-time/
 
-	CURRENTTIME=$(date +%H:%M)
+	CURRENTTIME="$(date +%H:%M)"
+  enforce_variable_with_value CURRENTTIME "${CURRENTTIME}"
 	CURRENTAMPMUPPER=$(date +%p)
+	enforce_variable_with_value CURRENTAMPMUPPER "${CURRENTAMPMUPPER}"
 	CURRENTAMPM="am"
 	if [[ "${CURRENTAMPMUPPER}" == "AM"  ]] ; then
+	{
 		CURRENTAMPM="am"
+	}
 	else
+	{
 		CURRENTAMPM="pm"
+	}
 	fi
+	enforce_variable_with_value CURRENTAMPM "${CURRENTAMPM}"
 
 	FILENAME="${ACTION} ${TICKETID} ${DESCRIPTION}.m"
+	enforce_variable_with_value FILENAME "${FILENAME}"
 	TODAYSENTRY=$(echo "${FILENAME}"  | convert_to_underdash )
+	enforce_variable_with_value TODAYSENTRY "${TODAYSENTRY}"
 	#TODAYSENTRY=$(echo "${FILENAME}" | escape_spaces)
   mkdir -p "${JOURNAL_DIRECTORY}"
   directory_exists "${JOURNAL_DIRECTORY}"
 
 	FILENAME_PULL_REQUEST_JOURNAL="${JOURNAL_DIRECTORY}/${TODAYSENTRY}"
+	enforce_variable_with_value FILENAME_PULL_REQUEST_JOURNAL "${FILENAME_PULL_REQUEST_JOURNAL}"
   msg_bullet "Making entry on Journal ${reset}"
 	touch "${FILENAME_PULL_REQUEST_JOURNAL}"
   wait
@@ -284,7 +335,8 @@ directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 
 	#pause 'Press [Enter] key to continue...'
   #TOILET_TEXT=$(toilet -f smblock "${CURRENTDATE}")  >> "${FILENAME_PULL_REQUEST_JOURNAL}"
-  TOILET_TEXT=$(figlet -f banner.flf "${CURRENTDATE}")
+  TOILET_TEXT="$(figlet -f banner.flf "${CURRENTDATE}")"
+	enforce_variable_with_value TOILET_TEXT "${TOILET_TEXT}"
 	{
     echo " "
 	  echo " "
@@ -329,23 +381,29 @@ directory_exists "${JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
 #
 # FULL DESCRIPTION - start
 #
-FULL_DESCRIPTION=$(describe | tail -1)
-if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
-  {
-      FULL_DESCRIPTION=$(<.description)
-  }
+FULL_DESCRIPTION="$("${FOUND_DIR_JOURNAL}/describe" | tail -1)"
+if [[ -z "${FULL_DESCRIPTION}" ]] && [[ -f "${JOURNAL_PROJECT_WORKING_ON}/.description" ]] ;  then
+{
+    FULL_DESCRIPTION=$(<.description)
+}
 fi
-if [[ -z "${FULL_DESCRIPTION}" ]] && [ -f .description ];  then
-  {
-    msg_bullet "Adding Description ${reset}"
-    . "${FOUND_DIR_JOURNAL}/journal_get_description_work_link__url"
+if [[ -z "${FULL_DESCRIPTION}" ]] && [[ -f "${JOURNAL_PROJECT_WORKING_ON}/.description" ]] ;  then
+{
+  msg_bullet "Adding Description ${reset}"
+  . "${FOUND_DIR_JOURNAL}/journal_get_description_work_link__url"   # builds a link based on several criteria for ticket jira systems
+  enforce_variable_with_value ISSUETRACKERLOCATION "${ISSUETRACKERLOCATION}"
 
-    FILENAME_FOR_DESCRIPTION_ASSEMBLY="${FILENAME_PULL_REQUEST_JOURNAL}"
-    . "${FOUND_DIR_JOURNAL}/journal_get_description_construct_the_description_assembly"
+  FILENAME_FOR_DESCRIPTION_ASSEMBLY="${FILENAME_PULL_REQUEST_JOURNAL}"
+  . "${FOUND_DIR_JOURNAL}/journal_get_description_construct_the_description_assembly"
+  enforce_variable_with_value ONELINEDESCRIPTION "${ONELINEDESCRIPTION}"
+  enforce_variable_with_value USER_OPENED_TICKET "${USER_OPENED_TICKET}"
 
-
-  }
+}
 fi
+enforce_variable_with_value FULL_DESCRIPTION "${FULL_DESCRIPTION}"
+enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+enforce_variable_with_value DESCRIPTION "${DESCRIPTION}"
+
 msg_bullet "Copy file full description to target/.description  ${reset}"
 # if argument 2 as passed
 
@@ -544,6 +602,7 @@ function _match_tree_filenames_with_commits_worker(){
                       one_tree_line=$(replace_special_chars <<< "${one_tree_line}")
                       #one_tree_line=$(trim <<< "${one_tree_line}")
                       filename_tree_length=${#one_tree_line}     # get strlen string length
+                      # shellcheck disable=SC2086
                       if [ ${filename_tree_length} -gt ${biggest_filename_tree_length} ] ;  then
                         {
                           biggest_filename_tree_length=${filename_tree_length}
@@ -668,17 +727,26 @@ function _match_tree_filenames_with_commits_worker(){
                 {
                   if [[ "${show_author}" == "show author" ]] ; then
                     {
+                      # Using "%s %s %s %s" does not print utf8 chars well into the file
+                      # printf "%s %s %s %s" "${tree_expression}" "${one_tree_line}" "${author}" "${commit_message}" >> "${journal_file_path_name}"    # show author
+                      # shellcheck disable=SC2059
                       printf "${tree_expression}" "${one_tree_line}" "${author}" "${commit_message}" >> "${journal_file_path_name}"    # show author
                       #printf "12345678 1 2345678 2 2345678 3 2345678 4 2345678 5 2345678 6 2345678 7 2345678 8 2345678 9 234567890" >> "${journal_file_path_name}"    # show author
                     }
                   elif [[ "${show_author}" == "no author" ]]; then
                     {
+                      # Using "%s %s %s" does not print utf8 chars well into the file
+                      # printf "%s %s %s" "${tree_expression}" "${one_tree_line}" "${commit_message}" >> "${journal_file_path_name}"                # no author
+                      # shellcheck disable=SC2059
                       printf "${tree_expression}" "${one_tree_line}" "${commit_message}" >> "${journal_file_path_name}"                # no author
                     }
                   fi
                 }
               else
                 {
+                  # Using "%s %s" does not print utf8 chars well into the file
+                  # printf "%s %s" "${tree_expression_empty}" "${one_tree_line}" >> "${journal_file_path_name}"
+                  # shellcheck disable=SC2059
                   printf "${tree_expression_empty}" "${one_tree_line}" >> "${journal_file_path_name}"
                   #echo  "${one_tree_line}" >> "${journal_file_path_name}"
                 }
@@ -791,6 +859,7 @@ function match_tree_filenames_with_commits_no_author(){
 # URL='https://jira.company_name.com/browse/TO-252        '; curl --silent $URL | sift user-content-block | xargs -I {} echo "${URL} -> {}" &&
 # JIRA BLOCKS curl request s  how ?
 
+# shellcheck disable=SC2154
 echo -e "${green} :) ${reset}"
 {
   echo " :) "

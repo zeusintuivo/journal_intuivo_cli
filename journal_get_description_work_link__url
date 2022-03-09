@@ -3,15 +3,17 @@
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
 
-. $FOUND_DIR_JOURNAL/journal_get_git_user_name
+. "$FOUND_DIR_JOURNAL"/journal_get_git_user_name
 
 function get_ticket_link_url() {
 # Get Company and Project Name from Github - start
 GIT_REMOTE_ORIGIN=$(git remote show origin 2>&1 )  # Check remote git,capture all output, error will return 1 to $?
 if [[ "${GIT_REMOTE_ORIGIN}" == *"ERROR"* ]]  ; then
 {
+  # shellcheck disable=SC2154
   echo -e "${red} ERROR \! Attempting to access Git remote ${reset}"
   echo -e "${red} ${GIT_REMOTE_ORIGIN} ${reset}"
+  # shellcheck disable=SC2154
   echo -e "${yellow220} current git user ${GIT_USER_NAME} ${reset}"
   echo -e "${red} FIX\! ${reset}"
   exit 130;
@@ -36,32 +38,32 @@ GIT_REMOTE_ORIGIN=$(echo "${GIT_REMOTE_ORIGIN}" | head -2 | tail -1)
 
 GITHUBNAMEPROJECT=""                                                                #Objective is to get the company_name / project_name
 if [[ "${GIT_REMOTE_ORIGIN}" == *"git@"* ]]  ; then
-  {
-    GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@\.git@@')
-    # test echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
-    # expectation is that from
-    #
-    #                        Fetch URL: git@github.com:company/project_name.git
-    # it should get this
-    #                         company/project_name
-    #
-  }
+{
+  GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@\.git@@')
+  # test echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
+  # expectation is that from
+  #
+  #                        Fetch URL: git@github.com:company/project_name.git
+  # it should get this
+  #                         company/project_name
+  #
+}
 elif [[ "${GIT_REMOTE_ORIGIN}" == *"https://"* ]] ; then
-  {
+{
 
-    GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@//github.com/@@' | sed 's@\.git@@')
-    # test
-    #echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
-    # expectation is that from
-    #
-    #                       Fetch URL: https://github.com/company/project_name.git
-    # it should get this
-    #                         company/project_name
-    #
-  }
+  GITHUBNAMEPROJECT=$(echo "${GIT_REMOTE_ORIGIN}" |  cut -d":" -f3 | sed 's@//github.com/@@' | sed 's@\.git@@')
+  # test
+  #echo "${GIT_REMOTE_ORIGIN} =  $GITHUBNAMEPROJECT " asserts  company/project_name
+  # expectation is that from
+  #
+  #                       Fetch URL: https://github.com/company/project_name.git
+  # it should get this
+  #                         company/project_name
+  #
+}
 fi
 #                                                                       # sub_objective is to to get Company Name and Project Name on separate variables
-IFS=/ read PART_COMPANY_NAME PART_PROJECT_NAME  <<EOF
+IFS=/ read -r PART_COMPANY_NAME PART_PROJECT_NAME  <<EOF
 ${GITHUBNAMEPROJECT##*-}
 EOF
 # test echo  "${PART_COMPANY_NAME}    and   $PART_PROJECT_NAME "     asserts    company_name   and   project_name
@@ -109,12 +111,13 @@ ISSUETRACKERLOCATION="${PHABRICATOR_TICKET_LINK}"
 # Sample link https://trello.com/c/b320RCOd/401-define-alt-property-for-images-in-the-brand-template
 # Sample link https://trello.com/c/b320RCOd/401                                                        <--- is the same
 TRELLO_TICKET_LINK="https://trello.com/${TRELLO_BOARD}/${TICKETID}"
+# shellcheck disable=SC2034
 ISSUETRACKERLOCATION="${TRELLO_TICKET_LINK}"
 # Trello sample - end
 
 # Overwrite ISSUETRACKERLOCATION  .temp_keys  - START
 #
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . $JOURNAL_PROJECT_WORKING_ON/.temp_keys
+[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . "$JOURNAL_PROJECT_WORKING_ON"/.temp_keys   # Second override of values .temp_keys first config then addfiles then here
 
 
 

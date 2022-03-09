@@ -25,21 +25,24 @@ export FOUND_DIR_JOURNAL
 # 3. Find Target for softlink
 if [[ "${IS_SOFTLINK}" == "YES" ]] ; then
 {
-  FOUND_DIR_JOURNAL_SCRIPT=$(ls -l ${TEST_FILE_LOCATION} | awk '{print $11}') # Find target symlink
+  # Here find command will break finding the soft link
+  # shellcheck disable=SC2012
+  FOUND_DIR_JOURNAL_SCRIPT="$(ls -l "${TEST_FILE_LOCATION}" | awk '{print $11}')" # Find target symlink, awk print 11 will split spaces and give you the 11th row in this case the softlink is spected
 }
 fi
 
 # Tip How to find a dir on a script REF: https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 
 # 4. Get the directory
-FOUND_DIR_JOURNAL=`dirname "${FOUND_DIR_JOURNAL_SCRIPT}"`
-FOUND_DIR_JOURNAL=$(echo "${FOUND_DIR_JOURNAL}" | sed 's/ /\\ /g') # escape spaces
+FOUND_DIR_JOURNAL=$(dirname "${FOUND_DIR_JOURNAL_SCRIPT}")
+# shellcheck disable=SC2001
+FOUND_DIR_JOURNAL="$(sed 's/ /\\ /g' <<<"${FOUND_DIR_JOURNAL}")" # escape spaces
 #test:   asserts that the result should equal at the location of the journal_intuivo_cli folder
 #echo $FOUND_DIR_JOURNAL;
 
 
 # tip
 # set working directory as the scripts location during the execution of script
-# un comment to pin to a especific dir
+# un comment to pin to a specific dir
 # comment out and allow to work globally
 # cd "$(dirname "$0")"

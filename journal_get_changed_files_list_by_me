@@ -29,11 +29,12 @@ function file_author_last_commit(){
   git log -n 1 -- """${1}""" | grep --color=no Author
 }
 function file_last_commit(){
-  git log -n 1 -- """${1}""" | egrep --color=no -v "Author: "|  egrep --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
+  # git log -n 1 -- """${1}""" | egrep --color=no -v "Author: "|  egrep  --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
+  git log -n 1 -- """${1}""" | grep -E --color=no -v "Author: "|  grep  -E --color=no -v "Date: " | grep --color=no -v "commit " | remove_empty_lines | trim
 }
 
 
-function file_save_files(){
+function _file_save_files_worker(){
   #
   #
   # "${CURBRANCH}"
@@ -46,6 +47,9 @@ function file_save_files(){
   local -i BIGGEST_AUTHOR_LENGTH=0
   local local_JOURNAL_PULL_REQUEST_DIRECTORY="${1}"
   enforce_variable_with_value local_JOURNAL_PULL_REQUEST_DIRECTORY "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+
+  # CHANGED_FILES expected global
+  # shellcheck disable=SC2153
   enforce_variable_with_value CHANGED_FILES "${CHANGED_FILES}"
 
 	while read -r CHANGED_FILE; do
@@ -87,11 +91,11 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
   			  if [[ "$(uname)" == "Darwin" ]] ; then
           {
   			    # Do something under Mac OS X platform
-            anounce rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+            msg_bullet rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
   				  rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
             if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
             {
-              anounce rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              msg_bullet rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
               rsync -R "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
             }
             fi
@@ -99,12 +103,12 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
           elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
           {
   			    # Do something under GNU/Linux platform
-  			    anounce cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+  			    msg_bullet cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
             cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
             # echo "cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}""
             if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
             {
-              anounce cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              msg_bullet cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
               cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
             }
             fi
@@ -112,11 +116,11 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
           elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
           {
   			    # Do something under Windows NT platform
-  			    anounce xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
+  			    msg_bullet xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
             xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
             if [[ "x${ME_AUTHOR}" == "x${FILE_LAST_AUTHOR}" ]] ; then
             {
-              anounce xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
+              msg_bullet xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
               xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}_only_me"
             }
             fi
@@ -135,26 +139,59 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
   		fi
 	}
   done <<< "${CHANGED_FILES}"
-} # end file_save_files
+} # end _file_save_files_worker function
+
+
+
 enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUEST_DIRECTORY}"
-file_save_files "${JOURNAL_PULL_REQUEST_DIRECTORY}"
+_file_save_files_worker "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
-git checkout "${BRANCH_MERGE_AGAINST}"
+function _file_save_files() {
+  local _tmp_current_time="$(date +%H:%M)"
+  local -i _err
+  git stash save "${_tmp_current_time}"
+  _err=$?
+  if [ ${_err} -eq 0 ] ; then
+  {
+    git checkout "${BRANCH_MERGE_AGAINST}"
+    _err=$?
+    if [ ${_err} -eq 0 ] ; then
+    {
+      MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY=$(echo "${JOURNAL_PULL_REQUEST_DIRECTORY}" | sed 's/\/pr_/'"\/von_"'/')
+      enforce_variable_with_value MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+      echo -e "\n Merged Against Files NOW ${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+      mkdir -p "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+      . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
+      enforce_variable_with_value CURBRANCH "${CURBRANCH}"
+      _file_save_files_worker "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 
+      enforce_variable_with_value SAVEDBRANCH "${SAVEDBRANCH}"
+      git checkout "${SAVEDBRANCH}"
+      _err=$?
+      if [ ${_err} -eq 0 ] ; then
+      {
+        . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
+        enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
-MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY=$(echo "${JOURNAL_PULL_REQUEST_DIRECTORY}" | sed 's/\/pr_/'"\/von_"'/')
-enforce_variable_with_value MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
-echo -e "\n Merged Against Files NOW ${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
-mkdir -p "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
-. $FOUND_DIR_JOURNAL/journal_get_current_branch
-enforce_variable_with_value CURBRANCH "${CURBRANCH}"
-file_save_files "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+        git stash apply "${TMPCURRENTTIME}"
+        _err=$?
+        if [ ${_err} -eq 0 ] ; then
+        {
+          git stash drop -q  "${TMPCURRENTTIME}"
+        }
+        fi
+      }
+      fi
 
-enforce_variable_with_value SAVEDBRANCH "${SAVEDBRANCH}"
-git checkout "${SAVEDBRANCH}"
-. $FOUND_DIR_JOURNAL/journal_get_current_branch
-enforce_variable_with_value CURBRANCH "${CURBRANCH}"
+    }
+    fi
 
-
+  }
+  fi
 	#echo "${CHANGED_FILES}"
+
+} # end _file_save_files_worker function
+	# shellcheck disable=SC2154
+
+	_file_save_files
 	echo -e "${green}++++ ${reset}"

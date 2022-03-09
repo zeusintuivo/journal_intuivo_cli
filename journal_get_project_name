@@ -5,6 +5,7 @@
 
 
 
+# shellcheck disable=SC2154
 echo -e "${blue23} • ${blue30} Get current directory name (without full path) in Bash Script ${reset}"
 # REF http://stackoverflow.com/questions/1371261/get-current-directory-name-without-full-path-in-bash-script
 PROJECTNAME=${PWD##*/}          # to assign to a variable
