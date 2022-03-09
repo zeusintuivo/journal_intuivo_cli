@@ -147,16 +147,28 @@ enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUE
 _file_save_files_worker "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
 function _file_save_files() {
-  local _tmp_current_time="$(date +%Y%m%d%H%M)"
+  local _tmp_current_time
+  _tmp_current_time="$(date +%Y%m%d%H%M)"
+      enforce_variable_with_value _tmp_current_time "${_tmp_current_time}"
   local -i _err
   msg_bullet git stash save "${_tmp_current_time}"
   git stash save "${_tmp_current_time}"
   _err=$?
+                if [ ${_err} -ne 0 ] ; then
+                {
+                  msg_error " git stash save \"${_tmp_current_time}\" failed to save stash"
+                }
+                fi
   if [ ${_err} -eq 0 ] ; then
   {
     msg_bullet git checkout "${BRANCH_MERGE_AGAINST}"
     git checkout "${BRANCH_MERGE_AGAINST}"
     _err=$?
+                if [ ${_err} -ne 0 ] ; then
+                {
+                  msg_error " git checkout \"${BRANCH_MERGE_AGAINST}\" failed to checkout"
+                }
+                fi
     if [ ${_err} -eq 0 ] ; then
     {
       MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY=$(echo "${JOURNAL_PULL_REQUEST_DIRECTORY}" | sed 's/\/pr_/'"\/von_"'/')
@@ -171,6 +183,11 @@ function _file_save_files() {
       msg_bullet git checkout "${SAVEDBRANCH}"
       git checkout "${SAVEDBRANCH}"
       _err=$?
+                      if [ ${_err} -ne 0 ] ; then
+                      {
+                        msg_error " git checkout \"${SAVEDBRANCH}\" failed to checkout"
+                      }
+                      fi
       if [ ${_err} -eq 0 ] ; then
       {
         . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
@@ -179,10 +196,27 @@ function _file_save_files() {
         msg_bullet git stash apply "${_tmp_current_time}"
         git stash apply "${_tmp_current_time}"
         _err=$?
+            if [ ${_err} -ne 0 ] ; then
+            {
+              msg_error " git stash apply \"${_tmp_current_time}\" failed to apply stash"
+            }
+            fi
         if [ ${_err} -eq 0 ] ; then
         {
-          msg_bullet git stash drop -q  "${_tmp_current_time}"
-          git stash drop -q  "${_tmp_current_time}"
+          local -i get_pop=$(git stash list | grep "${_tmp_current_time}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
+          if [[ -n ${get_pop} ]] ; then
+          {
+            msg_bullet git stash drop -q "${get_pop}"  # "${_tmp_current_time}"
+            git stash drop -q "${get_pop}" #  "${_tmp_current_time}"
+            _err=$?
+            if [ ${_err} -ne 0 ] ; then
+            {
+              msg_error " git stash drop -q \"${get_pop}\" failed to drop stash ${get_pop}-${_tmp_current_time}"
+            }
+            fi
+          }
+          fi
+
         }
         fi
       }
