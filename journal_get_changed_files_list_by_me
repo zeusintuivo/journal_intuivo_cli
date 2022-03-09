@@ -147,12 +147,14 @@ enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUE
 _file_save_files_worker "${JOURNAL_PULL_REQUEST_DIRECTORY}"
 
 function _file_save_files() {
-  local _tmp_current_time="$(date +%H:%M)"
+  local _tmp_current_time="$(date +%Y%m%d%H%M)"
   local -i _err
+  msg_bullet git stash save "${_tmp_current_time}"
   git stash save "${_tmp_current_time}"
   _err=$?
   if [ ${_err} -eq 0 ] ; then
   {
+    msg_bullet git checkout "${BRANCH_MERGE_AGAINST}"
     git checkout "${BRANCH_MERGE_AGAINST}"
     _err=$?
     if [ ${_err} -eq 0 ] ; then
@@ -166,6 +168,7 @@ function _file_save_files() {
       _file_save_files_worker "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
 
       enforce_variable_with_value SAVEDBRANCH "${SAVEDBRANCH}"
+      msg_bullet git checkout "${SAVEDBRANCH}"
       git checkout "${SAVEDBRANCH}"
       _err=$?
       if [ ${_err} -eq 0 ] ; then
@@ -173,11 +176,13 @@ function _file_save_files() {
         . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
         enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
-        git stash apply "${TMPCURRENTTIME}"
+        msg_bullet git stash apply "${_tmp_current_time}"
+        git stash apply "${_tmp_current_time}"
         _err=$?
         if [ ${_err} -eq 0 ] ; then
         {
-          git stash drop -q  "${TMPCURRENTTIME}"
+          msg_bullet git stash drop -q  "${_tmp_current_time}"
+          git stash drop -q  "${_tmp_current_time}"
         }
         fi
       }
