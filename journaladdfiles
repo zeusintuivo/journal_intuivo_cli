@@ -247,8 +247,26 @@ enforce_variable_with_value CURRENTDATE "${CURRENTDATE}"
 ACTION="pr_${CURRENTDATE}"
 
 enforce_variable_with_value JOURNAL_DIRECTORY "${JOURNAL_DIRECTORY}"
+Message JOURNAL_DIRECTORY:"${JOURNAL_DIRECTORY}"
 enforce_variable_with_value ACTION "${ACTION}"
+Message ACTION: "${ACTION}"
 msg_bullet "trying: realpath ${JOURNAL_DIRECTORY}/${ACTION}"
+mkdir -p "${JOURNAL_DIRECTORY}"
+_err=$?
+	if [ ${_err} -ne 0  ] ; then
+	{
+		failed "to create directory to push JOURNAL FILES ${JOURNAL_DIRECTORY}"
+		exit 1
+	}
+	fi
+mkdir -p "${JOURNAL_DIRECTORY}/${ACTION}"
+_err=$?
+	if [ ${_err} -ne 0  ] ; then
+	{
+		failed "to create directory to push JOURNAL FILES with Action Folder ${JOURNAL_DIRECTORY}/${ACTION}"
+		exit 1
+	}
+	fi
 JOURNAL_PULL_REQUEST_DIRECTORY="$(realpath "${JOURNAL_DIRECTORY}/${ACTION}")"   # First time this JOURNAL_PULL_REQUEST_DIRECTORY pops as declaration
 msg_bullet "   got: JOURNAL_PULL_REQUEST_DIRECTORY=${JOURNAL_PULL_REQUEST_DIRECTORY}"
 enforce_variable_with_value JOURNAL_PULL_REQUEST_DIRECTORY "${JOURNAL_PULL_REQUEST_DIRECTORY}"
