@@ -177,7 +177,9 @@ function _file_save_files() {
       mkdir -p "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
       . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
       enforce_variable_with_value CURBRANCH "${CURBRANCH}"
+      msg_bullet "_file_save_files_worker \"${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}\""
       _file_save_files_worker "${MERGE_AGAINST_JOURNAL_PULL_REQUEST_DIRECTORY}"
+
 
       enforce_variable_with_value SAVEDBRANCH "${SAVEDBRANCH}"
       msg_bullet git checkout "${SAVEDBRANCH}"
@@ -199,7 +201,28 @@ function _file_save_files() {
             if [ ${_err} -ne 0 ] ; then
             {
               msg_error " git stash apply \"${_tmp_current_time}\" failed to apply stash"
-            }
+              if [[ -e commit_exception.list ]] ; then
+              {
+                local -i length_commit_exception_list=$(wc -l<commit_exception.list)
+                if [ ${length_commit_exception_list} -gt 100 ] ; then
+                {
+                  msg_warning "unstage_exception_list ... WHAT!! this commit_exception.list file has ${length_commit_exception_list} !! files you might consider making them less??"
+                }
+                fi
+                if [ ${length_commit_exception_list} -gt 30 ] ; then
+                {
+                  msg_warning "unstage_exception_list ... this could take a commit_exception.list file has ${length_commit_exception_list}"
+                }
+                fi
+                if [ ${length_commit_exception_list} -gt 10 ] ; then
+                {
+                  msg_bullet "unstage_exception_list ... unstagging ${length_commit_exception_list}"
+                }
+                fi
+                unstage_exception_list
+              }
+              fi
+             }
             fi
         if [ ${_err} -eq 0 ] ; then
         {
@@ -232,5 +255,6 @@ function _file_save_files() {
 } # end _file_save_files_worker function
 	# shellcheck disable=SC2154
 
+	msg_bullet _file_save_files
 	_file_save_files
 	echo -e "${green}++++ ${reset}"

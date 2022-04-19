@@ -887,13 +887,37 @@ echo " "
 
 
 
-  #   'echo' 'It'"'"'s only 1$!'
+  #   'echo' 'It'"'"'s only 1$!'┕ ┝ ┿╍╍┉━ ┷
   #     │       │└┼┘│
   #     │       │ │ └── `'s only 1$!'` the literal string
   #     │       │ └── `\"'\"` is a single quote (as a string)
   #     │       └── `'It'`, to be concatenated with the strings following it
   #     └── `echo` wrapped in a pair of `'`, it's totally fine for the shell command itself
+# │ │ │
+# ┕━┷━┿━━
+# ┍━━━┿╍╍┉
+# ┝━━━┿╍╍┉╌┄
+# https://unicodelookup.com/#box%20drawings/1
 
+# <strong>Notice</strong>  │ │ │ adam.nielsen@ext.healy.world,02-005-087-01 - Order line is valid for import
+# <strong>Notice</strong>  │ │ │ birgit.frenzel@healy.world,02-004-004-01 - Order line is valid for import
+# <strong>Notice</strong>  │ │ │ birgit.frenzel@healy.world,02-005-087-01 - Order line is valid for import
+# <strong>Notice</strong>  │ │ │ birgit.frenzel@healy.world,02-005-164-01 - Order line is valid for import
+# <strong>Notice</strong>  │ │ │ inga.schwarze@healy.de,02-003-015-01 - Order line is valid for import
+# <strong>Notice</strong>  ┕━┷━┷━━ Received 5 csv lines to process and 5 lines validated positively. From which I will attempt to create 3 orders.
+# <strong>Success</strong> ┍━━━━╍╍┉ Order initiated for:Adam.Nielsen@ext.healy.world with number:787020
+# <strong>Notice</strong>  ┝━━━━━ adam.nielsen@ext.healy.world,02-005-087-01 - initiated product inside order number:787020
+# <strong>Success</strong> ┕━━━━━ adam.nielsen@ext.healy.world,02-005-087-01 - added details to product of type:simple
+# <strong>Success</strong> ┍━━━━╍╍┉ Order initiated for:birgit.frenzel@healy.world with number:787021
+# <strong>Notice</strong>  ┝━━━━━ birgit.frenzel@healy.world,02-004-004-01 - initiated product inside order number:787021
+# <strong>Success</strong> ┝━━━━━ birgit.frenzel@healy.world,02-004-004-01 - added details to product of type:simple
+# <strong>Notice</strong>  ┝━━━━━ birgit.frenzel@healy.world,02-005-087-01 - initiated product inside order number:787021
+# <strong>Success</strong> ┝━━━━━ birgit.frenzel@healy.world,02-005-087-01 - added details to product of type:simple
+# <strong>Notice</strong>  ┝━━━━━ birgit.frenzel@healy.world,02-005-164-01 - initiated product inside order number:787021
+# <strong>Success</strong> ┕━━━━━ birgit.frenzel@healy.world,02-005-164-01 - added details to product of type:simple
+# <strong>Success</strong> ┍━━━━╍╍┉ Order initiated for:Inga.Schwarze@healy.de with number:787022
+# <strong>Notice</strong>  ┝━━━━━ inga.schwarze@healy.de,02-003-015-01 - initiated product inside order number:787022
+# <strong>Success</strong> ┕━━━━━ inga.schwarze@healy.de
 
 
 # :)
