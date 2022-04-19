@@ -195,8 +195,19 @@ function _file_save_files() {
         . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
         enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
-        msg_bullet git stash apply "${_tmp_current_time}"
-        git stash apply "${_tmp_current_time}"
+
+        local -i get_pop=$(git stash list | grep "${_tmp_current_time}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
+        if [[ -n ${get_pop} ]] ; then
+        {
+          msg_bullet git stash apply "${get_pop}"
+          git stash apply "${get_pop}"
+        }
+        else
+        {
+          msg_bullet git stash apply "${_tmp_current_time}"
+          git stash apply "${_tmp_current_time}"
+        }
+        fi
         _err=$?
             if [ ${_err} -ne 0 ] ; then
             {
@@ -204,17 +215,17 @@ function _file_save_files() {
               if [[ -e commit_exception.list ]] ; then
               {
                 local -i length_commit_exception_list=$(wc -l<commit_exception.list)
-                if [ ${length_commit_exception_list} -gt 100 ] ; then
+                if [[ ${length_commit_exception_list} -gt 100 ]] ; then
                 {
                   msg_warning "unstage_exception_list ... WHAT!! this commit_exception.list file has ${length_commit_exception_list} !! files you might consider making them less??"
                 }
                 fi
-                if [ ${length_commit_exception_list} -gt 30 ] ; then
+                if [[ ${length_commit_exception_list} -gt 30 ]] ; then
                 {
                   msg_warning "unstage_exception_list ... this could take a commit_exception.list file has ${length_commit_exception_list}"
                 }
                 fi
-                if [ ${length_commit_exception_list} -gt 10 ] ; then
+                if [[ ${length_commit_exception_list} -gt 10 ]] ; then
                 {
                   msg_bullet "unstage_exception_list ... unstagging ${length_commit_exception_list}"
                 }
