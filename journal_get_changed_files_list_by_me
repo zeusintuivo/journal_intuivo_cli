@@ -222,12 +222,12 @@ function _file_save_files() {
                 fi
                 if [[ ${length_commit_exception_list} -gt 30 ]] ; then
                 {
-                  msg_warning "unstage_exception_list ... this could take a commit_exception.list file has ${length_commit_exception_list}"
+                  msg_warning "unstage_exception_list ... this could take a while commit_exception.list file has ${length_commit_exception_list}"
                 }
                 fi
                 if [[ ${length_commit_exception_list} -gt 10 ]] ; then
                 {
-                  msg_bullet "unstage_exception_list ... unstagging ${length_commit_exception_list}"
+                  msg_bullet "unstage_exception_list ... unstaging ${length_commit_exception_list}"
                 }
                 fi
                 unstage_exception_list
