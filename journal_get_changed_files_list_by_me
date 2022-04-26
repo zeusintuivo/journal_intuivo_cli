@@ -152,13 +152,19 @@ function _file_save_files() {
       enforce_variable_with_value _tmp_current_time "${_tmp_current_time}"
   local -i _err
   msg_bullet git stash save "${_tmp_current_time}"
-  git stash save "${_tmp_current_time}"
+  local msg_stash_saved=$(git stash save "${_tmp_current_time}" 2>&1)
   _err=$?
                 if [ ${_err} -ne 0 ] ; then
                 {
                   msg_error " git stash save \"${_tmp_current_time}\" failed to save stash"
                 }
                 fi
+  if [[ "${msg_stash_saved}" == "No local changes to save" ]] ; then
+  {
+      msg_bullet "${msg_stash_saved}"
+  }
+  fi
+
   if [ ${_err} -eq 0 ] ; then
   {
     msg_bullet git checkout "${BRANCH_MERGE_AGAINST}"
@@ -195,77 +201,81 @@ function _file_save_files() {
         . "$FOUND_DIR_JOURNAL"/journal_get_current_branch
         enforce_variable_with_value CURBRANCH "${CURBRANCH}"
 
-        local -i get_pop
-        local stash_name='';
-        local stash_list=$(git stash list | grep '{')
-        if  [[ -n ${stash_list} ]] ; then
+        if [[ "${msg_stash_saved}" != "No local changes to save" ]] ; then
         {
-          if grep "${_tmp_current_time}" <<<"${stash_list}" >/dev/null 2>&1 ; then
+          local -i get_pop
+          local stash_name='';
+          local stash_list=$(git stash list | grep '{')
+          if  [[ -n ${stash_list} ]] ; then
           {
-            stash_name=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d: -f2-)
-            get_pop=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
-          }
-          fi
+            if grep "${_tmp_current_time}" <<<"${stash_list}" >/dev/null 2>&1 ; then
+            {
+              stash_name=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d: -f2-)
+              get_pop=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
+            }
+            fi
 
-          if [[ -n ${get_pop} ]] && [[ -n ${stash_name} ]] ; then
-          {
-            msg_bullet git stash apply "${get_pop}" for  "${stash_name}"
-            git stash apply "${get_pop}"
-          }
-          else
-          {
-            msg_bullet git stash apply "${_tmp_current_time}"  for  "${stash_name}"
-            git stash apply "${_tmp_current_time}"
-          }
-          fi
-          _err=$?
-          if [ ${_err} -ne 0 ] ; then
-          {
-            msg_error " git stash apply \"${_tmp_current_time}\" failed to apply stash for ${stash_name}: Err: ${_err}  "
-            if [[ -e commit_exception.list ]] ; then
+            if [[ -n ${get_pop} ]] && [[ -n ${stash_name} ]] ; then
             {
-              local -i length_commit_exception_list=$(wc -l<commit_exception.list)
-              if [[ ${length_commit_exception_list} -gt 100 ]] ; then
-              {
-                msg_warning "unstage_exception_list ... WHAT!! this commit_exception.list file has ${length_commit_exception_list} !! files you might consider making them less??"
-              }
-              fi
-              if [[ ${length_commit_exception_list} -gt 30 ]] ; then
-              {
-                msg_warning "unstage_exception_list ... this could take a while commit_exception.list file has ${length_commit_exception_list}"
-              }
-              fi
-              if [[ ${length_commit_exception_list} -gt 10 ]] ; then
-              {
-                msg_bullet "unstage_exception_list ... unstaging ${length_commit_exception_list}"
-              }
-              fi
-              unstage_exception_list
+              msg_bullet git stash apply "${get_pop}" for  "${stash_name}"
+              git stash apply "${get_pop}"
+            }
+            else
+            {
+              msg_bullet git stash apply "${_tmp_current_time}"  for  "${stash_name}"
+              git stash apply "${_tmp_current_time}"
             }
             fi
-           }
-          fi
-          if [ ${_err} -eq 0 ] ; then
-          {
-            local stash_list=$(git stash list | grep '{')
-            if  [[ -n ${stash_list} ]] ; then
+            _err=$?
+            if [ ${_err} -ne 0 ] ; then
             {
-              if grep "${_tmp_current_time}" <<<"${stash_list}" >/dev/null 2>&1 ; then
+              msg_error " git stash apply \"${_tmp_current_time}\" failed to apply stash for ${stash_name}: Err: ${_err}  "
+              if [[ -e commit_exception.list ]] ; then
               {
-                stash_name=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d: -f2-)
-                get_pop=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
+                local -i length_commit_exception_list=$(wc -l<commit_exception.list)
+                if [[ ${length_commit_exception_list} -gt 100 ]] ; then
+                {
+                  msg_warning "unstage_exception_list ... WHAT!! this commit_exception.list file has ${length_commit_exception_list} !! files you might consider making them less??"
+                }
+                fi
+                if [[ ${length_commit_exception_list} -gt 30 ]] ; then
+                {
+                  msg_warning "unstage_exception_list ... this could take a while commit_exception.list file has ${length_commit_exception_list}"
+                }
+                fi
+                if [[ ${length_commit_exception_list} -gt 10 ]] ; then
+                {
+                  msg_bullet "unstage_exception_list ... unstaging ${length_commit_exception_list}"
+                }
+                fi
+                unstage_exception_list
               }
               fi
-            }
+             }
             fi
-            if [[ -n ${get_pop} ]] ; then
+            if [ ${_err} -eq 0 ] ; then
             {
-              msg_bullet git stash drop -q "${get_pop}" for  "${stash_name}"   # "${_tmp_current_time}"
-              git stash drop -q "${get_pop}" #  "${_tmp_current_time}"
-              _err=$?
-              if [ ${_err} -ne 0 ] ; then
+              local stash_list=$(git stash list | grep '{')
+              if  [[ -n ${stash_list} ]] ; then
               {
-                msg_error " git stash drop -q \"${get_pop}\" failed to drop stash ${get_pop}: for ${stash_name} -${_tmp_current_time}: Err: ${_err}  "
+                if grep "${_tmp_current_time}" <<<"${stash_list}" >/dev/null 2>&1 ; then
+                {
+                  stash_name=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d: -f2-)
+                  get_pop=$(grep "${_tmp_current_time}" <<<"${stash_list}" | head -1 | cut -d"{" -f2  | cut -d"}" -f1)
+                }
+                fi
+              }
+              fi
+              if [[ -n ${get_pop} ]] ; then
+              {
+                msg_bullet git stash drop -q "${get_pop}" for  "${stash_name}"   # "${_tmp_current_time}"
+                git stash drop -q "${get_pop}" #  "${_tmp_current_time}"
+                _err=$?
+                if [ ${_err} -ne 0 ] ; then
+                {
+                  msg_error " git stash drop -q \"${get_pop}\" failed to drop stash ${get_pop}: for ${stash_name} -${_tmp_current_time}: Err: ${_err}  "
+                }
+                fi
               }
               fi
             }
@@ -283,6 +293,7 @@ function _file_save_files() {
   }
   fi
 	#echo "${CHANGED_FILES}"
+
 
 } # end _file_save_files_worker function
 	# shellcheck disable=SC2154
