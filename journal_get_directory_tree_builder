@@ -1,0 +1,18 @@
+find ./app/assets -print | sed -e "s;[^/]*/;|____;g;s;____|; |;g"
+
+(if that's the right folder to begin with, idk) in order to check what's actually in the dir, that is the tree
+
+| |____assets
+| | |____stylesheets
+| | | |____application.tailwind.css
+| | | |____sessions.css
+| | | |____inter.scss
+| | |____javascripts
+| | | |____channels
+| | | | |____.keep
+| | |____config
+| | | |____manifest.js
+| | |____builds
+| | | |____slack-DE6Z2S65.digested.png
+| | | |____application.js
+etc.
