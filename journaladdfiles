@@ -3,7 +3,8 @@
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 #
-[[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
+# set -u
+[[ -z "${FOUND_DIR_JOURNAL:-}" ]] && . journal_find_journal_dir
 . "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
 # "${FOUND_DIR_JOURNAL}/journal_get_bash_colors"
 . "${FOUND_DIR_JOURNAL}/journal_get_journal_config"   # loads .temp_keys and struct_testing
@@ -190,12 +191,20 @@ enforce_variable_with_value JOURNAL_DIRECTORY "${JOURNAL_DIRECTORY}"
 #
 # Overwrite JOURNAL_DIRECTORY and JOURNAL_PULL_REQUEST_DIRECTORY - START
 #
-[[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] && . "${JOURNAL_PROJECT_WORKING_ON}/.temp_keys"  # Overwrite opportunity to any variables .temp_keys was read first in journal_get_journal_config
-enforce_variable_with_value ISSUETRACKERLOCATION "${ISSUETRACKERLOCATION}"  # Expecting from .temp_keys
-enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_FEATURE "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  # Expecting from .temp_keys
-enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_FEATURE "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  # Expecting from .temp_keys
-enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_ISSUE "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  # Expecting from .temp_keys
-enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_ISSUE "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  # Expecting from .temp_keys
+if [[ -e "$JOURNAL_PROJECT_WORKING_ON/.temp_keys" ]] ; then
+{
+  . "${JOURNAL_PROJECT_WORKING_ON}/.temp_keys"  # Overwrite opportunity to any variables .temp_keys was read first in journal_get_journal_config
+} 
+fi 
+
+# msg_bullet enforce_variable_with_value ISSUETRACKERLOCATION "${ISSUETRACKERLOCATION}"  # Expecting from .temp_keys
+#            enforce_variable_with_value ISSUETRACKERLOCATION "${ISSUETRACKERLOCATION}"  # Expecting from .temp_keys
+# msg_bullet enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_FEATURE "${JOURNAL_NEWBRANCH_STYLE_4_FEATURE}"  # Expecting from .temp_keys
+#            enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_FEATURE "${JOURNAL_JOURNALDIR_STYLE_4_FEATURE}"  # Expecting from .temp_keys
+# msg_bullet enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_ISSUE "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  # Expecting from .temp_keys
+#            enforce_variable_with_value JOURNAL_NEWBRANCH_STYLE_4_ISSUE "${JOURNAL_NEWBRANCH_STYLE_4_ISSUE}"  # Expecting from .temp_keys
+# msg_bullet enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_ISSUE "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  # Expecting from .temp_keys
+#            enforce_variable_with_value JOURNAL_JOURNALDIR_STYLE_4_ISSUE "${JOURNAL_JOURNALDIR_STYLE_4_ISSUE}"  # Expecting from .temp_keys
 
 if [[ "${CURBRANCH}" == *"feature/"* ]] || [[ "${CURBRANCH}" == *"issue-"* ]] ; then
 {

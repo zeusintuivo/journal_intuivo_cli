@@ -13,7 +13,7 @@ JOURNAL_PROJECT_WORKING_ON="${PWD}"
 
 #KEY?
 #KEYS Override?
-      [[ -z "${GIT_USER_NAME}" ]] && GIT_USER_NAME=$(command git config user.name 2> /dev/null)
+      [[ -z "${GIT_USER_NAME:-}" ]] && GIT_USER_NAME=$(command git config user.name 2> /dev/null)
 
       if [ -f .temp_keys ] ; then
         LOAD_TEMP_KEYS=$(<.temp_keys)
