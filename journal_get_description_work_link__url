@@ -1,7 +1,7 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_description_work_link__url
 
 . "$FOUND_DIR_JOURNAL"/journal_get_git_user_name
 

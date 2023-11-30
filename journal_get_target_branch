@@ -1,7 +1,7 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_target_branch
 . $FOUND_DIR_JOURNAL/journal_get_current_branch
 . $FOUND_DIR_JOURNAL/journal_get_branch_merge_against
 
@@ -13,100 +13,36 @@
     SAMEBRANCH="NO";
 
 
-    # if argument 1 has passed
-    if [[ ! -z "${1}"  ]] ; then
-      {
-        if [[ "${1}" == "from"  ]] ; then
-          # if argument 3 was passed
-          if [[ ! -z "${2}"  ]] ; then
-            TARGETBASEBRANCH="${2}";
-            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
-              SAMEBRANCH="YES";
-            fi
-          else
-            msg_red "You must provide a branch name ${reset}"
-            exit 1;
-          fi
-        fi
-      }
+# Function to check if a branch name is provided and set TARGETBASEBRANCH
+check_and_set_branch() {
+  local arg_from=$1
+  local arg_branch=$2
+
+  if [[ "$arg_from" == "from" ]]; then
+    if [[ -z "$arg_branch" ]]; then
+      msg_red "You must provide a branch name ${reset}"
+      exit 1
     else
-      {
-        msg_red "You must provide a branch name ${reset}"
-        #exit 1;
-      }
+      TARGETBASEBRANCH="$arg_branch"
+      if [[ "$TARGETBASEBRANCH" == "$CURBRANCH" ]]; then
+        SAMEBRANCH="YES"
+      fi
     fi
+  fi
+}
 
+# Iterate through arguments
+for (( i=1; i<=$#; i++ )); do
+  next_arg=$((i+1))
+  check_and_set_branch "${!i}" "${!next_arg}"
+done
 
-    # if argument 2 has passed
-    if [[ ! -z "${2}"  ]] ; then
-      {
-        if [[ "${2}" == "from"  ]] ; then
-          # if argument 3 was passed
-          if [[ ! -z "${3}"  ]] ; then
-            TARGETBASEBRANCH="${3}";
-            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
-              SAMEBRANCH="YES";
-            fi
-          else
-            msg_red "You must provide a branch name ${reset}"
-            exit 1;
-          fi
-        fi
-      }
-    else
-      {
-        msg_red "You must provide a branch name ${reset}"
-        #exit 1;
-      }
-    fi
+# Check if a branch name was never provided
+if [[ -z "$TARGETBASEBRANCH" ]]; then
+  msg_red "You must provide a branch name ${reset}"
+  #exit 1
+fi
 
-
-    # if argument 3 has passed
-    if [[ ! -z "$3"  ]] ; then
-      {
-        if [[ "${3}" == "from"  ]] ; then
-          # if argument 3 was passed
-          if [[ ! -z "$4"  ]] ; then
-            TARGETBASEBRANCH="$4";
-            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
-              SAMEBRANCH="YES";
-            fi
-          else
-            msg_red "You must provide a branch name ${reset}"
-            exit 1;
-          fi
-        fi
-      }
-    else
-      {
-        msg_red "You must provide a branch name ${reset}"
-        #exit 1;
-      }
-    fi
-
-
-    # if argument 4 has passed
-    if [[ ! -z "$4"  ]] ; then
-      {
-        if [[ "${4}" == "from"  ]] ; then
-          # if argument 3 was passed
-          if [[ ! -z "$4"  ]] ; then
-            TARGETBASEBRANCH="$4";
-            if [[ "${TARGETBASEBRANCH}" == "${CURBRANCH}"  ]] ; then
-              SAMEBRANCH="YES";
-            fi
-          else
-            msg_red "You must provide a branch name ${reset}"
-            exit 1;
-          fi
-        fi
-      }
-    else
-      {
-        msg_red "You must provide a branch name ${reset}"
-        #exit 1;
-      }
-    fi
 
   msg_quote "target branch against|${TARGETBASEBRANCH}";
 

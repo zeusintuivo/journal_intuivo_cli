@@ -1,7 +1,7 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_changed_files_list_by_me
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 [[ -z "${BRANCH_MERGE_AGAINST}" ]] && . $FOUND_DIR_JOURNAL/journal_get_branch_merge_against
 [[ -z "${CURBRANCH}" ]] && . $FOUND_DIR_JOURNAL/journal_get_current_branch

@@ -1,7 +1,7 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_journal_config
 # TODO . TO have this in an options box
 export JOURNAL_HOME="/Users/Sites" # <-- I used for mac  before Catalina
 JOURNAL_HOME="${HOME}/Sites" # <-- I used for mac before Catalina

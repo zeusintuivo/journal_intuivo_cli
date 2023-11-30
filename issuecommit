@@ -1,8 +1,8 @@
 #!/bin/bash
-#
+# package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
 # @actioner
-
+# issuecommit
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
 . $FOUND_DIR_JOURNAL/journal_get_bash_colors
 . $FOUND_DIR_JOURNAL/journal_get_journal_config

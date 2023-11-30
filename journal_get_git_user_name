@@ -1,5 +1,5 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_git_user_name
 [[ -z "${GIT_USER_NAME}" ]] && GIT_USER_NAME=$(command git config user.name 2> /dev/null)

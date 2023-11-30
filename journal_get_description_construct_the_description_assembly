@@ -1,7 +1,7 @@
 #!/bin/bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_description_construct_the_description_assembly
 
 [[ -z "${USER_OPENED_TICKET}" ]] &&  USER_OPENED_TICKET=${SUDO_USER}
 [[ -z "${USER_OPENED_TICKET}" ]] &&  USER_OPENED_TICKET=${USER}

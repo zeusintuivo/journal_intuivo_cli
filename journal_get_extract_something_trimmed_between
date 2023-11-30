@@ -1,7 +1,7 @@
 #!/usr/bin/env bash #dependency
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
-#
+# journal_get_extract_something_trimmed_between
 #set -eu
 #set -o pipefail
 #set -x

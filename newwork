@@ -1,6 +1,7 @@
 #!/bin/bash
 # package:journal_cli
 # @author Zeus Intuivo <zeus@intuivo.com>
+# @actioner
 #
 #set -eu
 #set -o pipefail

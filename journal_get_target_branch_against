@@ -1,0 +1,102 @@
+#!/bin/bash #dependency
+# package:journal_cli
+# @author Zeus Intuivo <zeus@intuivo.com>
+# journal_get_target_branch_against
+
+
+
+
+
+
+journal_get_target_branch_against() {
+  # Function to find a branch to merge against
+  # Usage: journal_get_target_branch_against branch_name
+  #
+  # Single branch
+  #    echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err main branch${GRAY241}"
+  #    FILES="$(journal_get_target_branch_against develop)"
+  #    _err=$?
+  #    if [ ${_err} -gt 0 ] ; then
+  #    {
+  #      echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err develop branch${GRAY241}"
+  #
+  #      echo -e "${PURPLE_BLUE}  + ${RED} master, main, develop branches not found"
+  #
+  #    }
+  #    fi
+  # Multiple branches
+
+  trap 'echo -e "${PURPLE_BLUE}  + ${GRAY241} Branch ${_against} ${RED}NOT ${GRAY241}found "; return 130;' ERR
+  
+  local _against=$1
+  if [[ -z "${_against}" ]] || ! git branch --list "${_against}" &> /dev/null; then
+    return 1
+  fi
+
+  echo -e "\njournal_get_target_branch_against${PURPLE_BLUE}  + ${GRAY241} Branch ${_against} found "
+
+  local BRANCH=$(git_current_branch)
+  local FILES=$(git diff --name-only "${BRANCH}" $(git merge-base "${BRANCH}" "${_against}") | egrep "\.rb|\.rake")
+  FILES+=$'\n'$(git status -sb | egrep -v "^(\sD)|shared/pids/puma.state|^(\?\?\spublic/assets)|##|commit_exception\.list|\.rubocop_todo.yml|\.xls|\.lock|\.tutorial|\.dir_bash_history|\.vscode|\.idea|\.git|\.description|\.editorconfig|\.env.development|\.env-sample|\.gitignore|\.pryrc|\.rspec|\.ruby\-version|db/patch|bundles|\.rubocop.yml|\.simplecov|\.temp_keys|\.csv|\.sh|\.bash|\.yml|\.gitignore|\.log|\.txt|\.key|\.crt|\.csr|\.idl|\.json|\.js|\.jpg|\.png|\.html|\.gif|\.feature|\.scss|\.css|\.haml|\.erb|\.otf|\.svg|\.ttf|\.tiff|\.woff|\.eot|\.editorconfig|\.markdown|\.headings" | cut -c4-)
+
+  FILES=$(echo "${FILES}" | sort | uniq | awk '/./')
+
+  # Filter only existing files
+  FILES=$(echo "${FILES}" | while read -r ONE_FILE; do
+    [[ "${ONE_FILE}" == "--observe" ]] && { OBSERVE='yes'; continue; }
+    [[ -e "${ONE_FILE}" ]] && echo "${ONE_FILE}"
+  done)
+
+  echo "${FILES}"
+  return 0
+}# end journal_get_target_branch_against
+
+  local FILES=""
+  FILES="$(journal_get_target_branch_against master)"
+  _err=$?
+  if [ ${_err} -gt 0 ] ; then
+  {
+    echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err master branch${GRAY241}"
+    FILES="$(journal_get_target_branch_against main)"
+    _err=$?
+    if [ ${_err} -gt 0 ] ; then
+    {
+      echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err main branch${GRAY241}"
+      FILES="$(journal_get_target_branch_against develop)"
+      _err=$?
+      if [ ${_err} -gt 0 ] ; then
+      {
+        echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err develop branch${GRAY241}"
+
+        echo -e "${PURPLE_BLUE}  + ${RED} master, main, develop branches not found"
+
+      }
+      fi
+    }
+    fi
+  }
+  fi
+  
+
+  # List of branches
+local branches="
+master
+main
+develop
+"
+local one=""
+local -i found=0
+while read -r one ; do 
+{
+  [[ -z "${one}" ]] && continue
+  FILES="$(journal_get_target_branch_against "${one}" )"
+  _err=$?
+  [ ${_err} -gt 0 ] && echo -e "${PURPLE_BLUE}  + $LINENO ${CYAN}failed _err:${RED}$_err "${one}"  branch${GRAY241}"
+  [ ${_err} -gt 0 ] && continue
+  
+}
+done <<< "${branches}"
+
+    echo -e "${PURPLE_BLUE}  + ${RED}  "${branches}"  branches not found"
+
+
