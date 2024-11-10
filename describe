@@ -3,18 +3,22 @@
 # @author Zeus Intuivo <zeus@intuivo.com>
 # @actioner
 # describe
+#
 [[ -z "${FOUND_DIR_JOURNAL}" ]] && . journal_find_journal_dir
-. $FOUND_DIR_JOURNAL/journal_get_bash_colors
-. $FOUND_DIR_JOURNAL/journal_get_journal_config
-. $FOUND_DIR_JOURNAL/journal_get_current_branch
-. $FOUND_DIR_JOURNAL/journal_get_ticketid
+. "${FOUND_DIR_JOURNAL}"/journal_get_bash_colors
+. "${FOUND_DIR_JOURNAL}"/journal_get_journal_config
+. "${FOUND_DIR_JOURNAL}"/journal_get_current_branch
+. "${FOUND_DIR_JOURNAL}"/journal_get_ticketid
 
-THISSCRIPTNAME=`basename "$0"`
+THISSCRIPTNAME="$(basename "$0")"
 THINKING_MACHINE=0
 
-if [[ ! -z "$1"  ]] && ( [[ "$1" == "-h"  ]] || [[ "$1" == "-?"  ]] || [[ "$1" == "help"  ]] ) ; then
-echo -e "
-describe - Adds a description to the branch using command:   git branch --edit-description """${CURBRANCH}"""
+if [[ -n "${1}"  ]] ; then
+{
+  if [[ "${1}" == "-h"  ]] || [[ "${1}" == "-?"  ]] || [[ "${1}" == "help"  ]] ; then
+  {
+    echo -e "
+describe - Adds a description to the branch using command:   git branch --edit-description \"\"\"${CURBRANCH}\"\"\"
 
 USAGE:
   - 0 arguments        \" ${THISSCRIPTNAME} \"
@@ -30,7 +34,10 @@ USAGE:
             be added at the end of the description like
             this: from master _BASEBRANCH_  ... here master is the basebranch)
 "
-  exit 0
+    exit 0
+  }
+  fi
+}
 fi
 
 if [ ! -d .git ] ;  then
@@ -47,7 +54,7 @@ obtain_description() {
   local full_description
 
   (( THINKING_MACHINE )) && echo -e "${blue23} - Branch description: - ${reset}"
-  full_description=$(git config branch.${CURBRANCH}.description)                           # try git config description
+  full_description="$(git config "branch.${CURBRANCH}.description")"                           # try git config description
 
   (( THINKING_MACHINE )) && echo -e "${blue23} - First I think  full_description: ${reset}$full_description"
   if [[ -z "${full_description}" ]]  && [ -f .description ] ; then                          # try cat .description
@@ -69,10 +76,10 @@ obtain_description() {
                                                                                             # +-- No
                                                                                             #   +-- then say empty
   (( THINKING_MACHINE )) && echo -e "${blue23} - Now I think full_description is: ${reset}$full_description"
-  if [[ ! -z "${full_description}" ]] ; then
+  if [[ -n "${full_description}" ]] ; then
   {
     (( THINKING_MACHINE )) && echo -e "${blue23} - I think this has something ${reset}"
-    if [[ ! -z "${CURBRANCH}" && "${full_description}" == *"${CURBRANCH}"* ]] ||  [[  ! -z "${TICKETID}" &&  "${full_description}" == *"${TICKETID}"* ]] ; then
+    if [[ -n "${CURBRANCH}" && "${full_description}" == *"${CURBRANCH}"* ]] ||  [[ -n "${TICKETID}" &&  "${full_description}" == *"${TICKETID}"* ]] ; then
     {
       (( THINKING_MACHINE )) && echo -e "${blue23} - and the description I found contains a reference to the branch name:${CURBRANCH} or ticket:${TICKETID} name. SEEMSLY ${reset} CORRECT  "
       echo "${full_description}"
@@ -113,29 +120,30 @@ fi
 # Argument was passed then this will continue                                          # I passed an argument description
                                                                                        # sample "describe new stuff to describe "
 
-. $FOUND_DIR_JOURNAL/journal_get_target_branch
+. "${FOUND_DIR_JOURNAL}"/journal_get_target_branch
 
 echo -e "${blue23} • ${blue30} Prepare new Description Entry ${GRAY241}"
-. $FOUND_DIR_JOURNAL/journal_get_ticketid
+. "${FOUND_DIR_JOURNAL}"/journal_get_ticketid
 
 DESCRIPTION=""
-if [[ ! -z "$1"  ]] ; then
-	# show all branches
-    DESCRIPTION="$1"
-
+if [[ -n "$1"  ]] ; then
+{
+  # show all branches
+  DESCRIPTION="$1"
+}
 fi
 
 
-. $FOUND_DIR_JOURNAL/journal_get_sed_functions
+. "${FOUND_DIR_JOURNAL}"/journal_get_sed_functions
 
-JOURNALDIR=$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )
+JOURNALDIR="$(echo "${TICKETID}_${DESCRIPTION}"  | convert_to_underdash )"
 
-. $FOUND_DIR_JOURNAL/journal_get_project_name
-. $FOUND_DIR_JOURNAL/journal_get_current_branch
+. "${FOUND_DIR_JOURNAL}"/journal_get_project_name
+. "${FOUND_DIR_JOURNAL}"/journal_get_current_branch
 
-	CURRENTDATE=`date +%Y%m%d`
+CURRENTDATE="$(date +%Y%m%d)"
 
-. $FOUND_DIR_JOURNAL/journal_get_journalentry_template
-. $FOUND_DIR_JOURNAL/journal_get_description_one_liner_construct
+. "${FOUND_DIR_JOURNAL}"/journal_get_journalentry_template
+. "${FOUND_DIR_JOURNAL}"/journal_get_description_one_liner_construct
 
 # :)
