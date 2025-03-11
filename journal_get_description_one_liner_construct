@@ -51,10 +51,10 @@ FILENAME_FOR_DESCRIPTION_ASSEMBLY="${JOURNALENTRY}"
   if [[ "$(uname)" == "Darwin" ]] ; then
     # Do something under Mac OS X platform
       pbcopy < .git/BRANCH_DESCRIPTION
-  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+  elif [[ "$(cut -c1-5 <<< "$(uname -s)")" == "Linux" ]] ; then
     # Do something under GNU/Linux platform
       xclip -sel clip < .git/BRANCH_DESCRIPTION
-  elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+  elif [[ "$(cut -c1-10 <<< "$(uname -s)")" == "MINGW32_NT" ]] ; then
     # Do something under Windows NT platform
       echo "ERRRROR - TODO Implement this in Windows"
       xclip -sel clip < .git/BRANCH_DESCRIPTION

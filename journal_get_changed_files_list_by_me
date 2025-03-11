@@ -100,7 +100,7 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
             }
             fi
   			  }
-          elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]] ; then
+          elif [[ "$(cut -c1-5 <<< "$(uname -s)")" == "Linux" ]] ; then
           {
   			    # Do something under GNU/Linux platform
   			    msg_bullet cp -a --parents "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
@@ -113,7 +113,7 @@ ${CHANGED_FILE}|${FILE_LAST_AUTHOR}|${FILE_LAST_COMMIT}"
             }
             fi
   			  }
-          elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] ; then
+          elif [[ "$(cut -c1-10 <<< "$(uname -s)")" == "MINGW32_NT" ]] ; then
           {
   			    # Do something under Windows NT platform
   			    msg_bullet xcopy /s   "${CHANGED_FILE}" "${local_JOURNAL_PULL_REQUEST_DIRECTORY}"
